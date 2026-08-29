@@ -1,0 +1,23 @@
+# Local / IDE
+.idea/
+.vscode/
+.cursor/
+*.code-workspace
+.DS_Store
+Thumbs.db
+*.log
+*.map
+
+# Node / tooling (if added later)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# PHP tooling
+.phpunit.result.cache
+.phpcs-cache
+composer.phar
+
+# OS / temp
+*.swp
+*~

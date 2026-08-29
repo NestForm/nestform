@@ -1,0 +1,1587 @@
+<?php
+/**
+ * Starter form templates.
+ *
+ * @package Nestform
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+class Nestform_Templates {
+
+	const ACTION = 'nestform_apply_template';
+
+	public static function init() {
+		add_action( 'admin_post_' . self::ACTION, array( __CLASS__, 'handle' ) );
+	}
+
+	/**
+	 * @return array<string, array{label:string,description:string,config:array}>
+	 */
+	public static function all() {
+		$admin = get_option( 'admin_email' );
+		$admin = is_string( $admin ) ? $admin : '';
+
+		return array(
+			'contact'    => array(
+				'label'       => __( 'Contact', 'nestform' ),
+				'description' => __( 'Name, email, phone, message.', 'nestform' ),
+				'category'    => 'contact',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'tel',
+							'name'     => 'phone',
+							'label'    => 'Phone',
+							'required' => false,
+							'width'    => 'full',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'message',
+							'label'    => 'Message',
+							'required' => true,
+							'width'    => 'full',
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Send message',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'            => $admin,
+						'subject'       => 'New contact: {form_title}',
+						'reply_to_field'=> 'email',
+						'body_template' => "New contact from {form_title}\n\n{all_fields}\n",
+					),
+				),
+			),
+			'lead'       => array(
+				'label'       => __( 'Lead', 'nestform' ),
+				'description' => __( 'Company lead capture with service select.', 'nestform' ),
+				'category'    => 'lead',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Full name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Work email',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'text',
+							'name'     => 'company',
+							'label'    => 'Company',
+							'required' => false,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'service',
+							'label'    => 'Interested in',
+							'required' => true,
+							'width'    => 'half',
+							'options'  => "Consulting\nDesign\nDevelopment\nOther",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'details',
+							'label'    => 'Project details',
+							'required' => false,
+							'width'    => 'full',
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Request callback',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Lead: {service} — {form_title}',
+						'reply_to_field' => 'email',
+						'body_template'  => "New lead\n\n{all_fields}\n",
+					),
+				),
+			),
+			'quiz'       => array(
+				'label'       => __( 'Quiz', 'nestform' ),
+				'description' => __( 'Scored multi-step quiz with result bands (Pro).', 'nestform' ),
+				'category'    => 'quiz',
+				'requires'    => array( 'quiz_survey', 'multi_step' ),
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'heading',
+							'name'     => 'h_about',
+							'label'    => 'Quick quiz',
+							'options'  => 'h2',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'radio',
+							'name'     => 'q1',
+							'label'    => 'WordPress is…',
+							'required' => true,
+							'options'  => "A CMS|10\nA database|0\nA browser|0",
+							'step'     => 2,
+						),
+						array(
+							'type'     => 'radio',
+							'name'     => 'q2',
+							'label'    => 'Best place for forms?',
+							'required' => true,
+							'options'  => "Nestform|10\nSpreadsheets|0\nSticky notes|0",
+							'step'     => 2,
+						),
+						array(
+							'type'     => 'radio',
+							'name'     => 'q3',
+							'label'    => 'You want…',
+							'required' => true,
+							'options'  => "Leads|5\nQuizzes|10\nBoth|10",
+							'step'     => 3,
+						),
+					),
+					'settings' => array(
+						'submit_label'       => 'See my score',
+						'enable_steps'       => '1',
+						'step_labels'        => "Start\nQuestions\nFinish",
+						'form_mode'          => 'quiz',
+						'quiz_show_score'    => '1',
+						'quiz_show_answers'  => '1',
+						'share_results'      => '1',
+						'quiz_results'       => "0|40|Keep practicing|Review the answers and try again.\n41|70|Nice work|Solid score — share it!\n71|100|Quiz master|You nailed it.",
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Quiz completed',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'newsletter' => array(
+				'label'       => __( 'Newsletter', 'nestform' ),
+				'description' => __( 'Minimal email signup + acceptance.', 'nestform' ),
+				'category'    => 'other',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'acceptance',
+							'name'     => 'consent',
+							'label'    => 'I agree to receive updates.',
+							'required' => true,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Subscribe',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Newsletter signup',
+						'reply_to_field' => 'email',
+						'body_template'  => "New subscriber: {email}\n",
+					),
+				),
+			),
+			'feedback'   => array(
+				'label'       => __( 'Feedback', 'nestform' ),
+				'description' => __( 'Satisfaction radio, comment, optional email.', 'nestform' ),
+				'category'    => 'survey',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'radio',
+							'name'     => 'rating',
+							'label'    => 'How was your experience?',
+							'required' => true,
+							'options'  => "Great\nOkay\nPoor",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'comment',
+							'label'    => 'Tell us more',
+							'required' => false,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email (optional)',
+							'required' => false,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Send feedback',
+						'enable_steps' => '0',
+						'store_ip'     => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Feedback: {rating}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'support'    => array(
+				'label'       => __( 'Support', 'nestform' ),
+				'description' => __( 'Topic select with Other, message, email.', 'nestform' ),
+				'category'    => 'contact',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'        => 'select',
+							'name'        => 'topic',
+							'label'       => 'Topic',
+							'required'    => true,
+							'options'     => "Billing\nTechnical\nAccount",
+							'allow_other' => true,
+							'step'        => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'message',
+							'label'    => 'How can we help?',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Submit ticket',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Support: {topic}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'rsvp'       => array(
+				'label'       => __( 'Event RSVP', 'nestform' ),
+				'description' => __( 'Name, guests, dietary preference with Other.', 'nestform' ),
+				'category'    => 'other',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Name',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'number',
+							'name'     => 'guests',
+							'label'    => 'Guests',
+							'required' => true,
+							'default'  => '1',
+							'step'     => 1,
+						),
+						array(
+							'type'        => 'radio',
+							'name'        => 'diet',
+							'label'       => 'Dietary preference',
+							'required'    => false,
+							'options'     => "None\nVegetarian\nVegan",
+							'allow_other' => true,
+							'step'        => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Confirm RSVP',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'            => $admin,
+						'subject'       => 'RSVP: {name}',
+						'body_template' => "{all_fields}\n",
+					),
+				),
+			),
+			'survey_nps' => array(
+				'label'       => __( 'NPS survey', 'nestform' ),
+				'description' => __( 'NPS + matrix + open comment (Pro).', 'nestform' ),
+				'category'    => 'survey',
+				'requires'    => array( 'quiz_survey', 'advanced_fields' ),
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'nps',
+							'name'     => 'nps',
+							'label'    => 'How likely are you to recommend us?',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'matrix',
+							'name'     => 'experience',
+							'label'    => 'Rate your experience',
+							'required' => true,
+							'options'  => "Support\nProduct\nValue\n---\nPoor\nFair\nGood\nGreat\nExcellent",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'comment',
+							'label'    => 'Anything else?',
+							'required' => false,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Submit survey',
+						'form_mode'    => 'survey',
+						'store_ip'     => '0',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'            => $admin,
+						'subject'       => 'Survey response',
+						'body_template' => "{all_fields}\n",
+					),
+				),
+			),
+			'csat'       => array(
+				'label'       => __( 'CSAT', 'nestform' ),
+				'description' => __( 'Customer satisfaction scale + follow-up (Pro).', 'nestform' ),
+				'category'    => 'survey',
+				'requires'    => array( 'quiz_survey', 'advanced_fields' ),
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'scale',
+							'name'     => 'satisfaction',
+							'label'    => 'Overall satisfaction',
+							'required' => true,
+							'options'  => "1\n5\nVery dissatisfied\nVery satisfied",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'improve',
+							'label'    => 'What could we improve?',
+							'required' => false,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Send',
+						'form_mode'    => 'survey',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'            => $admin,
+						'subject'       => 'CSAT response',
+						'body_template' => "{all_fields}\n",
+					),
+				),
+			),
+			'contact_minimal' => array(
+				'label'       => __( 'Minimal contact', 'nestform' ),
+				'description' => __( 'Email and message only.', 'nestform' ),
+				'category'    => 'contact',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'message',
+							'label'    => 'Message',
+							'required' => true,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Send',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Message: {form_title}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'quote_request'   => array(
+				'label'       => __( 'Quote request', 'nestform' ),
+				'description' => __( 'Budget, timeline, project scope.', 'nestform' ),
+				'category'    => 'lead',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Full name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'budget',
+							'label'    => 'Budget range',
+							'required' => true,
+							'width'    => 'half',
+							'options'  => "Under \$1k\n\$1k–\$5k\n\$5k–\$15k\n\$15k+",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'timeline',
+							'label'    => 'Timeline',
+							'required' => true,
+							'width'    => 'half',
+							'options'  => "ASAP\n1–2 weeks\n1 month\nFlexible",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'details',
+							'label'    => 'Project details',
+							'required' => true,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Request quote',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Quote request: {budget}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'request_demo'    => array(
+				'label'       => __( 'Request demo', 'nestform' ),
+				'description' => __( 'Sales demo booking with company size.', 'nestform' ),
+				'category'    => 'lead',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Work email',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'text',
+							'name'     => 'company',
+							'label'    => 'Company',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'team_size',
+							'label'    => 'Team size',
+							'required' => false,
+							'width'    => 'half',
+							'options'  => "1–10\n11–50\n51–200\n200+",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'goals',
+							'label'    => 'What are you looking to solve?',
+							'required' => false,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Book demo',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Demo request: {company}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'callback'        => array(
+				'label'       => __( 'Callback', 'nestform' ),
+				'description' => __( 'Phone callback with preferred time.', 'nestform' ),
+				'category'    => 'contact',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Name',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'tel',
+							'name'     => 'phone',
+							'label'    => 'Phone',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'time',
+							'label'    => 'Best time to call',
+							'required' => true,
+							'options'  => "Morning\nAfternoon\nEvening",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'note',
+							'label'    => 'Note (optional)',
+							'required' => false,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Request callback',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'            => $admin,
+						'subject'       => 'Callback: {name}',
+						'body_template' => "{all_fields}\n",
+					),
+				),
+			),
+			'appointment'     => array(
+				'label'       => __( 'Appointment', 'nestform' ),
+				'description' => __( 'Book a visit with date and service.', 'nestform' ),
+				'category'    => 'contact',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'tel',
+							'name'     => 'phone',
+							'label'    => 'Phone',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'service',
+							'label'    => 'Service',
+							'required' => true,
+							'width'    => 'half',
+							'options'  => "Consultation\nFollow-up\nNew client",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'date',
+							'name'     => 'preferred_date',
+							'label'    => 'Preferred date',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'time',
+							'name'     => 'preferred_time',
+							'label'    => 'Preferred time',
+							'required' => false,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Book appointment',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Appointment: {preferred_date}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'job_application' => array(
+				'label'       => __( 'Job application', 'nestform' ),
+				'description' => __( 'Role, experience, resume upload.', 'nestform' ),
+				'category'    => 'lead',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Full name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'text',
+							'name'     => 'role',
+							'label'    => 'Role applying for',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'url',
+							'name'     => 'portfolio',
+							'label'    => 'Portfolio or LinkedIn',
+							'required' => false,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'file',
+							'name'     => 'resume',
+							'label'    => 'Resume (PDF)',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'cover',
+							'label'    => 'Cover letter',
+							'required' => false,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Submit application',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Application: {role}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'registration'    => array(
+				'label'       => __( 'Event registration', 'nestform' ),
+				'description' => __( 'Sign up with ticket type and dietary needs.', 'nestform' ),
+				'category'    => 'other',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'ticket',
+							'label'    => 'Ticket type',
+							'required' => true,
+							'options'  => "General\nVIP\nStudent",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'dietary',
+							'label'    => 'Dietary requirements',
+							'required' => false,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Register',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Registration: {ticket}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'waitlist'        => array(
+				'label'       => __( 'Waitlist', 'nestform' ),
+				'description' => __( 'Join waitlist with email and interest.', 'nestform' ),
+				'category'    => 'other',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'interest',
+							'label'    => 'Interested in',
+							'required' => true,
+							'options'  => "Early access\nBeta\nLaunch notify",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'acceptance',
+							'name'     => 'consent',
+							'label'    => 'Notify me when spots open.',
+							'required' => true,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Join waitlist',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Waitlist signup',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'donation'        => array(
+				'label'       => __( 'Donation pledge', 'nestform' ),
+				'description' => __( 'Amount intent and optional message.', 'nestform' ),
+				'category'    => 'other',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'amount',
+							'label'    => 'Amount',
+							'required' => true,
+							'options'  => "\$25\n\$50\n\$100\n\$250\nOther",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'message',
+							'label'    => 'Message (optional)',
+							'required' => false,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Pledge support',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Donation pledge: {amount}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'volunteer'       => array(
+				'label'       => __( 'Volunteer', 'nestform' ),
+				'description' => __( 'Availability and skills for volunteers.', 'nestform' ),
+				'category'    => 'other',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Name',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'checkboxes',
+							'name'     => 'skills',
+							'label'    => 'Skills',
+							'required' => true,
+							'options'  => "Events\nMarketing\nTech\nLogistics",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'availability',
+							'label'    => 'Availability',
+							'required' => true,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Sign up',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Volunteer: {name}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'partnership'     => array(
+				'label'       => __( 'Partnership', 'nestform' ),
+				'description' => __( 'B2B partnership inquiry.', 'nestform' ),
+				'category'    => 'lead',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'company',
+							'label'    => 'Company',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'text',
+							'name'     => 'contact',
+							'label'    => 'Contact name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'url',
+							'name'     => 'website',
+							'label'    => 'Website',
+							'required' => false,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'proposal',
+							'label'    => 'Partnership idea',
+							'required' => true,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Send inquiry',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Partnership: {company}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'product_inquiry' => array(
+				'label'       => __( 'Product inquiry', 'nestform' ),
+				'description' => __( 'Ask about a product with SKU or link.', 'nestform' ),
+				'category'    => 'lead',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'text',
+							'name'     => 'product',
+							'label'    => 'Product name or SKU',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'number',
+							'name'     => 'quantity',
+							'label'    => 'Quantity',
+							'required' => false,
+							'default'  => '1',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'question',
+							'label'    => 'Question',
+							'required' => true,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Send inquiry',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Product inquiry: {product}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'bug_report'      => array(
+				'label'       => __( 'Bug report', 'nestform' ),
+				'description' => __( 'Steps to reproduce and severity.', 'nestform' ),
+				'category'    => 'contact',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'text',
+							'name'     => 'summary',
+							'label'    => 'Summary',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'severity',
+							'label'    => 'Severity',
+							'required' => true,
+							'options'  => "Low\nMedium\nHigh\nCritical",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'steps',
+							'label'    => 'Steps to reproduce',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'url',
+							'name'     => 'page_url',
+							'label'    => 'Page URL',
+							'required' => false,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Report bug',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Bug: {severity} — {summary}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'maintenance'     => array(
+				'label'       => __( 'Maintenance request', 'nestform' ),
+				'description' => __( 'Facility issue with urgency level.', 'nestform' ),
+				'category'    => 'contact',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Your name',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'text',
+							'name'     => 'location',
+							'label'    => 'Location / unit',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'urgency',
+							'label'    => 'Urgency',
+							'required' => true,
+							'options'  => "Low\nNormal\nUrgent",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'issue',
+							'label'    => 'Describe the issue',
+							'required' => true,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Submit request',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'            => $admin,
+						'subject'       => 'Maintenance [{urgency}]: {location}',
+						'body_template' => "{all_fields}\n",
+					),
+				),
+			),
+			'vendor_inquiry'  => array(
+				'label'       => __( 'Vendor inquiry', 'nestform' ),
+				'description' => __( 'Supplier onboarding questionnaire.', 'nestform' ),
+				'category'    => 'lead',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'company',
+							'label'    => 'Company name',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'text',
+							'name'     => 'contact',
+							'label'    => 'Contact person',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'category',
+							'label'    => 'Category',
+							'required' => true,
+							'options'  => "Software\nHardware\nServices\nOther",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'offer',
+							'label'    => 'What do you offer?',
+							'required' => true,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Submit',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Vendor: {company}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'referral'        => array(
+				'label'       => __( 'Referral', 'nestform' ),
+				'description' => __( 'Refer someone with contact details.', 'nestform' ),
+				'category'    => 'lead',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'your_name',
+							'label'    => 'Your name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'your_email',
+							'label'    => 'Your email',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'text',
+							'name'     => 'referral_name',
+							'label'    => 'Referral name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'referral_email',
+							'label'    => 'Referral email',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'note',
+							'label'    => 'Why are you referring them?',
+							'required' => false,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Send referral',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Referral from {your_name}',
+						'reply_to_field' => 'your_email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'employee_feedback' => array(
+				'label'       => __( 'Employee feedback', 'nestform' ),
+				'description' => __( 'Anonymous-style team pulse check.', 'nestform' ),
+				'category'    => 'survey',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'radio',
+							'name'     => 'morale',
+							'label'    => 'Team morale this week',
+							'required' => true,
+							'options'  => "Great\nGood\nNeutral\nLow",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'radio',
+							'name'     => 'workload',
+							'label'    => 'Workload feels',
+							'required' => true,
+							'options'  => "Light\nBalanced\nHeavy\nOverloaded",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'comments',
+							'label'    => 'Comments (optional)',
+							'required' => false,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Submit',
+						'enable_steps' => '0',
+						'store_ip'     => '0',
+					),
+					'mail'     => array(
+						'to'            => $admin,
+						'subject'       => 'Employee feedback',
+						'body_template' => "{all_fields}\n",
+					),
+				),
+			),
+			'order_form'      => array(
+				'label'       => __( 'Simple order', 'nestform' ),
+				'description' => __( 'Product pick, qty, shipping address.', 'nestform' ),
+				'category'    => 'lead',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'product',
+							'label'    => 'Product',
+							'required' => true,
+							'options'  => "Starter kit\nPro bundle\nCustom",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'number',
+							'name'     => 'quantity',
+							'label'    => 'Quantity',
+							'required' => true,
+							'default'  => '1',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'address',
+							'label'    => 'Shipping address',
+							'required' => true,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Place order',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Order: {product}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'onboarding'      => array(
+				'label'       => __( 'Client onboarding', 'nestform' ),
+				'description' => __( 'New client intake with brand assets.', 'nestform' ),
+				'category'    => 'lead',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'heading',
+							'name'     => 'h_welcome',
+							'label'    => 'Welcome aboard',
+							'options'  => 'h2',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'text',
+							'name'     => 'company',
+							'label'    => 'Company',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'text',
+							'name'     => 'contact',
+							'label'    => 'Primary contact',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'url',
+							'name'     => 'website',
+							'label'    => 'Website',
+							'required' => false,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'goals',
+							'label'    => 'Project goals',
+							'required' => true,
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'file',
+							'name'     => 'assets',
+							'label'    => 'Brand assets (optional)',
+							'required' => false,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Submit intake',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Onboarding: {company}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'survey_quick'    => array(
+				'label'       => __( 'Quick survey', 'nestform' ),
+				'description' => __( 'Three multiple-choice questions.', 'nestform' ),
+				'category'    => 'survey',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'radio',
+							'name'     => 'q1',
+							'label'    => 'How did you hear about us?',
+							'required' => true,
+							'options'  => "Search\nSocial\nReferral\nOther",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'radio',
+							'name'     => 'q2',
+							'label'    => 'How often do you visit?',
+							'required' => true,
+							'options'  => "First time\nMonthly\nWeekly\nDaily",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'radio',
+							'name'     => 'q3',
+							'label'    => 'Would you recommend us?',
+							'required' => true,
+							'options'  => "Yes\nMaybe\nNo",
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Submit',
+						'form_mode'    => 'survey',
+						'store_ip'     => '0',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'            => $admin,
+						'subject'       => 'Survey response',
+						'body_template' => "{all_fields}\n",
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * @param int    $form_id Form ID.
+	 * @param string $key     Template key.
+	 * @return bool
+	 */
+	public static function apply( $form_id, $key ) {
+		$form_id = (int) $form_id;
+		$all     = self::all();
+		if ( $form_id <= 0 || ! isset( $all[ $key ] ) ) {
+			return false;
+		}
+		if ( ! self::template_allowed( $key ) ) {
+			return false;
+		}
+		$tpl     = $all[ $key ]['config'];
+		$current = Nestform_Form_Config::get( $form_id );
+		$config  = array(
+			'fields'   => $tpl['fields'],
+			'messages' => $current['messages'],
+			'mail'     => array_merge( $current['mail'], $tpl['mail'] ),
+			'settings' => array_merge( $current['settings'], $tpl['settings'] ),
+		);
+		Nestform_Form_Config::save( $form_id, $config );
+		return true;
+	}
+
+	/**
+	 * Whether a template may be applied with current capabilities.
+	 *
+	 * @param string $key Template key.
+	 * @return bool
+	 */
+	public static function template_allowed( $key ) {
+		$all = self::all();
+		if ( ! isset( $all[ $key ] ) ) {
+			return false;
+		}
+		$requires = isset( $all[ $key ]['requires'] ) && is_array( $all[ $key ]['requires'] )
+			? $all[ $key ]['requires']
+			: array();
+		foreach ( $requires as $feature ) {
+			if ( ! class_exists( 'Nestform_Features' ) || ! Nestform_Features::can( (string) $feature ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * @param int $form_id Form ID.
+	 * @param string $key Template key.
+	 * @return string
+	 */
+	public static function url( $form_id, $key ) {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'action'  => self::ACTION,
+					'form_id' => (int) $form_id,
+					'template'=> sanitize_key( $key ),
+				),
+				admin_url( 'admin-post.php' )
+			),
+			self::ACTION . '_' . (int) $form_id
+		);
+	}
+
+	public static function handle() {
+		$form_id = isset( $_GET['form_id'] ) ? (int) $_GET['form_id'] : 0;
+		$key     = isset( $_GET['template'] ) ? sanitize_key( wp_unslash( $_GET['template'] ) ) : '';
+		if ( $form_id <= 0 || Nestform_Post_Type::POST_TYPE !== get_post_type( $form_id ) ) {
+			wp_die( esc_html__( 'Invalid form.', 'nestform' ), 400 );
+		}
+		check_admin_referer( self::ACTION . '_' . $form_id );
+		if ( ! current_user_can( 'edit_post', $form_id ) ) {
+			wp_die( esc_html__( 'You do not have permission to edit this form.', 'nestform' ), 403 );
+		}
+		if ( ! self::apply( $form_id, $key ) ) {
+			wp_die( esc_html__( 'Unknown template.', 'nestform' ), 400 );
+		}
+		wp_safe_redirect( get_edit_post_link( $form_id, 'raw' ) );
+		exit;
+	}
+}

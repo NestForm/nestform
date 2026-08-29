@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "nestform/form",
+  "version": "1.0.1",
+  "title": "Nestform",
+  "category": "nestform",
+  "icon": "feedback",
+  "description": "Insert a Nestform form by selecting it from the list.",
+  "keywords": ["form", "contact", "lead", "nestform"],
+  "textdomain": "nestform",
+  "attributes": {
+    "formId": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": ["wide", "full"],
+    "className": true,
+    "anchor": true
+  }
+}

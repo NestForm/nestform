@@ -77,7 +77,7 @@
     max-width: none;
     width: 100%;
     color: var(--nestform-muted);
-    font-size: 12.5px;
+    font-size: 13px;
     line-height: var(--nestform-line-height);
 }
 
@@ -182,7 +182,7 @@
     font-weight: 600;
     box-shadow: none;
     padding: var(--nestform-space-1) var(--nestform-space-2);
-    min-height: var(--nestform-control-h);
+    min-height: var(--nestform-space-8);
     font-size: 13px;
 }
 
@@ -343,7 +343,7 @@
     background: transparent;
     color: var(--nestform-muted);
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     line-height: var(--nestform-line-height);
     text-decoration: none;
     cursor: pointer;
@@ -387,19 +387,17 @@
 }
 
 .nestform-btn--danger {
-    background: var(--nestform-danger-soft);
-    border-color: var(--nestform-danger-border);
+    background: var(--nestform-surface);
+    border-color: var(--nestform-border);
     color: var(--nestform-danger);
     font-weight: 600;
 }
 
 .nestform-btn--danger:hover,
 .nestform-btn--danger:focus {
-    background: var(--nestform-danger);
-    border-color: var(--nestform-danger);
-    color: var(--nestform-on-accent);
-    box-shadow: 0 1px 8px
-        color-mix(in srgb, var(--nestform-danger) 35%, transparent);
+    background: var(--nestform-surface);
+    border-color: var(--nestform-danger-border);
+    color: var(--nestform-danger);
 }
 
 .nestform-btn--outline {
@@ -427,16 +425,16 @@
 
 .nestform-btn--warn {
     background: var(--nestform-warn-soft);
-    border-color: #fdba74;
-    color: #ea580c;
+    border-color: var(--nestform-warn-border);
+    color: var(--nestform-warn);
     font-weight: 600;
 }
 
 .nestform-btn--warn:hover,
 .nestform-btn--warn:focus {
     background: var(--nestform-warn-soft);
-    border-color: #fb923c;
-    color: #c2410c;
+    border-color: var(--nestform-warn);
+    color: var(--nestform-warn);
     box-shadow: none;
 }
 
@@ -822,16 +820,16 @@ body.wp-core-ui.nestform-admin-screen .nestform-add-menu__toggle {
     align-items: center;
     justify-content: flex-start;
     width: auto;
-    min-height: var(--nestform-control-h);
+    min-height: var(--nestform-space-8);
     margin: 0;
-    padding: var(--nestform-space-2) var(--nestform-space-8)
-        var(--nestform-space-2) var(--nestform-space-2);
+    padding: var(--nestform-space-1) var(--nestform-space-8)
+        var(--nestform-space-1) var(--nestform-space-2);
     border: 1px solid var(--nestform-border);
     border-radius: var(--nestform-radius);
     background-color: var(--nestform-surface);
-    color: var(--nestform-muted);
+    color: var(--nestform-ink);
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     line-height: var(--nestform-line-height);
     text-align: left;
     white-space: nowrap;
@@ -1160,8 +1158,8 @@ body.wp-core-ui.nestform-admin-screen.nestform-entries-screen.edit-php
 }
 
 .nestform-admin__callout--warn {
-    background: #fcf9e8;
-    border-color: #f0e6b8;
+    background: var(--nestform-warn-soft);
+    border-color: var(--nestform-warn-border);
 }
 
 .nestform-admin__callout strong {

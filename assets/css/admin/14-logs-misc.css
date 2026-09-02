@@ -73,7 +73,8 @@ body.wp-core-ui.nestform-settings-screen .nestform-log__chip,
     display: inline-flex;
     align-items: center;
     gap: var(--nestform-space-2);
-    padding: var(--nestform-space-1) var(--nestform-space-2) var(--nestform-space-1) var(--nestform-space-2);
+    padding: var(--nestform-space-1) var(--nestform-space-2)
+        var(--nestform-space-1) var(--nestform-space-2);
     border: 1px solid var(--nestform-border);
     border-radius: 999px;
     background: var(--nestform-surface);
@@ -127,7 +128,7 @@ body.wp-core-ui.nestform-settings-screen
 
 body.wp-core-ui.nestform-settings-screen .nestform-log__table-wrap,
 .nestform-settings-screen .nestform-log__table-wrap {
-    margin: 0 var(--nestform-space-4);
+    margin: 0;
     overflow-x: auto;
     border-top: 1px solid var(--nestform-border);
     border-bottom: 1px solid var(--nestform-border);
@@ -310,8 +311,6 @@ body.wp-core-ui.nestform-settings-screen
 body.wp-core-ui.nestform-settings-screen .nestform-log__clear,
 .nestform-settings-screen .nestform-log__clear {
     margin-top: var(--nestform-space-4);
-    padding-top: var(--nestform-space-4);
-    border-top: 1px solid var(--nestform-border);
 }
 
 .nestform-review-notice {
@@ -335,34 +334,149 @@ body.wp-core-ui.nestform-settings-screen .nestform-log__clear,
 }
 
 /* Response summary */
-.nestform-summary__meta {
+.nestform-summary__kpis {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.nestform-summary__note {
     margin: 0 0 var(--nestform-space-4);
     color: var(--nestform-muted);
     font-size: 13px;
 }
 
+.nestform-summary__insights {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--nestform-space-2);
+    margin: 0 0 var(--nestform-space-4);
+}
+
+.nestform-summary__insight {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nestform-space-1);
+    padding: var(--nestform-space-4);
+    background: var(--nestform-surface);
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+}
+
+.nestform-summary__insight-kicker {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--nestform-faint);
+}
+
+.nestform-summary__insight-value {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--nestform-ink);
+    line-height: var(--nestform-line-height);
+}
+
+.nestform-summary__insight-hint {
+    font-size: 12px;
+    color: var(--nestform-muted);
+}
+
 .nestform-summary__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: var(--nestform-space-4);
 }
 
 .nestform-summary__card {
+    display: flex;
+    flex-direction: column;
     margin: 0;
-    padding: var(--nestform-space-4) var(--nestform-space-4);
+    padding: var(--nestform-space-4);
+    background: var(--nestform-surface);
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    box-shadow: var(--nestform-shadow);
+    box-sizing: border-box;
+}
+
+.nestform-summary__card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--nestform-space-4);
+}
+
+.nestform-summary__card-copy {
+    min-width: 0;
+}
+
+.nestform-summary__card-copy .nestform-badge {
+    margin: 0 0 var(--nestform-space-2);
 }
 
 .nestform-summary__card-title {
     margin: 0 0 var(--nestform-space-1);
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
     color: var(--nestform-ink);
+    line-height: var(--nestform-line-height);
 }
 
 .nestform-summary__card-meta {
-    margin: 0 0 var(--nestform-space-2);
+    margin: 0;
     font-size: 12px;
     color: var(--nestform-muted);
+}
+
+.nestform-summary__rate {
+    flex: 0 0 auto;
+    text-align: right;
+}
+
+.nestform-summary__rate-value {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--nestform-accent);
+    font-variant-numeric: tabular-nums;
+}
+
+.nestform-summary__rate-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--nestform-faint);
+}
+
+.nestform-summary__rate-track {
+    display: block;
+    height: 4px;
+    margin: var(--nestform-space-4) 0;
+    overflow: hidden;
+    background: var(--nestform-border);
+    border-radius: 999px;
+}
+
+.nestform-summary__rate-fill {
+    display: block;
+    height: 100%;
+    background: var(--nestform-accent);
+    border-radius: 999px;
+}
+
+.nestform-summary__card-body {
+    min-width: 0;
+}
+
+.nestform-summary__empty {
+    margin: 0;
+    color: var(--nestform-muted);
+    font-size: 13px;
 }
 
 .nestform-summary__bars {
@@ -373,11 +487,15 @@ body.wp-core-ui.nestform-settings-screen .nestform-log__clear,
 
 .nestform-summary__bar {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(60px, 2fr) auto;
+    grid-template-columns: minmax(0, 1.2fr) minmax(64px, 1fr) 3em;
     gap: var(--nestform-space-2);
     align-items: center;
     margin: 0 0 var(--nestform-space-2);
     font-size: 12px;
+}
+
+.nestform-summary__bar:last-child {
+    margin-bottom: 0;
 }
 
 .nestform-summary__bar-label {
@@ -387,72 +505,195 @@ body.wp-core-ui.nestform-settings-screen .nestform-log__clear,
     color: var(--nestform-ink);
 }
 
+.nestform-summary__bar--lead .nestform-summary__bar-label {
+    font-weight: 600;
+}
+
 .nestform-summary__bar-track {
     display: block;
     height: 8px;
     overflow: hidden;
-    background: var(--nestform-border);
+    background: var(--nestform-canvas);
     border-radius: 999px;
 }
 
 .nestform-summary__bar-fill {
     display: block;
     height: 100%;
-    background: var(--nestform-accent);
+    background: var(--nestform-accent-line);
     border-radius: 999px;
 }
 
+.nestform-summary__bar--lead .nestform-summary__bar-fill {
+    background: var(--nestform-accent);
+}
+
 .nestform-summary__bar-count {
-    min-width: 1.5em;
     text-align: right;
     font-variant-numeric: tabular-nums;
+    font-weight: 600;
     color: var(--nestform-muted);
 }
 
-.nestform-summary__stats {
+.nestform-summary__bar--lead .nestform-summary__bar-count {
+    color: var(--nestform-accent);
+}
+
+.nestform-summary__nums {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--nestform-space-2);
-    margin: 0;
+    margin: 0 0 var(--nestform-space-4);
 }
 
-.nestform-summary__stats dt {
+.nestform-summary__nums dt {
     margin: 0;
     font-size: 11px;
-    text-transform: uppercase;
+    font-weight: 600;
     letter-spacing: 0.04em;
-    color: var(--nestform-muted);
+    text-transform: uppercase;
+    color: var(--nestform-faint);
 }
 
-.nestform-summary__stats dd {
+.nestform-summary__nums dd {
     margin: 2px 0 0;
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: -0.03em;
     color: var(--nestform-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.nestform-summary__range {
+    position: relative;
+    height: 8px;
+    background: var(--nestform-canvas);
+    border-radius: 999px;
+}
+
+.nestform-summary__range-fill {
+    display: block;
+    height: 100%;
+    background: var(--nestform-accent-line);
+    border-radius: 999px;
+}
+
+.nestform-summary__range-mark {
+    position: absolute;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    margin-left: -5px;
+    background: var(--nestform-accent);
+    border: 2px solid var(--nestform-surface);
+    border-radius: 50%;
+    box-shadow: var(--nestform-shadow);
+    transform: translateY(-50%);
+}
+
+.nestform-summary__unique {
+    margin: 0 0 var(--nestform-space-2);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--nestform-muted);
 }
 
 .nestform-summary__samples {
     margin: 0;
-    padding: 0 0 0 var(--nestform-space-4);
+    padding: 0;
+    list-style: none;
 }
 
 .nestform-summary__samples li {
-    margin: 0 0 var(--nestform-space-1);
+    margin: 0 0 var(--nestform-space-2);
+    padding: var(--nestform-space-2) var(--nestform-space-4);
+    background: var(--nestform-canvas);
+    border-radius: var(--nestform-radius);
     font-size: 13px;
+    color: var(--nestform-ink);
+    line-height: var(--nestform-line-height);
+}
+
+.nestform-summary__samples li:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 782px) {
+    .nestform-summary__kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .nestform-summary__insights {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Embed share / QR / more options */
+.nestform-embed__share {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+}
+
+.nestform-embed__more {
+    margin: var(--nestform-space-2) 0 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+.nestform-embed__more > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--nestform-space-2);
+    padding: var(--nestform-space-2) 0;
+    cursor: pointer;
+    list-style: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--nestform-muted);
+}
+
+.nestform-embed__more > summary::-webkit-details-marker {
+    display: none;
+}
+
+.nestform-embed__more > summary::before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+    background: center / 16px 16px no-repeat var(--nestform-chevron-right);
+    transition: transform 0.15s ease;
+    opacity: 0.75;
+}
+
+.nestform-embed__more[open] > summary::before {
+    transform: rotate(90deg);
+}
+
+.nestform-embed__more[open] > summary {
     color: var(--nestform-ink);
 }
 
-/* Embed share / QR */
-.nestform-embed__share {
-    margin-top: var(--nestform-space-4);
-    padding-top: var(--nestform-space-4);
-    border-top: 1px solid var(--nestform-border);
+.nestform-embed__more-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nestform-space-2);
+    padding: 0 0 var(--nestform-space-2);
+}
+
+.nestform-embed__more-body > .description {
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    line-height: var(--nestform-line-height);
+    color: var(--nestform-faint);
 }
 
 .nestform-embed__qr {
-    width: 140px;
     max-width: 100%;
-    margin: var(--nestform-space-2) 0 0;
+    margin: var(--nestform-space-1) 0 0;
     padding: var(--nestform-space-2);
     background: var(--nestform-surface);
     border: 1px solid var(--nestform-border);
@@ -493,7 +734,7 @@ body.wp-core-ui.nestform-settings-screen .nestform-log__clear,
 
 body.wp-core-ui.nestform-settings-screen .nestform-settings__role-caps-wrap,
 .nestform-settings-screen .nestform-settings__role-caps-wrap {
-    margin: 0 var(--nestform-space-4) var(--nestform-space-4);
+    margin: 0 0 var(--nestform-space-4);
     overflow-x: auto;
     border-top: 1px solid var(--nestform-border);
     border-bottom: 1px solid var(--nestform-border);

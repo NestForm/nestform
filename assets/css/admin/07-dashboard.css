@@ -193,28 +193,28 @@
 .nestform-dash__triage-item--new .nestform-dash__triage-value {
     background: color-mix(
         in srgb,
-        var(--nestform-accent, #2563eb) 12%,
+        var(--nestform-accent) 12%,
         transparent
     );
-    color: var(--nestform-accent, #2563eb);
+    color: var(--nestform-accent);
 }
 
 .nestform-dash__triage-item--read .nestform-dash__triage-value {
     background: color-mix(
         in srgb,
-        var(--nestform-ok, #16a34a) 12%,
+        var(--nestform-ok) 12%,
         transparent
     );
-    color: color-mix(in srgb, var(--nestform-ok, #16a34a) 85%, #0f172a);
+    color: color-mix(in srgb, var(--nestform-ok) 85%, var(--nestform-ink));
 }
 
 .nestform-dash__triage-item--spam .nestform-dash__triage-value {
     background: color-mix(
         in srgb,
-        var(--nestform-danger, #dc2626) 10%,
+        var(--nestform-danger) 10%,
         transparent
     );
-    color: color-mix(in srgb, var(--nestform-danger, #dc2626) 80%, #0f172a);
+    color: color-mix(in srgb, var(--nestform-danger) 80%, var(--nestform-ink));
 }
 
 .nestform-dash__triage-all {

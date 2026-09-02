@@ -1011,9 +1011,17 @@ class Nestform_Form_Config {
 	 * @return array<int, array<string, mixed>>
 	 */
 	public static function get_fields( $form_id ) {
-		$raw = get_post_meta( (int) $form_id, self::META_FIELDS, true );
-		if ( ! is_array( $raw ) || array() === $raw ) {
+		$form_id = (int) $form_id;
+		$raw     = get_post_meta( $form_id, self::META_FIELDS, true );
+		if ( ! is_array( $raw ) ) {
+			// Auto-draft has never been saved: keep the canvas empty so templates can open.
+			if ( 'auto-draft' === get_post_status( $form_id ) ) {
+				return array();
+			}
 			return self::default_fields();
+		}
+		if ( array() === $raw ) {
+			return array();
 		}
 		return array_values( array_filter( array_map( array( __CLASS__, 'sanitize_field_row' ), $raw ) ) );
 	}

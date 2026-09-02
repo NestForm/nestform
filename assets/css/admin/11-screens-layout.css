@@ -41,7 +41,8 @@
 
 .nestform-dash__response-card {
     margin: 0;
-    padding: var(--nestform-space-2) var(--nestform-space-4) var(--nestform-space-2);
+    padding: var(--nestform-space-2) var(--nestform-space-4)
+        var(--nestform-space-2);
     background: var(--dash-surface);
     border: 1px solid var(--dash-line);
     border-radius: var(--dash-radius);
@@ -219,7 +220,7 @@
 }
 
 .nestform-dash__insights-mix-seg--warm {
-    background: var(--nestform-warn);
+    background: var(--nestform-accent-line);
 }
 
 .nestform-dash__insights-mix-seg--cold {
@@ -325,17 +326,17 @@
 
 .nestform-dash__insights-breakdown-row--warm
     .nestform-dash__insights-breakdown-icon {
-    color: color-mix(in srgb, var(--nestform-warn) 88%, var(--nestform-ink));
+    color: var(--nestform-accent-mid);
 }
 
 .nestform-dash__insights-breakdown-row--warm
     .nestform-dash__insights-breakdown-fill {
-    background: var(--nestform-warn);
+    background: var(--nestform-accent-line);
 }
 
 .nestform-dash__insights-breakdown-row--warm
     .nestform-dash__insights-breakdown-pct {
-    color: color-mix(in srgb, var(--nestform-warn) 85%, var(--nestform-ink));
+    color: var(--nestform-accent-mid);
 }
 
 .nestform-dash__insights-breakdown-row--cold
@@ -765,7 +766,6 @@
     font-size: 10px;
     font-weight: 600;
     line-height: var(--nestform-line-height);
-    animation: nestform-pulse 2.4s ease-in-out infinite;
 }
 
 .nestform-btn--primary .nestform-entries__filter-count {
@@ -820,7 +820,6 @@
 }
 
 .nestform-entries__row--new {
-    background: var(--nestform-accent-soft);
     box-shadow: inset 3px 0 0 var(--nestform-accent);
 }
 
@@ -925,7 +924,8 @@ body.nestform-admin-screen.post-type-nestform #titlediv {
     grid-column: 1;
     grid-row: 1;
     margin: 0;
-    padding: var(--nestform-space-4) var(--nestform-space-6) var(--nestform-space-2);
+    padding: var(--nestform-space-4) var(--nestform-space-6)
+        var(--nestform-space-2);
 }
 
 body.nestform-admin-screen.post-type-nestform #titlediv::before {
@@ -946,7 +946,8 @@ body.nestform-admin-screen.post-type-nestform #title-prompt-text {
     display: flex;
     align-items: center;
     gap: var(--nestform-space-2);
-    padding: var(--nestform-space-4) var(--nestform-space-6) var(--nestform-space-2) 0;
+    padding: var(--nestform-space-4) var(--nestform-space-6)
+        var(--nestform-space-2) 0;
 }
 
 body.nestform-admin-screen.post-type-nestform
@@ -1160,6 +1161,10 @@ body.nestform-admin-screen.post-type-nestform #nestform_shortcode .inside {
 .nestform-embed__row {
     margin: 0 0 var(--nestform-space-4);
     gap: var(--nestform-space-1);
+}
+
+.nestform-embed__row--flush {
+    margin-bottom: 0;
 }
 
 .nestform-embed__code {

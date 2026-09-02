@@ -608,6 +608,7 @@ body.wp-core-ui.nestform-entries-screen.edit-php .wp-list-table tbody th,
     font-size: 13px;
     line-height: var(--nestform-line-height);
     vertical-align: middle;
+    transition: .25s ease-in-out;
 }
 
 body.wp-core-ui.nestform-entries-screen.edit-php
@@ -672,29 +673,6 @@ body.wp-core-ui.nestform-entries-screen.edit-php
 .nestform-entries-screen.edit-php .wp-list-table tbody tr:hover td,
 .nestform-entries-screen.edit-php .wp-list-table tbody tr:hover th {
     background: var(--nestform-canvas) !important;
-}
-
-body.wp-core-ui.nestform-entries-screen.edit-php
-    .wp-list-table
-    tbody
-    tr.nestform-entry--new
-    td,
-body.wp-core-ui.nestform-entries-screen.edit-php
-    .wp-list-table
-    tbody
-    tr.nestform-entry--new
-    th,
-.nestform-entries-screen.edit-php
-    .wp-list-table
-    tbody
-    tr.nestform-entry--new
-    td,
-.nestform-entries-screen.edit-php
-    .wp-list-table
-    tbody
-    tr.nestform-entry--new
-    th {
-    background: var(--nestform-accent-soft) !important;
 }
 
 body.wp-core-ui.nestform-entries-screen.edit-php

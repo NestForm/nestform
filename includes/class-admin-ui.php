@@ -348,7 +348,7 @@ class Nestform_Admin_UI {
 			'appearance' => __( 'Appearance', 'nestform' ),
 		);
 		?>
-		<div class="nestform-admin" data-nestform-admin data-form-id="<?php echo esc_attr( (string) (int) $form_id ); ?>" data-steps-enabled="<?php echo $steps_enabled ? '1' : '0'; ?>">
+		<div class="nestform-admin" data-nestform-admin data-form-id="<?php echo esc_attr( (string) (int) $form_id ); ?>" data-steps-enabled="<?php echo $steps_enabled ? '1' : '0'; ?>" data-nestform-empty="<?php echo array() === $fields ? '1' : '0'; ?>">
 			<nav class="nestform-admin__tabs" role="tablist" aria-label="<?php esc_attr_e( 'Form sections', 'nestform' ); ?>">
 				<?php foreach ( $editor_tabs as $tab_id ) : ?>
 					<?php $is_tab = ( $active_tab === $tab_id ); ?>
@@ -385,12 +385,15 @@ class Nestform_Admin_UI {
 						?></p>
 					</div>
 					<div class="nestform-admin__panel-tools">
-						<button type="button" class="nestform-btn nestform-btn--ghost" data-nestform-collapse-all>
-							<?php esc_html_e( 'Collapse all', 'nestform' ); ?>
-						</button>
-						<button type="button" class="nestform-btn nestform-btn--ghost" data-nestform-expand-all>
-							<?php esc_html_e( 'Expand all', 'nestform' ); ?>
-						</button>
+						<div class="nestform-templates-home">
+							<span class="nestform-templates-home__nudge" data-nestform-templates-nudge hidden>
+								<span class="nestform-templates-home__arrow" aria-hidden="true"></span>
+							</span>
+							<button type="button" class="nestform-btn nestform-btn--ghost" data-nestform-templates-open data-nestform-templates-home>
+								<?php nestform_admin_icon( 'forms' ); ?>
+								<?php esc_html_e( 'Templates', 'nestform' ); ?>
+							</button>
+						</div>
 					</div>
 				</div>
 				<?php
@@ -398,13 +401,18 @@ class Nestform_Admin_UI {
 				if ( $show_tpl_empty ) :
 					?>
 				<div class="nestform-templates-empty" data-nestform-templates-empty>
-					<div class="nestform-templates-empty__copy">
-						<strong><?php esc_html_e( 'Start from a template', 'nestform' ); ?></strong>
-						<p><?php esc_html_e( 'Pick a ready-made form, then tweak fields to match your brand.', 'nestform' ); ?></p>
+					<div class="nestform-templates-empty__bar">
+						<div class="nestform-templates-empty__copy">
+							<strong><?php esc_html_e( 'Start from a template', 'nestform' ); ?></strong>
+							<p><?php esc_html_e( 'Pick a ready-made form, then tweak fields to match your brand.', 'nestform' ); ?></p>
+						</div>
+						<button type="button" class="nestform-btn nestform-btn--primary" data-nestform-templates-open>
+							<?php esc_html_e( 'Browse all', 'nestform' ); ?>
+						</button>
 					</div>
-					<button type="button" class="nestform-btn nestform-btn--primary" data-nestform-templates-open>
-						<?php esc_html_e( 'Browse templates', 'nestform' ); ?>
-					</button>
+					<div class="nestform-templates-empty__grid">
+						<?php self::render_template_cards( $form_id, 6 ); ?>
+					</div>
 				</div>
 				<?php endif; ?>
 
@@ -2429,16 +2437,99 @@ class Nestform_Admin_UI {
 	}
 
 	/**
+	 * Render template gallery cards.
+	 *
+	 * @param int $form_id Form post ID.
+	 * @param int $limit   Max cards (0 = all).
+	 * @return int Number of cards printed.
+	 */
+	private static function render_template_cards( $form_id, $limit = 0 ) {
+		$form_id   = (int) $form_id;
+		$limit     = max( 0, (int) $limit );
+		$can_apply = $form_id > 0 && Nestform_Post_Type::POST_TYPE === get_post_type( $form_id );
+		$templates = class_exists( 'Nestform_Templates' ) ? Nestform_Templates::all() : array();
+		$shown     = 0;
+		foreach ( $templates as $tpl_key => $tpl ) {
+			if ( $limit > 0 && $shown >= $limit ) {
+				break;
+			}
+			self::render_template_card( $form_id, (string) $tpl_key, is_array( $tpl ) ? $tpl : array(), $can_apply );
+			++$shown;
+		}
+		return $shown;
+	}
+
+	/**
+	 * @param int                  $form_id   Form post ID.
+	 * @param string               $tpl_key   Template key.
+	 * @param array<string, mixed> $tpl       Template row.
+	 * @param bool                 $can_apply Whether apply URLs are valid.
+	 */
+	private static function render_template_card( $form_id, $tpl_key, array $tpl, $can_apply ) {
+		$allowed  = Nestform_Templates::template_allowed( $tpl_key );
+		$category = isset( $tpl['category'] ) ? sanitize_key( (string) $tpl['category'] ) : 'other';
+		$label    = isset( $tpl['label'] ) ? (string) $tpl['label'] : $tpl_key;
+		$desc     = isset( $tpl['description'] ) ? (string) $tpl['description'] : '';
+		if ( $can_apply && $allowed ) {
+			?>
+			<a
+				class="nestform-templates__card"
+				data-nestform-templates-card
+				data-category="<?php echo esc_attr( $category ); ?>"
+				href="<?php echo esc_url( Nestform_Templates::url( $form_id, $tpl_key ) ); ?>"
+				onclick="return confirm('<?php echo esc_js( __( 'Replace current fields with this template?', 'nestform' ) ); ?>');"
+			>
+				<span class="nestform-templates__card-label"><?php echo esc_html( $label ); ?></span>
+				<?php if ( $desc !== '' ) : ?>
+					<span class="nestform-templates__card-desc"><?php echo esc_html( $desc ); ?></span>
+				<?php endif; ?>
+				<span class="nestform-templates__card-meta"><?php echo esc_html( ucfirst( $category ) ); ?></span>
+			</a>
+			<?php
+			return;
+		}
+		if ( $can_apply ) {
+			?>
+			<div
+				class="nestform-templates__card nestform-templates__card--locked"
+				data-nestform-templates-card
+				data-category="<?php echo esc_attr( $category ); ?>"
+			>
+				<span class="nestform-templates__card-label"><?php echo esc_html( $label ); ?></span>
+				<?php if ( $desc !== '' ) : ?>
+					<span class="nestform-templates__card-desc"><?php echo esc_html( $desc ); ?></span>
+				<?php endif; ?>
+				<span class="nestform-templates__card-meta"><?php esc_html_e( 'Pro', 'nestform' ); ?></span>
+			</div>
+			<?php
+			return;
+		}
+		?>
+		<button
+			type="button"
+			class="nestform-templates__card nestform-templates__card--disabled"
+			data-nestform-templates-card
+			data-nestform-templates-save-first
+			data-category="<?php echo esc_attr( $category ); ?>"
+		>
+			<span class="nestform-templates__card-label"><?php echo esc_html( $label ); ?></span>
+			<?php if ( $desc !== '' ) : ?>
+				<span class="nestform-templates__card-desc"><?php echo esc_html( $desc ); ?></span>
+			<?php endif; ?>
+			<span class="nestform-templates__card-meta"><?php esc_html_e( 'Save draft first', 'nestform' ); ?></span>
+		</button>
+		<?php
+	}
+
+	/**
 	 * Starter templates gallery (modal + empty state).
 	 *
 	 * @param int  $form_id Form post ID.
 	 * @param bool $empty   Show empty-state hero.
 	 */
 	private static function render_templates_panel( $form_id, $empty = false ) {
-		$form_id   = (int) $form_id;
-		$can_apply = $form_id > 0 && Nestform_Post_Type::POST_TYPE === get_post_type( $form_id );
+		$form_id = (int) $form_id;
 		unset( $empty );
-		$templates = Nestform_Templates::all();
 		?>
 		<div class="nestform-templates" data-nestform-templates-drawer hidden>
 			<div class="nestform-templates__backdrop" data-nestform-templates-close></div>
@@ -2459,44 +2550,12 @@ class Nestform_Admin_UI {
 					<button type="button" class="nestform-templates__chip" data-nestform-templates-filter="other"><?php esc_html_e( 'Other', 'nestform' ); ?></button>
 				</div>
 				<div class="nestform-templates__grid">
-					<?php foreach ( $templates as $tpl_key => $tpl ) : ?>
-						<?php
-						$allowed  = Nestform_Templates::template_allowed( $tpl_key );
-						if ( ! $allowed ) {
-							continue;
-						}
-						$category = isset( $tpl['category'] ) ? sanitize_key( (string) $tpl['category'] ) : 'other';
+					<?php
+					$shown = self::render_template_cards( $form_id, 0 );
+					if ( 0 === $shown ) :
 						?>
-						<?php if ( $can_apply ) : ?>
-							<a
-								class="nestform-templates__card"
-								data-nestform-templates-card
-								data-category="<?php echo esc_attr( $category ); ?>"
-								href="<?php echo esc_url( Nestform_Templates::url( $form_id, $tpl_key ) ); ?>"
-								onclick="return confirm('<?php echo esc_js( __( 'Replace current fields with this template?', 'nestform' ) ); ?>');"
-							>
-								<span class="nestform-templates__card-label"><?php echo esc_html( $tpl['label'] ); ?></span>
-								<?php if ( ! empty( $tpl['description'] ) ) : ?>
-									<span class="nestform-templates__card-desc"><?php echo esc_html( $tpl['description'] ); ?></span>
-								<?php endif; ?>
-								<span class="nestform-templates__card-meta"><?php echo esc_html( ucfirst( $category ) ); ?></span>
-							</a>
-						<?php else : ?>
-							<button
-								type="button"
-								class="nestform-templates__card nestform-templates__card--disabled"
-								data-nestform-templates-card
-								data-nestform-templates-save-first
-								data-category="<?php echo esc_attr( $category ); ?>"
-							>
-								<span class="nestform-templates__card-label"><?php echo esc_html( $tpl['label'] ); ?></span>
-								<?php if ( ! empty( $tpl['description'] ) ) : ?>
-									<span class="nestform-templates__card-desc"><?php echo esc_html( $tpl['description'] ); ?></span>
-								<?php endif; ?>
-								<span class="nestform-templates__card-meta"><?php esc_html_e( 'Save draft first', 'nestform' ); ?></span>
-							</button>
-						<?php endif; ?>
-					<?php endforeach; ?>
+						<p class="nestform-templates__empty"><?php esc_html_e( 'No templates to show.', 'nestform' ); ?></p>
+					<?php endif; ?>
 				</div>
 			</div>
 		</div>
@@ -2507,20 +2566,45 @@ class Nestform_Admin_UI {
 	 * @param WP_Post $post Post.
 	 */
 	public static function render_shortcode_box( $post ) {
-		$id     = (int) $post->ID;
-		$slug   = $post->post_name ? $post->post_name : 'your-slug';
-		$id_sc  = '[nestform id="' . $id . '"]';
+		$id      = (int) $post->ID;
+		$slug    = $post->post_name ? $post->post_name : 'your-slug';
+		$id_sc   = '[nestform id="' . $id . '"]';
 		$slug_sc = '[nestform slug="' . $slug . '"]';
-		$status = get_post_status( $post );
+		$status  = get_post_status( $post );
 		$status_labels = array(
-			'publish' => __( 'Published', 'nestform' ),
-			'draft'   => __( 'Draft', 'nestform' ),
-			'pending' => __( 'Pending', 'nestform' ),
-			'private' => __( 'Private', 'nestform' ),
+			'publish'    => __( 'Published', 'nestform' ),
+			'draft'      => __( 'Draft', 'nestform' ),
+			'pending'    => __( 'Pending', 'nestform' ),
+			'private'    => __( 'Private', 'nestform' ),
 			'auto-draft' => __( 'Draft', 'nestform' ),
 		);
 		$status_label = $status_labels[ $status ] ?? ucfirst( (string) $status );
 		$forms_url    = admin_url( 'edit.php?post_type=' . Nestform_Post_Type::POST_TYPE );
+
+		$public_url = '';
+		if ( $id > 0 && 'auto-draft' !== $status ) {
+			$found = self::find_embed_page( $id );
+			if ( $found ) {
+				$public_url = (string) $found['url'];
+			}
+		}
+
+		$qr_svg = '';
+		if ( $public_url !== '' && class_exists( 'Nestform_Qr_Code' ) ) {
+			$qr_svg = Nestform_Qr_Code::svg( $public_url, __( 'QR code for this form', 'nestform' ) );
+		}
+
+		$embed_entries_url = '';
+		$embed_entries_new = 0;
+		if ( $id > 0 && 'auto-draft' !== $status && class_exists( 'Nestform_Submissions' ) ) {
+			$embed_entries_new = (int) Nestform_Submissions::count_new_for_form( $id );
+			$embed_entries_url = $embed_entries_new > 0
+				? Nestform_Submissions::list_url( $id, Nestform_Submissions::STATUS_NEW )
+				: Nestform_Submissions::list_url( $id );
+		}
+		$has_form_tools = ( $embed_entries_url !== '' )
+			|| ( class_exists( 'Nestform_Form_IO' ) && $id > 0 && 'auto-draft' !== $status )
+			|| ( $id > 0 && 'auto-draft' !== $status );
 		?>
 		<div class="nestform-embed">
 			<a class="nestform-btn nestform-btn--outline nestform-embed__back" href="<?php echo esc_url( $forms_url ); ?>">
@@ -2530,9 +2614,6 @@ class Nestform_Admin_UI {
 			<div class="nestform-embed__status">
 				<span class="nestform-embed__status-dot nestform-embed__status-dot--<?php echo esc_attr( 'publish' === $status ? 'live' : 'draft' ); ?>" aria-hidden="true"></span>
 				<span class="nestform-embed__status-text"><?php echo esc_html( $status_label ); ?></span>
-				<?php if ( $id > 0 && 'auto-draft' !== $status ) : ?>
-					<span class="nestform-embed__status-id">#<?php echo esc_html( (string) $id ); ?></span>
-				<?php endif; ?>
 			</div>
 
 			<label class="nestform-admin__label"><?php esc_html_e( 'Shortcode', 'nestform' ); ?></label>
@@ -2542,73 +2623,37 @@ class Nestform_Admin_UI {
 					<?php nestform_admin_icon( 'copy' ); ?>
 				</button>
 			</div>
-			<label class="nestform-admin__label"><?php esc_html_e( 'By slug', 'nestform' ); ?></label>
-			<div class="nestform-embed__row">
-				<code class="nestform-embed__code" data-nestform-copy-text><?php echo esc_html( $slug_sc ); ?></code>
-				<button type="button" class="nestform-btn nestform-btn--outline nestform-embed__copy" data-nestform-copy aria-label="<?php esc_attr_e( 'Copy shortcode', 'nestform' ); ?>">
-					<?php nestform_admin_icon( 'copy' ); ?>
-				</button>
-			</div>
-			<p class="description"><?php esc_html_e( 'Or pick this form in the Gutenberg Nestform block or an ACF Form field.', 'nestform' ); ?></p>
 
-			<?php
-			$public_url = '';
-			$page_title = '';
-			if ( $id > 0 && 'auto-draft' !== $status ) {
-				$found = self::find_embed_page( $id );
-				if ( $found ) {
-					$public_url = (string) $found['url'];
-					$page_title = (string) $found['title'];
-				}
-			}
-			?>
-			<div class="nestform-embed__share">
-				<span class="nestform-admin__label"><?php esc_html_e( 'Share', 'nestform' ); ?></span>
-				<?php if ( $public_url !== '' ) : ?>
-					<p class="description">
-						<?php
-						printf(
-							/* translators: %s: page title */
-							esc_html__( 'Public page: %s', 'nestform' ),
-							esc_html( $page_title !== '' ? $page_title : $public_url )
-						);
-						?>
-					</p>
-					<div class="nestform-embed__row">
-						<code class="nestform-embed__code" data-nestform-copy-text><?php echo esc_html( $public_url ); ?></code>
+			<?php if ( $public_url !== '' ) : ?>
+				<div class="nestform-embed__share">
+					<div class="nestform-embed__row nestform-embed__row--flush">
+						<code class="nestform-embed__code" data-nestform-copy-text title="<?php echo esc_attr( $public_url ); ?>"><?php echo esc_html( $public_url ); ?></code>
 						<button type="button" class="nestform-btn nestform-btn--outline nestform-embed__copy" data-nestform-copy aria-label="<?php esc_attr_e( 'Copy link', 'nestform' ); ?>">
 							<?php nestform_admin_icon( 'copy' ); ?>
 						</button>
 					</div>
-					<?php
-					if ( class_exists( 'Nestform_Qr_Code' ) ) {
-						$qr = Nestform_Qr_Code::svg( $public_url, __( 'QR code for this form', 'nestform' ) );
-						if ( $qr !== '' ) {
-							echo '<div class="nestform-embed__qr">' . $qr . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- generated SVG
-						}
-					}
-					?>
-				<?php else : ?>
-					<p class="description"><?php esc_html_e( 'Add the form to a page to enable a public link and QR code.', 'nestform' ); ?></p>
-				<?php endif; ?>
-			</div>
+				</div>
+			<?php endif; ?>
 
-			<?php
-			$embed_entries_url = '';
-			$embed_entries_new = 0;
-			if ( $id > 0 && 'auto-draft' !== $status && class_exists( 'Nestform_Submissions' ) ) {
-				$embed_entries_new = (int) Nestform_Submissions::count_new_for_form( $id );
-				$embed_entries_url = $embed_entries_new > 0
-					? Nestform_Submissions::list_url( $id, Nestform_Submissions::STATUS_NEW )
-					: Nestform_Submissions::list_url( $id );
-			}
-			$has_form_tools = ( $embed_entries_url !== '' )
-				|| ( class_exists( 'Nestform_Form_IO' ) && $id > 0 && 'auto-draft' !== $status )
-				|| ( $id > 0 && 'auto-draft' !== $status );
-			?>
+			<details class="nestform-embed__more">
+				<summary><?php esc_html_e( 'More embed options', 'nestform' ); ?></summary>
+				<div class="nestform-embed__more-body">
+					<label class="nestform-admin__label"><?php esc_html_e( 'By slug', 'nestform' ); ?></label>
+					<div class="nestform-embed__row nestform-embed__row--flush">
+						<code class="nestform-embed__code" data-nestform-copy-text><?php echo esc_html( $slug_sc ); ?></code>
+						<button type="button" class="nestform-btn nestform-btn--outline nestform-embed__copy" data-nestform-copy aria-label="<?php esc_attr_e( 'Copy shortcode', 'nestform' ); ?>">
+							<?php nestform_admin_icon( 'copy' ); ?>
+						</button>
+					</div>
+					<p class="description"><?php esc_html_e( 'Or pick this form in the Gutenberg Nestform block or an ACF Form field.', 'nestform' ); ?></p>
+					<?php if ( $qr_svg !== '' ) : ?>
+						<div class="nestform-embed__qr"><?php echo $qr_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- generated SVG ?></div>
+					<?php endif; ?>
+				</div>
+			</details>
+
 			<?php if ( $has_form_tools ) : ?>
 			<div class="nestform-embed__tools">
-				<span class="nestform-admin__label"><?php esc_html_e( 'Form', 'nestform' ); ?></span>
 				<div class="nestform-embed__tools-list">
 					<?php if ( $embed_entries_url !== '' ) : ?>
 						<a class="nestform-btn nestform-btn--outline nestform-btn--accent" href="<?php echo esc_url( $embed_entries_url ); ?>">
@@ -2634,19 +2679,8 @@ class Nestform_Admin_UI {
 			</div>
 			<?php endif; ?>
 
-			<div class="nestform-embed__tools">
-				<span class="nestform-admin__label"><?php esc_html_e( 'Templates', 'nestform' ); ?></span>
-				<div class="nestform-embed__tools-list">
-					<button type="button" class="nestform-btn nestform-btn--outline" data-nestform-templates-open>
-						<?php nestform_admin_icon( 'forms' ); ?>
-						<?php esc_html_e( 'Browse templates', 'nestform' ); ?>
-					</button>
-				</div>
-			</div>
-
 			<?php if ( 'publish' === $status || ( $id > 0 && 'auto-draft' !== $status ) ) : ?>
 				<div class="nestform-embed__tools nestform-embed__tools--actions">
-					<span class="nestform-admin__label"><?php esc_html_e( 'Actions', 'nestform' ); ?></span>
 					<div class="nestform-embed__tools-list">
 						<?php if ( 'publish' === $status ) : ?>
 							<button type="submit" class="nestform-btn nestform-btn--warn" name="saveasdraft" value="1">

@@ -196,16 +196,20 @@ body.nestform-settings-screen .nestform-settings__form {
     margin-bottom: var(--nestform-space-6);
 }
 
+body.nestform-settings-screen .nestform-settings__form:last-child {
+    margin-bottom: 0;
+}
+
 body.nestform-settings-screen .nestform-settings__card {
     padding: var(--nestform-space-4) var(--nestform-space-4);
 }
 
-body.nestform-settings-screen .nestform-settings__card .nestform-btn {
-    margin-top: 16px;
+body.nestform-settings-screen .nestform-settings__card .description + .nestform-btn {
+    margin-top:  var(--nestform-space-6);
 }
 
 body.nestform-settings-screen .nestform-settings__table {
-    margin: 0 0 var(--nestform-space-4);
+    margin: 0 0 var(--nestform-space-6);
 }
 
 body.nestform-settings-screen .nestform-settings__table th {
@@ -214,6 +218,11 @@ body.nestform-settings-screen .nestform-settings__table th {
     width: 180px;
     color: var(--nestform-ink);
     font-weight: 600;
+}
+
+body.nestform-settings-screen .nestform-settings__table tr:last-child th,
+body.nestform-settings-screen .nestform-settings__table tr:last-child td{
+   padding-bottom: 0;
 }
 
 body.nestform-settings-screen .nestform-settings__table td {
@@ -295,6 +304,7 @@ body.nestform-settings-screen
 body.nestform-settings-screen .nestform-settings__table .description {
     margin-top: var(--nestform-space-1);
     color: var(--nestform-muted);
+    font-size: 12px;
 }
 
 body.nestform-settings-screen .wrap.nestform-admin {
@@ -302,5 +312,6 @@ body.nestform-settings-screen .wrap.nestform-admin {
 }
 
 body.nestform-settings-screen .nestform-settings .nestform-admin__check {
-    margin-top: 0;
+    margin-top: 0 !important;
+    display: flex;
 }

@@ -12,10 +12,13 @@ import CleanCSS from 'clean-css';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const minifier = new CleanCSS({
-	level: 2,
-	format: 'keep-breaks',
-});
+function createMinifier() {
+	// Level 2 restructures shorthand and can strip color-mix() from border — keep level 1.
+	return new CleanCSS({
+		level: 1,
+		format: 'keep-breaks',
+	});
+}
 
 function readSortedCss(dir) {
 	return fs
@@ -28,8 +31,8 @@ function formatKb(bytes) {
 	return `${(bytes / 1024).toFixed(1)} KB`;
 }
 
-function writeMinifiedBundle(target, header, body, label) {
-	const raw = header + body.trimEnd() + '\n';
+function minifyChunk(body, label, minifier) {
+	const raw = body.trimEnd() + '\n';
 	const result = minifier.minify(raw);
 
 	if (result.errors.length) {
@@ -37,11 +40,26 @@ function writeMinifiedBundle(target, header, body, label) {
 		process.exit(1);
 	}
 
-	fs.writeFileSync(target, result.styles);
-	const saved = raw.length - result.styles.length;
+	if (result.warnings.length) {
+		console.warn(`Minify warnings (${label}):`);
+		for (const warning of result.warnings) {
+			console.warn(`  - ${warning}`);
+		}
+		process.exit(1);
+	}
+
+	return { raw, styles: result.styles };
+}
+
+function writeMinifiedBundle(target, header, body, label) {
+	const minifier = createMinifier();
+	const { raw, styles } = minifyChunk(body, label, minifier);
+
+	fs.writeFileSync(target, header + styles);
+	const saved = raw.length - styles.length;
 	const pct = raw.length ? Math.round((saved / raw.length) * 100) : 0;
 	console.log(
-		`Wrote ${target} (${label}: ${formatKb(raw.length)} → ${formatKb(result.styles.length)}, −${pct}%)`
+		`Wrote ${target} (${label}: ${formatKb(raw.length)} → ${formatKb(styles.length)}, −${pct}%)`
 	);
 }
 
@@ -54,14 +72,25 @@ function bundleAdmin() {
 		' * Do not edit directly. Run: npm run build:css\n' +
 		' */\n';
 
+	const minifier = createMinifier();
 	let body = '';
+	let minifiedBody = '';
+
 	for (const file of files) {
-		body += `/* ${file} */\n`;
-		body += fs.readFileSync(path.join(adminDir, file), 'utf8').trimEnd();
-		body += '\n\n';
+		const chunk = fs.readFileSync(path.join(adminDir, file), 'utf8').trimEnd();
+		body += `/* ${file} */\n${chunk}\n\n`;
+
+		const { styles } = minifyChunk(`/* ${file} */\n${chunk}\n`, file, minifier);
+		minifiedBody += `/* ${file} */\n${styles.trimEnd()}\n\n`;
 	}
 
-	writeMinifiedBundle(path.join(__dirname, 'admin.css'), header, body, `${files.length} partials`);
+	const rawLen = body.length;
+	const outLen = minifiedBody.length;
+	fs.writeFileSync(path.join(__dirname, 'admin.css'), header + minifiedBody.trimEnd() + '\n');
+	const pct = rawLen ? Math.round(((rawLen - outLen) / rawLen) * 100) : 0;
+	console.log(
+		`Wrote ${path.join(__dirname, 'admin.css')} (${files.length} partials: ${formatKb(rawLen)} → ${formatKb(outLen)}, −${pct}%)`
+	);
 }
 
 function bundleFront() {

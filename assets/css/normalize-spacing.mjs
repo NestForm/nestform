@@ -132,7 +132,6 @@ const targets = [
 	...collectCssFiles(path.join(__dirname, 'admin')).filter(
 		(file) => !file.endsWith(`${path.sep}01-tokens.css`)
 	),
-	path.join(__dirname, 'front', 'forms.css'),
 	...collectCssFiles(path.join(proRoot, 'assets')),
 ].filter((file) => fs.existsSync(file));
 

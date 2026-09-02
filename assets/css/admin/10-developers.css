@@ -81,9 +81,9 @@ body.nestform-developers-screen .wrap.nestform-developers {
 }
 
 .nestform-developers__badge--pro {
-    background: color-mix(in srgb, var(--nestform-accent, #2563eb 12%, var(--nestform-surface));
-    border-color: color-mix(in srgb, var(--nestform-accent, #2563eb) 35%, #fff);
-    color: var(--nestform-accent, #2563eb);
+    background: color-mix(in srgb, var(--nestform-accent) 12%, var(--nestform-surface));
+    border-color: color-mix(in srgb, var(--nestform-accent) 35%, var(--nestform-surface));
+    color: var(--nestform-accent);
 }
 
 .nestform-developers__card--pro .nestform-admin__panel-title {

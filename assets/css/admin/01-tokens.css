@@ -50,15 +50,16 @@
     --nestform-navy-alt: #02194c;
     --nestform-ink: var(--nestform-navy);
     --nestform-ink-alt: var(--nestform-navy-alt);
-    --nestform-ok: #16a34a;
-    --nestform-ok-soft: rgba(22, 163, 74, 0.1);
-    --nestform-ok-border: #86efac;
-    --nestform-warn: #f59e0b;
-    --nestform-warn-soft: #fffbeb;
-    --nestform-warn-border: #fcd34d;
-    --nestform-danger: #ef4444;
-    --nestform-danger-border: #fca5a5;
-    --nestform-danger-soft: rgba(220, 38, 38, 0.08);
+    /* Status — muted cool tones (fit navy/accent; avoid Tailwind candy green/amber/red) */
+    --nestform-ok: #147a66;
+    --nestform-ok-soft: #e6f2ef;
+    --nestform-ok-border: #c5ddd6;
+    --nestform-warn: #3b82f6;
+    --nestform-warn-soft: #eff6ff;
+    --nestform-warn-border: #bfdbfe;
+    --nestform-danger: #b44a55;
+    --nestform-danger-soft: #f6ebee;
+    --nestform-danger-border: #e5c4c8;
     --nestform-radius: 8px;
     --nestform-radius-sm: 8px;
     --nestform-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
@@ -114,11 +115,3 @@ body.nestform-admin-screen #wpcontent,
 body.nestform-settings-screen #wpcontent {
     background: var(--nestform-canvas);
 }
-
-body.nestform-app-screen #wpbody-content > .wrap.nestform-hub,
-body.nestform-app-screen #wpbody-content > .wrap.nestform-dash,
-body.nestform-app-screen #wpbody-content > .wrap.nestform-settings,
-body.nestform-app-screen #wpbody-content > .wrap.nestform-integrations,
-body.nestform-app-screen #wpbody-content > .wrap.nestform-developers,
-body.nestform-app-screen #wpbody-content > .wrap.nestform-upgrade,
-body.nestform-app-screen #wpbody-content > .wrap.nestform-license,

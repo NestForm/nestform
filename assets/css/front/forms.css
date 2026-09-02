@@ -343,7 +343,9 @@
 .nest-form__result--success {
 	color: #15803d;
 	background: color-mix(in srgb, #15803d 10%, transparent);
-	border: 1px solid color-mix(in srgb, #15803d 28%, transparent);
+	border-width: 1px;
+	border-style: solid;
+	border-color: color-mix(in srgb, #15803d 28%, transparent);
 }
 
 .nest-form__result[hidden] {
@@ -809,7 +811,7 @@
 }
 
 .nest-form__credit {
-	margin: var(--nestform-space-2) 0 0;
+	margin: 0.5rem 0 0;
 	padding: 0;
 	text-align: center;
 	font-size: 12px;

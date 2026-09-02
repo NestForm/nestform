@@ -219,8 +219,8 @@
 
 .nestform-card[data-field-type="phone"] .nestform-card__badge,
 .nestform-card[data-field-type="number"] .nestform-card__badge {
-    background: #f0fdf4;
-    color: #16a34a;
+    background: var(--nestform-ok-soft);
+    color: var(--nestform-ok);
 }
 
 .nestform-card[data-field-type="select"] .nestform-card__badge,
@@ -228,18 +228,18 @@
 .nestform-card[data-field-type="radio"] .nestform-card__badge,
 .nestform-card[data-field-type="acceptance"] .nestform-card__badge {
     background: var(--nestform-warn-soft);
-    color: #ea580c;
+    color: var(--nestform-warn);
 }
 
 .nestform-card[data-field-type="url"] .nestform-card__badge,
 .nestform-card[data-field-type="file"] .nestform-card__badge {
-    background: #f5f3ff;
-    color: #7c3aed;
+    background: var(--nestform-pro-soft);
+    color: var(--nestform-accent-dark);
 }
 
 .nestform-card[data-field-type="date"] .nestform-card__badge {
-    background: #fdf2f8;
-    color: #be185d;
+    background: var(--nestform-accent-soft);
+    color: var(--nestform-accent);
 }
 
 .nestform-card[data-field-type="heading"] .nestform-card__badge,
@@ -554,7 +554,7 @@
 }
 
 .nestform-card__preview-star.is-on {
-    color: #f59e0b;
+    color: var(--nestform-warn);
 }
 
 .nestform-card__preview-scale {
@@ -1229,6 +1229,10 @@
     margin: var(--nestform-space-1) 0 var(--nestform-space-4);
 }
 
+.nestform-embed__row--flush {
+    margin-bottom: 0;
+}
+
 .nestform-embed__code {
     flex: 1;
     display: block;
@@ -1269,19 +1273,7 @@
 }
 
 .nestform-embed__actions .nestform-btn--danger {
-    background: var(--nestform-danger);
-    border-color: var(--nestform-danger);
-    color: var(--nestform-on-accent);
     font-weight: 600;
-}
-
-.nestform-embed__actions .nestform-btn--danger:hover,
-.nestform-embed__actions .nestform-btn--danger:focus {
-    background: #dc2626;
-    border-color: #dc2626;
-    color: var(--nestform-on-accent);
-    box-shadow: 0 1px 8px
-        color-mix(in srgb, var(--nestform-danger) 35%, transparent);
 }
 
 .nestform-embed__tools {
@@ -1295,10 +1287,6 @@
 
 .nestform-embed__tools + .nestform-embed__tools {
     margin-top: var(--nestform-space-2);
-}
-
-.nestform-embed__tools .nestform-admin__label {
-    margin: 0;
 }
 
 .nestform-embed__tools-list {

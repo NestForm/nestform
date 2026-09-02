@@ -356,22 +356,10 @@ function nestform_render_app_open( $current ) {
 			'icon'  => 'forms',
 		),
 		array(
-			'id'    => 'import',
-			'label' => __( 'Import', 'nestform' ),
-			'url'   => class_exists( 'Nestform_Importer' ) && Nestform_Importer::user_can_import() ? Nestform_Importer::url() : '',
-			'icon'  => 'download',
-		),
-		array(
 			'id'    => 'entries',
 			'label' => __( 'Entries', 'nestform' ),
 			'url'   => class_exists( 'Nestform_Submissions' ) ? Nestform_Submissions::hub_url() : '',
 			'icon'  => 'entries',
-		),
-		array(
-			'id'    => 'settings',
-			'label' => __( 'Settings', 'nestform' ),
-			'url'   => class_exists( 'Nestform_Settings' ) ? Nestform_Settings::url() : '',
-			'icon'  => 'settings',
 		),
 		array(
 			'id'    => 'integrations',
@@ -380,10 +368,22 @@ function nestform_render_app_open( $current ) {
 			'icon'  => 'integrations',
 		),
 		array(
+			'id'    => 'settings',
+			'label' => __( 'Settings', 'nestform' ),
+			'url'   => class_exists( 'Nestform_Settings' ) ? Nestform_Settings::url() : '',
+			'icon'  => 'settings',
+		),
+		array(
 			'id'    => 'developers',
 			'label' => __( 'Developers', 'nestform' ),
 			'url'   => class_exists( 'Nestform_Developers' ) ? Nestform_Developers::url() : '',
 			'icon'  => 'developers',
+		),
+		array(
+			'id'    => 'import',
+			'label' => __( 'Import forms', 'nestform' ),
+			'url'   => class_exists( 'Nestform_Importer' ) && Nestform_Importer::user_can_import() ? Nestform_Importer::url() : '',
+			'icon'  => 'download',
 		),
 	);
 
@@ -629,20 +629,29 @@ function nestform_admin_notice_boot_css() {
 		. 'border-radius:8px!important;background:#eff6ff!important;box-shadow:0 4px 24px rgba(0,0,0,.06)!important;'
 		. 'color:#1d4ed8!important;font-size:13px!important;line-height:1.45!important;'
 		. '}'
+		. 'body.nestform-admin-screen .nestform-toasts div.notice:not(.inline):not(.hidden):not(.update-nag),'
+		. 'body.nestform-admin-screen .nestform-toasts div.updated:not(.inline):not(.hidden),'
+		. 'body.nestform-admin-screen .nestform-toasts div.error:not(.inline):not(.hidden),'
+		. 'body.nestform-editor-app .nestform-toasts div.notice:not(.inline):not(.hidden):not(.update-nag),'
+		. 'body.nestform-editor-app .nestform-toasts div.updated:not(.inline):not(.hidden),'
+		. 'body.nestform-editor-app .nestform-toasts div.error:not(.inline):not(.hidden){'
+		. 'position:relative!important;left:auto!important;right:auto!important;bottom:auto!important;top:auto!important;'
+		. 'width:min(440px,100%)!important;margin:0!important;'
+		. '}'
 		. 'body.nestform-admin-screen div.notice.notice-success:not(.inline):not(.hidden),'
 		. 'body.nestform-admin-screen div.updated:not(.inline):not(.hidden),'
 		. 'body.nestform-admin-screen div.notice.updated:not(.inline):not(.hidden){'
-		. 'border-color:#86efac!important;background:#dcfce7!important;color:#166534!important;'
+		. 'border-color:#c5ddd6!important;background:#e6f2ef!important;color:#147a66!important;'
 		. '}'
 		. 'body.nestform-admin-screen div.notice.notice-error:not(.inline):not(.hidden),'
 		. 'body.nestform-admin-screen div.error:not(.inline):not(.hidden){'
-		. 'border-color:#fca5a5!important;background:#fee2e2!important;color:#b91c1c!important;'
+		. 'border-color:#e5c4c8!important;background:#f6ebee!important;color:#b44a55!important;'
 		. '}'
 		. 'body.nestform-admin-screen div.notice.notice-warning:not(.inline):not(.hidden){'
-		. 'border-color:#fdba74!important;background:#ffedd5!important;color:#c2410c!important;'
+		. 'border-color:#bfdbfe!important;background:#eff6ff!important;color:#3b82f6!important;'
 		. '}'
 		. 'body.nestform-admin-screen div.notice.notice-info:not(.inline):not(.hidden){'
-		. 'border-color:#bfdbfe!important;background:#dbeafe!important;color:#1d4ed8!important;'
+		. 'border-color:#bfdbfe!important;background:#eff6ff!important;color:#1d4ed8!important;'
 		. '}'
 		. 'body.nestform-admin-screen .postbox div.notice,'
 		. 'body.nestform-admin-screen .postbox div.updated,'

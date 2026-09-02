@@ -104,7 +104,7 @@ class Nestform_Importer {
 			'<a class="nestform-btn nestform-btn--outline" href="%1$s">%2$s%3$s</a>',
 			esc_url( self::url() ),
 			nestform_admin_icon_html( 'download' ),
-			esc_html__( 'From CF7 / WPForms', 'nestform' )
+			esc_html__( 'Import forms', 'nestform' )
 		);
 	}
 

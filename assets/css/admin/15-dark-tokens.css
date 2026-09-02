@@ -24,12 +24,15 @@
         --nestform-navy-alt: #dfe3ec;
         --nestform-ink: #eef0f5;
         --nestform-ink-alt: #dfe3ec;
-        --nestform-ok-soft: rgba(22, 163, 74, 0.16);
-        --nestform-ok-border: rgba(134, 239, 172, 0.35);
-        --nestform-warn-soft: rgba(245, 158, 11, 0.14);
-        --nestform-warn-border: rgba(252, 211, 77, 0.38);
-        --nestform-danger-soft: rgba(239, 68, 68, 0.14);
-        --nestform-danger-border: rgba(252, 165, 165, 0.35);
+        --nestform-ok: #4db8a0;
+        --nestform-ok-soft: #1c2f2b;
+        --nestform-ok-border: rgba(77, 184, 160, 0.32);
+        --nestform-warn: #93c5fd;
+        --nestform-warn-soft: #1c2838;
+        --nestform-warn-border: rgba(147, 197, 253, 0.38);
+        --nestform-danger: #e07a84;
+        --nestform-danger-soft: #2a1f24;
+        --nestform-danger-border: rgba(224, 122, 132, 0.32);
         --nestform-shadow: 0 1px 4px rgba(0, 0, 0, 0.38);
         --nestform-shadow-md:
             0 4px 24px rgba(0, 0, 0, 0.48), 0 1px 4px rgba(0, 0, 0, 0.28);
@@ -61,12 +64,15 @@ body.nestform-admin-screen.nestform-theme-dark {
     --nestform-navy-alt: #dfe3ec;
     --nestform-ink: #eef0f5;
     --nestform-ink-alt: #dfe3ec;
-    --nestform-ok-soft: rgba(22, 163, 74, 0.16);
-    --nestform-ok-border: rgba(134, 239, 172, 0.35);
-    --nestform-warn-soft: rgba(245, 158, 11, 0.14);
-    --nestform-warn-border: rgba(252, 211, 77, 0.38);
-    --nestform-danger-soft: rgba(239, 68, 68, 0.14);
-    --nestform-danger-border: rgba(252, 165, 165, 0.35);
+    --nestform-ok: #4db8a0;
+    --nestform-ok-soft: #1c2f2b;
+    --nestform-ok-border: rgba(77, 184, 160, 0.32);
+    --nestform-warn: #93c5fd;
+    --nestform-warn-soft: #1c2838;
+    --nestform-warn-border: rgba(147, 197, 253, 0.38);
+    --nestform-danger: #e07a84;
+    --nestform-danger-soft: #2a1f24;
+    --nestform-danger-border: rgba(224, 122, 132, 0.32);
     --nestform-shadow: 0 1px 4px rgba(0, 0, 0, 0.38);
     --nestform-shadow-md:
         0 4px 24px rgba(0, 0, 0, 0.48), 0 1px 4px rgba(0, 0, 0, 0.28);

@@ -2944,23 +2944,6 @@
 			});
 		}
 
-		var collapseAll = root.querySelector('[data-nestform-collapse-all]');
-		var expandAll = root.querySelector('[data-nestform-expand-all]');
-		if (collapseAll) {
-			collapseAll.addEventListener('click', function () {
-				allFieldCards(root).forEach(function (card) {
-					setCollapsed(card, true);
-				});
-			});
-		}
-		if (expandAll) {
-			expandAll.addEventListener('click', function () {
-				allFieldCards(root).forEach(function (card) {
-					setCollapsed(card, false);
-				});
-			});
-		}
-
 		root.addEventListener('click', function (event) {
 			var addTypeBtn = event.target.closest('[data-nestform-add-type]');
 			if (addTypeBtn && root.contains(addTypeBtn)) {
@@ -3276,10 +3259,67 @@
 		if (!drawer || !openBtns.length) {
 			return;
 		}
+		var INTRO_KEY = 'nestform_templates_intro';
+		var fromIntro = false;
+		var nudgeTimer = 0;
+
+		function introState() {
+			try {
+				return window.localStorage.getItem(INTRO_KEY) || '';
+			} catch (err) {
+				return 'done';
+			}
+		}
+		function setIntroState(value) {
+			try {
+				window.localStorage.setItem(INTRO_KEY, value);
+			} catch (err) {}
+		}
+		function prefersReducedMotion() {
+			return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		}
+		function hideNudge() {
+			var home = document.querySelector('.nestform-templates-home');
+			var nudge = document.querySelector('[data-nestform-templates-nudge]');
+			if (nudgeTimer) {
+				window.clearTimeout(nudgeTimer);
+				nudgeTimer = 0;
+			}
+			if (home) {
+				home.classList.remove('is-hinting');
+			}
+			if (nudge) {
+				nudge.hidden = true;
+			}
+			setIntroState('done');
+		}
+		function showNudge() {
+			var home = document.querySelector('.nestform-templates-home');
+			var nudge = document.querySelector('[data-nestform-templates-nudge]');
+			var homeBtn = document.querySelector('[data-nestform-templates-home]');
+			if (!home || !nudge) {
+				setIntroState('done');
+				return;
+			}
+			nudge.hidden = false;
+			home.classList.add('is-hinting');
+			nudgeTimer = window.setTimeout(hideNudge, prefersReducedMotion() ? 1600 : 4200);
+			if (homeBtn) {
+				homeBtn.addEventListener('click', hideNudge, { once: true });
+			}
+		}
 		function close() {
+			var wasIntro = fromIntro && !drawer.hidden;
 			drawer.hidden = true;
+			if (wasIntro) {
+				fromIntro = false;
+				showNudge();
+			}
 		}
 		function open() {
+			if (drawer.parentNode !== document.body) {
+				document.body.appendChild(drawer);
+			}
 			drawer.hidden = false;
 		}
 		openBtns.forEach(function (btn) {
@@ -3300,7 +3340,7 @@
 				});
 			});
 		});
-		drawer.querySelectorAll('[data-nestform-templates-save-first]').forEach(function (btn) {
+		document.querySelectorAll('[data-nestform-templates-save-first]').forEach(function (btn) {
 			btn.addEventListener('click', function () {
 				var cfg = window.nestformAdmin || {};
 				var msg = (cfg.i18n && cfg.i18n.templateSaveFirst) || 'Save the form as a draft first, then apply a template.';
@@ -3312,6 +3352,14 @@
 				close();
 			}
 		});
+
+		var admin = document.querySelector('[data-nestform-admin]');
+		var isEmpty = (admin && admin.getAttribute('data-nestform-empty') === '1')
+			|| !!document.querySelector('[data-nestform-templates-empty]');
+		if (isEmpty && introState() !== 'done') {
+			fromIntro = true;
+			open();
+		}
 	}
 
 	function initPreview() {

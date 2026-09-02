@@ -235,7 +235,8 @@ body.nestform-editor-app .nestform-editor__title-actions {
     justify-content: flex-end;
     align-self: center;
     gap: var(--nestform-space-2);
-    padding: var(--nestform-space-2) var(--nestform-space-4) var(--nestform-space-2) 0;
+    padding: var(--nestform-space-2) var(--nestform-space-4)
+        var(--nestform-space-2) 0;
     background: var(--nestform-surface);
     white-space: nowrap;
     box-sizing: border-box;
@@ -252,9 +253,9 @@ body.nestform-editor-app .nestform-editor__title-actions {
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.02em;
-    color: #92400e;
+    color: var(--nestform-warn);
     background: var(--nestform-warn-soft);
-    border: 1px solid #fcd34d;
+    border: 1px solid var(--nestform-warn-border);
 }
 
 .nestform-editor__dirty[hidden] {
@@ -270,7 +271,7 @@ body.nestform-editor-app .nestform-editor__title-action.nestform-btn {
     height: auto;
     padding: var(--nestform-space-2) var(--nestform-space-4);
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     line-height: var(--nestform-line-height);
     overflow: visible;
 }
@@ -445,6 +446,10 @@ body.nestform-editor-app .nestform-embed__row {
     margin: 0 0 var(--nestform-space-4);
 }
 
+body.nestform-editor-app .nestform-embed__row--flush {
+    margin-bottom: 0;
+}
+
 body.nestform-editor-app .nestform-embed__code {
     flex: 1;
     overflow: hidden;
@@ -462,14 +467,6 @@ body.nestform-editor-app .nestform-embed__copy {
     min-width: 28px;
     min-height: 28px;
     padding: 0;
-}
-
-body.nestform-editor-app .nestform-embed > .description {
-    margin: 0 0 var(--nestform-space-4);
-    padding-top: var(--nestform-space-4);
-    border-top: 1px solid var(--nestform-border);
-    font-size: 11.5px;
-    line-height: var(--nestform-line-height);
 }
 
 body.nestform-editor-app .nestform-embed__actions .nestform-btn--danger-text {
@@ -608,7 +605,7 @@ body.nestform-editor-app .nestform-add {
 }
 
 .nestform-dash__kpi--pro .nestform-dash__kpi-meta--up {
-    color: #86efac;
+    color: var(--nestform-ok);
 }
 
 .nestform-dash__kpi-unlock {
@@ -721,8 +718,8 @@ body.nestform-editor-app .nestform-add {
     margin-right: var(--nestform-space-1);
     padding: var(--nestform-space-1) var(--nestform-space-2);
     border-radius: 999px;
-    background: #ecfdf5;
-    color: #047857;
+    background: var(--nestform-ok-soft);
+    color: var(--nestform-ok);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.02em;
@@ -921,7 +918,7 @@ body.nestform-editor-app .nestform-add {
 
 .nestform-upgrade__cta:hover,
 .nestform-upgrade__cta:focus {
-    background: #f8fafc;
+    background: var(--nestform-soft);
     color: var(--nestform-pro);
 }
 
@@ -935,7 +932,7 @@ body.nestform-editor-app .nestform-add {
 
 .nestform-upgrade__cta--agency:hover,
 .nestform-upgrade__cta--agency:focus {
-    background: var(--nestform-surface-soft, #f8fafc);
+    background: var(--nestform-soft);
     color: var(--nestform-ink);
 }
 
@@ -1165,12 +1162,12 @@ body.nestform-app-screen .wrap.nestform-license {
 
 .nestform-license__status--invalid,
 .nestform-license__status--error {
-    border-color: #fca5a5;
+    border-color: var(--nestform-danger-border);
 }
 
 .nestform-license__status--invalid .nestform-license__status-value,
 .nestform-license__status--error .nestform-license__status-value {
-    color: #b91c1c;
+    color: var(--nestform-danger);
 }
 
 .nestform-license__layout {
@@ -1288,7 +1285,7 @@ body.nestform-app-screen .wrap.nestform-license {
 
 .nestform-license__aside-cta:hover,
 .nestform-license__aside-cta:focus {
-    background: #f8fafc;
+    background: var(--nestform-soft);
     color: var(--nestform-pro);
 }
 
@@ -1316,7 +1313,7 @@ body.nestform-app-screen .wrap.nestform-license {
     border: 1px solid var(--nestform-warn-border);
     border-radius: 12px;
     background: var(--nestform-warn-soft);
-    color: #c2410c;
+    color: var(--nestform-warn);
     font-size: 13px;
     line-height: var(--nestform-line-height);
 }
@@ -1627,9 +1624,16 @@ a:focus .plugin-icon,
     opacity: 0.72;
 }
 
-.nestform-templates__card--disabled:hover {
+.nestform-templates__card--disabled:hover,
+.nestform-templates__card--locked:hover {
     transform: none;
     box-shadow: none;
+    border-color: var(--nestform-border);
+}
+
+.nestform-templates__card--locked {
+    cursor: default;
+    opacity: 0.72;
 }
 
 .nestform-admin__check--full {
@@ -1764,7 +1768,8 @@ body.nestform-mail-preview-open {
     border-radius: var(--nestform-radius-sm);
     background: var(--nestform-soft);
     border: 1px solid var(--nestform-border);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 11px;
     line-height: var(--nestform-line-height);
     color: var(--nestform-ink);

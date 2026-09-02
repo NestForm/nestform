@@ -227,7 +227,7 @@
 .nestform-card[data-field-type="checkbox"] .nestform-card__badge,
 .nestform-card[data-field-type="radio"] .nestform-card__badge,
 .nestform-card[data-field-type="acceptance"] .nestform-card__badge {
-    background: #fff7ed;
+    background: var(--nestform-warn-soft);
     color: #ea580c;
 }
 
@@ -630,7 +630,7 @@
     margin-left: var(--nestform-space-2);
     border-radius: 50%;
     border: 2px solid var(--nestform-accent);
-    background: #fff;
+    background: var(--nestform-surface);
     transform: translateY(-50%);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
@@ -1106,7 +1106,7 @@
 
 .nestform-image-picker__preview.has-image,
 .nestform-image-picker__preview:has(img) {
-    background: #fff;
+    background: var(--nestform-surface);
     border-style: solid;
     border-color: var(--nestform-border-strong);
 }
@@ -1602,7 +1602,7 @@
 .nestform-steps-setup__add-step:focus {
     border-color: var(--nestform-accent);
     color: var(--nestform-accent-dark);
-    background: #fff;
+    background: var(--nestform-surface);
 }
 
 .nestform-steps-setup__branch {
@@ -1751,13 +1751,13 @@
 
 .nestform-step-nav__btn:hover {
     color: var(--nestform-ink);
-    background: #fff;
+    background: var(--nestform-surface);
     border-color: transparent;
 }
 
 .nestform-step-nav__btn.is-active {
     color: var(--nestform-accent-dark);
-    background: #fff;
+    background: var(--nestform-surface);
     border-color: var(--nestform-accent-line);
     font-weight: 600;
     box-shadow: inset 0 0 0 1px var(--nestform-accent-soft);
@@ -1765,7 +1765,7 @@
 
 .nestform-step-nav__btn.is-active:hover {
     color: var(--nestform-accent-dark);
-    background: #fff;
+    background: var(--nestform-surface);
     border-color: var(--nestform-accent);
 }
 

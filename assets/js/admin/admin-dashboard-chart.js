@@ -7,11 +7,40 @@
 	var ChartLib = window.Chart;
 	var i18n = (window.nestformDashChart && window.nestformDashChart.i18n) || {};
 	var ACCENT = '#2563eb';
-	var ACCENT_SOFT = 'rgba(37, 99, 235, 0.16)';
-	var GRID = 'rgba(15, 23, 42, 0.08)';
-	var TICK = '#64748b';
 
 	var LOCALE = 'en-US';
+
+	function isDarkAdmin() {
+		var body = document.body;
+		if (!body) {
+			return false;
+		}
+		var theme = body.getAttribute('data-nestform-theme');
+		if (theme === 'dark') {
+			return true;
+		}
+		if (theme === 'light') {
+			return false;
+		}
+		return (
+			window.matchMedia &&
+			window.matchMedia('(prefers-color-scheme: dark)').matches
+		);
+	}
+
+	function chartColors() {
+		var dark = isDarkAdmin();
+		return {
+			accentSoft: dark ? 'rgba(59, 130, 246, 0.22)' : 'rgba(37, 99, 235, 0.16)',
+			grid: dark ? 'rgba(148, 163, 184, 0.14)' : 'rgba(15, 23, 42, 0.08)',
+			tick: dark ? '#9aa3b5' : '#64748b',
+			pointBg: dark ? '#161921' : '#ffffff',
+			tooltipBg: dark ? '#1c2030' : '#0f172a',
+			tooltipTitle: dark ? '#eef0f5' : '#f8fafc',
+			tooltipBody: dark ? '#c5cdd8' : '#e2e8f0',
+			tooltipBorder: dark ? 'rgba(148, 163, 184, 0.28)' : 'rgba(148, 163, 184, 0.35)',
+		};
+	}
 
 	var state = {
 		wrap: null,
@@ -112,6 +141,7 @@
 		if (!ChartLib || !state.canvas || !data) {
 			return;
 		}
+		var colors = chartColors();
 		var packed = seriesToChartData(data);
 		var unit = data.unit || 'count';
 		var label = seriesLabel(state.active, data);
@@ -130,7 +160,7 @@
 						label: label,
 						data: packed.values,
 						borderColor: ACCENT,
-						backgroundColor: ACCENT_SOFT,
+						backgroundColor: colors.accentSoft,
 						borderWidth: 2,
 						fill: true,
 						tension: 0.35,
@@ -138,7 +168,7 @@
 						pointRadius: 0,
 						pointHoverRadius: 5,
 						pointHitRadius: 12,
-						pointBackgroundColor: '#fff',
+						pointBackgroundColor: colors.pointBg,
 						pointBorderColor: ACCENT,
 						pointBorderWidth: 2,
 					},
@@ -162,10 +192,10 @@
 				plugins: {
 					legend: { display: false },
 					tooltip: {
-						backgroundColor: '#0f172a',
-						titleColor: '#f8fafc',
-						bodyColor: '#e2e8f0',
-						borderColor: 'rgba(148, 163, 184, 0.35)',
+						backgroundColor: colors.tooltipBg,
+						titleColor: colors.tooltipTitle,
+						bodyColor: colors.tooltipBody,
+						borderColor: colors.tooltipBorder,
 						borderWidth: 1,
 						padding: 10,
 						displayColors: false,
@@ -189,7 +219,7 @@
 						grid: { display: false },
 						border: { display: false },
 						ticks: {
-							color: TICK,
+							color: colors.tick,
 							padding: 10,
 							maxRotation: 0,
 							autoSkip: true,
@@ -205,11 +235,11 @@
 						grace: '12%',
 						border: { display: false },
 						grid: {
-							color: GRID,
+							color: colors.grid,
 							drawTicks: false,
 						},
 						ticks: {
-							color: TICK,
+							color: colors.tick,
 							padding: 8,
 							precision: unit === 'percent' ? 1 : 0,
 							maxTicksLimit: 5,
@@ -265,6 +295,17 @@
 		}
 		updateLegend(activeSeries());
 		buildChart(activeSeries());
+
+		if (window.matchMedia) {
+			window
+				.matchMedia('(prefers-color-scheme: dark)')
+				.addEventListener('change', function () {
+					var series = activeSeries();
+					if (series) {
+						buildChart(series);
+					}
+				});
+		}
 	}
 
 	window.nestformDashChartApi = {

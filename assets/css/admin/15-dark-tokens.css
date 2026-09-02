@@ -1,0 +1,91 @@
+/**
+ * Nestform admin — dark theme (semantic tokens).
+ * OS: prefers-color-scheme. Manual: body[data-nestform-theme="dark"].
+ */
+
+@media (prefers-color-scheme: dark) {
+    body.nestform-admin-screen:not([data-nestform-theme="light"]) {
+        color-scheme: dark;
+        --nestform-accent-soft: rgba(59, 130, 246, 0.16);
+        --nestform-accent-line: rgba(96, 165, 250, 0.38);
+        --nestform-surface: #161921;
+        --nestform-canvas: #0d0f14;
+        --nestform-shell: #0d0f14;
+        --nestform-paper: #161921;
+        --nestform-soft: #1c2030;
+        --nestform-raised: #222836;
+        --nestform-border: #2a3040;
+        --nestform-border-strong: #3a4256;
+        --nestform-muted: #9aa3b5;
+        --nestform-faint: #6b7385;
+        --nestform-pro-soft: rgba(59, 130, 246, 0.14);
+        --nestform-pro-glow: rgba(59, 130, 246, 0.28);
+        --nestform-navy: #eef0f5;
+        --nestform-navy-alt: #dfe3ec;
+        --nestform-ink: #eef0f5;
+        --nestform-ink-alt: #dfe3ec;
+        --nestform-ok-soft: rgba(22, 163, 74, 0.16);
+        --nestform-ok-border: rgba(134, 239, 172, 0.35);
+        --nestform-warn-soft: rgba(245, 158, 11, 0.14);
+        --nestform-warn-border: rgba(252, 211, 77, 0.38);
+        --nestform-danger-soft: rgba(239, 68, 68, 0.14);
+        --nestform-danger-border: rgba(252, 165, 165, 0.35);
+        --nestform-shadow: 0 1px 4px rgba(0, 0, 0, 0.38);
+        --nestform-shadow-md:
+            0 4px 24px rgba(0, 0, 0, 0.48), 0 1px 4px rgba(0, 0, 0, 0.28);
+        --nestform-chevron-right: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 12L10 8L6 4' stroke='%23A8B2C2' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        --nestform-chevron-down: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%23A8B2C2' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        --nestform-chevron-up: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 10L8 6L12 10' stroke='%23A8B2C2' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        --nestform-chevron-down-accent: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%2360a5fa' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        --nestform-chevron-up-accent: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 10L8 6L12 10' stroke='%2360a5fa' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    }
+}
+
+body.nestform-admin-screen[data-nestform-theme="dark"] {
+    color-scheme: dark;
+    --nestform-accent-soft: rgba(59, 130, 246, 0.16);
+    --nestform-accent-line: rgba(96, 165, 250, 0.38);
+    --nestform-surface: #161921;
+    --nestform-canvas: #0d0f14;
+    --nestform-shell: #0d0f14;
+    --nestform-paper: #161921;
+    --nestform-soft: #1c2030;
+    --nestform-raised: #222836;
+    --nestform-border: #2a3040;
+    --nestform-border-strong: #3a4256;
+    --nestform-muted: #9aa3b5;
+    --nestform-faint: #6b7385;
+    --nestform-pro-soft: rgba(59, 130, 246, 0.14);
+    --nestform-pro-glow: rgba(59, 130, 246, 0.28);
+    --nestform-navy: #eef0f5;
+    --nestform-navy-alt: #dfe3ec;
+    --nestform-ink: #eef0f5;
+    --nestform-ink-alt: #dfe3ec;
+    --nestform-ok-soft: rgba(22, 163, 74, 0.16);
+    --nestform-ok-border: rgba(134, 239, 172, 0.35);
+    --nestform-warn-soft: rgba(245, 158, 11, 0.14);
+    --nestform-warn-border: rgba(252, 211, 77, 0.38);
+    --nestform-danger-soft: rgba(239, 68, 68, 0.14);
+    --nestform-danger-border: rgba(252, 165, 165, 0.35);
+    --nestform-shadow: 0 1px 4px rgba(0, 0, 0, 0.38);
+    --nestform-shadow-md:
+        0 4px 24px rgba(0, 0, 0, 0.48), 0 1px 4px rgba(0, 0, 0, 0.28);
+    --nestform-chevron-right: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 12L10 8L6 4' stroke='%23A8B2C2' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --nestform-chevron-down: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%23A8B2C2' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --nestform-chevron-up: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 10L8 6L12 10' stroke='%23A8B2C2' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --nestform-chevron-down-accent: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%2360a5fa' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --nestform-chevron-up-accent: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 10L8 6L12 10' stroke='%2360a5fa' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* WP chrome bleed — admin menu stays light; soften content edges */
+@media (prefers-color-scheme: dark) {
+    body.nestform-admin-screen:not([data-nestform-theme="light"]) #wpcontent,
+    body.nestform-admin-screen[data-nestform-theme="dark"] #wpcontent {
+        background: var(--nestform-canvas);
+    }
+
+    body.nestform-admin-screen:not([data-nestform-theme="light"]) #wpbody,
+    body.nestform-admin-screen[data-nestform-theme="dark"] #wpbody {
+        background: var(--nestform-canvas);
+    }
+}

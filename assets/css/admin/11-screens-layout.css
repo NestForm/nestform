@@ -769,7 +769,7 @@
 }
 
 .nestform-btn--primary .nestform-entries__filter-count {
-    background: #fff;
+    background: var(--nestform-surface);
     color: var(--nestform-accent);
 }
 

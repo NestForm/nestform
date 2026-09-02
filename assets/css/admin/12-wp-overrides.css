@@ -253,7 +253,7 @@ body.nestform-editor-app .nestform-editor__title-actions {
     font-weight: 600;
     letter-spacing: 0.02em;
     color: #92400e;
-    background: #fef3c7;
+    background: var(--nestform-warn-soft);
     border: 1px solid #fcd34d;
 }
 
@@ -913,7 +913,7 @@ body.nestform-editor-app .nestform-add {
     margin: var(--nestform-space-6) 0 0;
     padding: var(--nestform-space-4) var(--nestform-space-4);
     border-radius: 12px;
-    background: #fff;
+    background: var(--nestform-surface);
     color: var(--nestform-pro);
     font-size: 14px;
     box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16);
@@ -1280,7 +1280,7 @@ body.nestform-app-screen .wrap.nestform-license {
 .nestform-license__aside-cta {
     width: 100%;
     margin: 0 0 var(--nestform-space-2);
-    background: #fff;
+    background: var(--nestform-surface);
     color: var(--nestform-pro);
     margin-top: auto;
     transition: var(--nestform-transition);
@@ -1682,7 +1682,7 @@ a:focus .plugin-icon,
     flex-direction: column;
     width: min(720px, 100%);
     max-height: min(860px, calc(100vh - 48px));
-    background: #fff;
+    background: var(--nestform-surface);
     border: 1px solid var(--nestform-border);
     border-radius: 10px;
     box-shadow: 0 20px 48px rgba(18, 19, 22, 0.22);

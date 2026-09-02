@@ -1,0 +1,44 @@
+/**
+ * Nestform admin — dark theme surface fixes (WP bleed, status tints).
+ */
+
+@media (prefers-color-scheme: dark) {
+    body.nestform-admin-screen:not([data-nestform-theme="light"]) .widefat.striped > tbody > :nth-child(odd),
+    body.nestform-admin-screen[data-nestform-theme="dark"] .widefat.striped > tbody > :nth-child(odd) {
+        background-color: color-mix(in srgb, var(--nestform-soft) 65%, transparent);
+    }
+
+    body.nestform-admin-screen:not([data-nestform-theme="light"]) .notice,
+    body.nestform-admin-screen[data-nestform-theme="dark"] .notice {
+        background: var(--nestform-soft);
+        border-color: var(--nestform-border-strong);
+        color: var(--nestform-ink);
+    }
+
+    body.nestform-admin-screen:not([data-nestform-theme="light"]) .notice-warning,
+    body.nestform-admin-screen[data-nestform-theme="dark"] .notice-warning {
+        background: var(--nestform-warn-soft);
+        border-color: var(--nestform-warn-border);
+        color: var(--nestform-ink);
+    }
+
+    body.nestform-admin-screen:not([data-nestform-theme="light"]) .nestform-editor__dirty,
+    body.nestform-admin-screen[data-nestform-theme="dark"] .nestform-editor__dirty {
+        background: var(--nestform-warn-soft);
+        border-color: var(--nestform-warn-border);
+        color: var(--nestform-ink);
+    }
+
+    body.nestform-admin-screen:not([data-nestform-theme="light"]) .nestform-card.is-invalid,
+    body.nestform-admin-screen[data-nestform-theme="dark"] .nestform-card.is-invalid {
+        background: var(--nestform-warn-soft);
+    }
+
+    body.nestform-admin-screen:not([data-nestform-theme="light"]) .nestform-style-color__swatch-wrap,
+    body.nestform-admin-screen[data-nestform-theme="dark"] .nestform-style-color__swatch-wrap {
+        background:
+            linear-gradient(45deg, var(--nestform-border) 25%, transparent 25%) 0 0 / 8px 8px,
+            linear-gradient(-45deg, var(--nestform-border) 25%, transparent 25%) 0 4px / 8px 8px,
+            var(--nestform-soft);
+    }
+}

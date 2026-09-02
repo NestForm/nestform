@@ -454,7 +454,7 @@ body.wp-core-ui.nestform-settings-screen .nestform-log__clear,
     max-width: 100%;
     margin: var(--nestform-space-2) 0 0;
     padding: var(--nestform-space-2);
-    background: #fff;
+    background: var(--nestform-surface);
     border: 1px solid var(--nestform-border);
     border-radius: var(--nestform-radius);
 }

@@ -886,7 +886,7 @@ body.nestform-admin-screen div.error:not(.inline):not(.hidden) {
     padding: var(--nestform-space-2) var(--nestform-space-10) var(--nestform-space-2) var(--nestform-space-4);
     border: 1px solid var(--nestform-accent-line);
     border-radius: var(--nestform-radius);
-    background: #eff6ff;
+    background: var(--nestform-pro-soft);
     box-shadow: var(--nestform-shadow-md);
     color: var(--nestform-accent-dark);
     font-size: 13px;

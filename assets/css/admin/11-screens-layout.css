@@ -773,6 +773,10 @@
     color: var(--nestform-accent);
 }
 
+.nestform-btn--primary .nestform-entries__filter-count:after {
+    background: var(--nestform-surface);
+}
+
 .nestform-entries__table {
     overflow: hidden;
     background: var(--nestform-surface);

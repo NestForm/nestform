@@ -75,7 +75,8 @@
 .nest-form-select__icon{flex:0 0 auto;width:.65rem;height:.65rem;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-2px);opacity:.65;transition:transform .15s ease}
 .nest-form-select.is-open .nest-form-select__icon{transform:rotate(225deg) translateY(-1px)}
 .nest-form-select__list{position:absolute;z-index:30;top:calc(100% + 4px);left:0;right:0;margin:0;padding:.25rem;list-style:none;max-height:var(--nest-form-select-max-height);overflow:auto;background:var(--nest-form-select-bg);border:1px solid var(--nest-form-select-border);border-radius:var(--nest-form-select-radius);box-shadow:var(--nest-form-select-shadow)}
-.nest-form-select__option{padding:.5rem .5rem;border-radius:calc(var(--nest-form-select-radius) - 2px);color:var(--nest-form-select-text);cursor:pointer}
+.nest-form-select__option{padding:.5rem .5rem;border-radius:calc(var(--nest-form-select-radius) - 2px);color:var(--nest-form-select-text);cursor:pointer;margin-bottom:4px}
+.nest-form-select__option:last-child{margin-bottom:0}
 .nest-form-select__option.is-active,.nest-form-select__option:hover{background:var(--nest-form-select-option-hover)}
 .nest-form-select__option[aria-selected=true]{background:var(--nest-form-select-option-active);font-weight:600}
 .nest-form-select__option:focus{outline:0;background:var(--nest-form-select-option-hover)}

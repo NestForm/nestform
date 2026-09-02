@@ -132,7 +132,9 @@ class Nestform_Entry_Print {
 			</dl>
 		</header>
 
-		<?php self::render_fields( $form->ID, $data ); ?>
+		<div class="nestform-print__body">
+			<?php self::render_fields( $form->ID, $data ); ?>
+		</div>
 
 		<footer class="nestform-print__footer">
 			<?php
@@ -181,7 +183,7 @@ class Nestform_Entry_Print {
 
 			$label    = (string) ( isset( $field['label'] ) && $field['label'] !== '' ? $field['label'] : $name );
 			$value    = array_key_exists( $name, $data ) ? $data[ $name ] : '';
-			$display  = Nestform_Export::cell_value( $value );
+			$display  = trim( Nestform_Export::cell_value( $value ) );
 			$answered = '' !== $display;
 			?>
 			<div class="nestform-print__field">
@@ -271,21 +273,47 @@ class Nestform_Entry_Print {
 			background: #fff;
 			box-shadow: 0 1px 3px rgba(0,0,0,.13);
 		}
-		.nestform-print__header { margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid #1d2327; }
+		.nestform-print p,
+		.nestform-print dt,
+		.nestform-print dd { margin: 0; padding: 0; }
+		.nestform-print__header { margin-bottom: 28px; padding-bottom: 20px; border-bottom: 2px solid #1d2327; }
 		.nestform-print__site { margin: 0 0 4px; color: #646970; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; }
 		.nestform-print__title { margin: 0 0 16px; font-size: 26px; line-height: 1.25; }
-		.nestform-print__meta { display: flex; flex-wrap: wrap; gap: 32px; margin: 0; }
-		.nestform-print__meta-item { margin: 0; }
-		.nestform-print__meta-label { color: #646970; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+		.nestform-print__meta { display: flex; flex-wrap: wrap; gap: 24px 32px; margin: 0; }
+		.nestform-print__meta-item { margin: 0; min-width: 0; }
+		.nestform-print__meta-label { color: #646970; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
 		.nestform-print__meta-value { margin: 2px 0 0; font-weight: 600; }
-		.nestform-print__section { margin: 32px 0 16px; }
-		.nestform-print__section-title { margin: 0 0 4px; padding-bottom: 6px; border-bottom: 1px solid #dcdcde; font-size: 18px; }
+		.nestform-print__body {
+			display: flex;
+			flex-direction: column;
+			gap: 14px;
+		}
+		.nestform-print__section { margin: 8px 0 0; }
+		.nestform-print__section-title { margin: 0; padding-bottom: 6px; border-bottom: 1px solid #dcdcde; font-size: 16px; }
 		.nestform-print__note { color: #50575e; }
-		.nestform-print__field { margin: 0 0 20px; page-break-inside: avoid; break-inside: avoid; }
-		.nestform-print__label { margin: 0 0 2px; color: #646970; font-size: 13px; font-weight: 600; }
-		.nestform-print__value { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+		.nestform-print__field {
+			display: grid;
+			grid-template-columns: minmax(7em, 32%) minmax(0, 1fr);
+			column-gap: 24px;
+			align-items: start;
+			page-break-inside: avoid;
+			break-inside: avoid;
+		}
+		.nestform-print__label {
+			margin: 0;
+			color: #646970;
+			font-size: 13px;
+			font-weight: 600;
+			line-height: 1.45;
+		}
+		.nestform-print__value {
+			margin: 0;
+			min-width: 0;
+			line-height: 1.45;
+			overflow-wrap: anywhere;
+		}
 		.nestform-print__value--empty { color: #8c8f94; font-style: italic; }
-		.nestform-print__footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #dcdcde; color: #646970; font-size: 12px; }
+		.nestform-print__footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #dcdcde; color: #646970; font-size: 12px; }
 
 		@media print {
 			.nestform-print-body { padding: 0; background: #fff; font-size: 12pt; }

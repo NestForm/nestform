@@ -514,6 +514,11 @@
 	border-radius: calc(var(--nest-form-select-radius) - 2px);
 	color: var(--nest-form-select-text);
 	cursor: pointer;
+	margin-bottom: 4px;
+}
+
+.nest-form-select__option:last-child {
+	margin-bottom: 0;
 }
 
 .nest-form-select__option:hover,

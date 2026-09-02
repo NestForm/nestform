@@ -1547,18 +1547,6 @@ a:focus .plugin-icon,
     min-height: var(--nestform-control-h);
 }
 
-.nestform-mail-designer__toolbar .nestform-btn,
-.nestform-mail-designer__toolbar .button,
-.nestform-mail-designer__toolbar .button.button-primary,
-.nestform-mail-designer__toolbar .button.button-secondary {
-    height: var(--nestform-control-h) !important;
-    min-height: var(--nestform-control-h) !important;
-    max-height: var(--nestform-control-h);
-    padding: 0 var(--nestform-space-2) !important;
-    font-size: 13px !important;
-    box-sizing: border-box;
-}
-
 .nestform-mail-designer__logo-preview {
     display: inline-flex;
     align-items: center;

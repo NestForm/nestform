@@ -1817,7 +1817,7 @@
 
 .nestform-step-group__remove.nestform-btn {
     flex: 0 0 auto;
-    min-height: 30px;
+    min-height: var(--nestform-space-10);
     padding: var(--nestform-space-1) var(--nestform-space-2);
 }
 

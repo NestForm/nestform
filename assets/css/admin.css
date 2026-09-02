@@ -53,7 +53,7 @@ body.nestform-app-screen #wpbody-content>.wrap.nestform-admin,body.nestform-app-
 .nestform-app__name-accent{color:var(--nestform-accent)}
 .nestform-app__ver{display:inline-flex;align-items:center;padding:2px var(--nestform-space-1);border-radius:999px;background:var(--nestform-accent-soft);color:var(--nestform-accent);font-size:10px;font-weight:500;letter-spacing:.02em;line-height:var(--nestform-line-height);margin-top:2px}
 .nestform-app__nav{flex-shrink:0;padding:var(--nestform-space-4) var(--nestform-space-2)}
-.nestform-app__nav-item{position:relative;display:flex;align-items:center;gap:var(--nestform-space-2);width:100%;margin:0 0 var(--nestform-space-1);padding:var(--nestform-space-2) var(--nestform-space-2) var(--nestform-space-2) var(--nestform-space-4);border-radius:8px!important;color:var(--nestform-muted);font-size:13px;font-weight:500;text-decoration:none;box-sizing:border-box;transition:var(--nestform-transition)}
+.nestform-app__nav-item{position:relative;display:flex;align-items:center;gap:var(--nestform-space-2);width:100%;margin:0 0 var(--nestform-space-1);padding:var(--nestform-space-2) var(--nestform-space-2) var(--nestform-space-2) var(--nestform-space-4);border-radius:8px!important;color:var(--nestform-muted);font-size:14px;font-weight:500;text-decoration:none;box-sizing:border-box;transition:var(--nestform-transition)}
 .nestform-app__nav-item:last-child{margin-bottom:0}
 .nestform-app__nav-item:focus,.nestform-app__nav-item:hover{color:var(--nestform-ink);background:var(--nestform-soft);box-shadow:none}
 .nestform-app__nav-item--active,.nestform-app__nav-item--active:focus,.nestform-app__nav-item--active:hover{color:var(--nestform-accent-dark);background:var(--nestform-pro-soft);box-shadow:none}
@@ -197,8 +197,8 @@ a.nestform-hub__count:focus,a.nestform-hub__count:hover{background:var(--nestfor
 .nestform-hub__more-menu[hidden]{display:none}
 .nestform-hub__more-menu .nestform-btn{display:flex;width:100%;justify-content:flex-start}
 .nestform-export-menu{position:relative;display:inline-flex}
-.nestform-export-menu__toggle{position:relative;padding-right:var(--nestform-space-8)}
-.nestform-export-menu__toggle::after{content:"";position:absolute;right:10px;top:50%;width:16px;height:16px;margin-top:var(--nestform-space-2);background-color:currentColor;mask:var(--nestform-chevron-mask-down) center/16px 16px no-repeat;-webkit-mask:var(--nestform-chevron-mask-down) center/16px 16px no-repeat;pointer-events:none;transition:transform .15s ease}
+.nestform-export-menu__toggle{position:relative;padding-right:var(--nestform-space-8)!important}
+.nestform-export-menu__toggle::after{content:"";position:absolute;right:10px;width:16px;height:16px;background-color:currentColor;mask:var(--nestform-chevron-mask-down) center/16px 16px no-repeat;-webkit-mask:var(--nestform-chevron-mask-down) center/16px 16px no-repeat;pointer-events:none;transition:transform .15s ease}
 .nestform-export-menu.is-open .nestform-export-menu__toggle::after{transform:rotate(180deg)}
 .nestform-export-menu__panel{position:absolute;top:calc(100% + 4px);right:0;z-index:30;min-width:168px;padding:var(--nestform-space-1);background:var(--nestform-surface);border:1px solid var(--nestform-border);border-radius:var(--nestform-radius);box-shadow:var(--nestform-shadow-md)}
 .nestform-export-menu__panel[hidden]{display:none}
@@ -217,7 +217,7 @@ a.nestform-hub__count:focus,a.nestform-hub__count:hover{background:var(--nestfor
 .nestform-hub__td--fields{font-size:13.5px;color:var(--nestform-muted);font-weight:500}
 .nestform-hub__td--entries{font-size:13.5px;font-weight:600;color:var(--nestform-ink)}
 .nestform-hub__heading{display:flex;align-items:center;gap:var(--nestform-space-2);margin-bottom:var(--nestform-space-2)}
-.nestform-hub__title{font-size:16px;font-weight:700;color:var(--nestform-ink);text-decoration:none;transition:var(--nestform-transition)}
+.nestform-hub__title{font-size:16px;font-weight:600;color:var(--nestform-ink);text-decoration:none;transition:var(--nestform-transition)}
 .nestform-hub__title:focus,.nestform-hub__title:hover{color:var(--nestform-accent)}
 .nestform-hub__meta{display:flex;gap:var(--nestform-space-2);align-items:center}
 .nestform-hub__id{font-size:10.5px;color:var(--nestform-faint)}
@@ -352,7 +352,7 @@ body.wp-core-ui.nestform-admin-screen .nestform-admin__tab:is(:focus,:focus-visi
 .nestform-admin__chip-icon svg{display:block}
 body.wp-core-ui.nestform-admin-screen :is(
 .nestform-admin__input,.nestform-admin__textarea,.nestform-hub input[type=text],.nestform-hub input[type=search],.nestform-hub select,.nestform-dash input[type=text],.nestform-dash input[type=search],.nestform-dash select,.nestform-entries-toolbar__select
-),body.wp-core-ui.nestform-admin-screen.edit-php .tablenav :is(select,.current-page){width:100%;max-width:100%;min-height:var(--nestform-control-h);height:auto;margin:0;padding:var(--nestform-space-2) var(--nestform-space-2);border:1px solid var(--nestform-border);border-radius:var(--nestform-radius);background-color:var(--nestform-surface);color:var(--nestform-ink);font-size:13px;line-height:var(--nestform-line-height);font-weight:400;box-shadow:none;box-sizing:border-box;vertical-align:middle;transition:var(--nestform-transition)}
+),body.wp-core-ui.nestform-admin-screen.edit-php .tablenav :is(select,.current-page){width:100%;max-width:100%;min-height:var(--nestform-control-h);height:auto;margin:0;padding:var(--nestform-space-2) var(--nestform-space-8) var(--nestform-space-2) var(--nestform-space-2);border:1px solid var(--nestform-border);border-radius:var(--nestform-radius);background-color:var(--nestform-surface);color:var(--nestform-ink);font-size:13px;line-height:var(--nestform-line-height);font-weight:400;box-shadow:none;box-sizing:border-box;vertical-align:middle;transition:var(--nestform-transition)}
 body.wp-core-ui.nestform-admin-screen :is(
 select.nestform-admin__input,.nestform-hub select,.nestform-dash select,.nestform-entries-toolbar__select
 ),body.wp-core-ui.nestform-admin-screen.edit-php .tablenav select{--nestform-select-chevron:var(--nestform-chevron-down);padding-right:var(--nestform-space-6);appearance:none;-webkit-appearance:none;-moz-appearance:none;background-color:var(--nestform-surface);background-image:var(--nestform-select-chevron);background-repeat:no-repeat;background-position:right 8px center;background-size:16px 16px;cursor:pointer;text-align:left}
@@ -650,7 +650,7 @@ body.wp-core-ui.nestform-admin-screen.nestform-entries-screen.edit-php .wp-list-
 .nestform-step-nav__btn.is-active .nestform-step-nav__count{background:var(--nestform-accent-soft);border-color:var(--nestform-accent-line);color:var(--nestform-accent-dark)}
 .nestform-step-group__title-wrap{flex:1 1 200px;margin:0}
 .nestform-step-group__title{width:100%}
-.nestform-step-group__remove.nestform-btn{flex:0 0 auto;min-height:30px;padding:var(--nestform-space-1) var(--nestform-space-2)}
+.nestform-step-group__remove.nestform-btn{flex:0 0 auto;min-height:var(--nestform-space-10);padding:var(--nestform-space-1) var(--nestform-space-2)}
 body.nestform-admin-screen,body.nestform-entries-screen{background:var(--nestform-canvas)}
 .wrap.nestform-dash,.wrap.nestform-developers,.wrap.nestform-hub,.wrap.nestform-settings{width:auto;max-width:none;margin:0 0 0 var(--nestform-space-4);padding:0;box-sizing:border-box}
 .nestform-hub{color:var(--nestform-ink);font-size:13px}
@@ -1394,6 +1394,7 @@ body.nestform-docs-screen .wrap.nestform-docs{margin:0;padding:0;max-width:none;
 .nestform-entries__pager-links .page-numbers.dots,.nestform-hub__pager-links .page-numbers.dots{border-color:transparent;background:0 0;min-width:20px;color:var(--nestform-faint)}
 .nestform-entries__filter-count{margin-left:2px;background:var(--nestform-accent);color:var(--nestform-on-accent);border-radius:10px;padding:1px var(--nestform-space-1);font-size:10px;font-weight:600;line-height:var(--nestform-line-height)}
 .nestform-btn--primary .nestform-entries__filter-count{background:var(--nestform-surface);color:var(--nestform-accent)}
+.nestform-btn--primary .nestform-entries__filter-count:after{background:var(--nestform-surface)}
 .nestform-entries__table{overflow:hidden;background:var(--nestform-surface);border:1px solid var(--nestform-border);border-radius:var(--nestform-radius)}
 .nestform-entries__row,.nestform-entries__thead{display:grid;grid-template-columns:100px minmax(160px,240px) minmax(140px,220px) minmax(110px,1fr) 80px;align-items:center;column-gap:var(--nestform-space-4);row-gap:0;padding:var(--nestform-space-4)}
 .nestform-entries__thead{padding:var(--nestform-space-2) var(--nestform-space-4);background:var(--nestform-soft);border-bottom:1px solid var(--nestform-border)}
@@ -1742,7 +1743,6 @@ body.nestform-app-screen .wrap.nestform-license{max-width:none;margin:0;padding:
 .nestform-mail-designer__group:not(:first-child){border-left:1px solid var(--nestform-border)}
 .nestform-mail-designer__group--actions{margin-left:auto;padding-right:0}
 .nestform-mail-designer__group .nestform-admin__check{margin:0;min-height:var(--nestform-control-h)}
-.nestform-mail-designer__toolbar .button,.nestform-mail-designer__toolbar .button.button-primary,.nestform-mail-designer__toolbar .button.button-secondary,.nestform-mail-designer__toolbar .nestform-btn{height:var(--nestform-control-h)!important;min-height:var(--nestform-control-h)!important;max-height:var(--nestform-control-h);padding:0 var(--nestform-space-2)!important;font-size:13px!important;box-sizing:border-box}
 .nestform-mail-designer__logo-preview{display:inline-flex;align-items:center;justify-content:center;min-width:36px;height:var(--nestform-control-h);min-height:var(--nestform-control-h);padding:2px var(--nestform-space-1);border:1px dashed var(--nestform-border);border-radius:4px;background:var(--nestform-surface);box-sizing:border-box}
 .nestform-mail-designer__logo-preview:empty{display:none}
 .nestform-mail-designer__logo-preview img{display:block;max-height:24px;width:auto}

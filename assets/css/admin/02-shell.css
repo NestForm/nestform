@@ -149,7 +149,7 @@ body.nestform-app-screen.nestform-entries-screen.post-php
         var(--nestform-space-2) var(--nestform-space-4);
     border-radius: 8px !important;
     color: var(--nestform-muted);
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
     text-decoration: none;
     box-sizing: border-box;
@@ -1275,17 +1275,15 @@ a.nestform-hub__count:focus {
 
 .nestform-export-menu__toggle {
     position: relative;
-    padding-right: var(--nestform-space-8);
+    padding-right: var(--nestform-space-8) !important;
 }
 
 .nestform-export-menu__toggle::after {
     content: "";
     position: absolute;
     right: 10px;
-    top: 50%;
     width: 16px;
     height: 16px;
-    margin-top: var(--nestform-space-2);
     background-color: currentColor;
     mask: var(--nestform-chevron-mask-down) center / 16px 16px no-repeat;
     -webkit-mask: var(--nestform-chevron-mask-down) center / 16px 16px no-repeat;
@@ -1400,7 +1398,7 @@ a.nestform-hub__count:focus {
 
 .nestform-hub__title {
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--nestform-ink);
     text-decoration: none;
     transition: var(--nestform-transition);

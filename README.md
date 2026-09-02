@@ -8,7 +8,7 @@ Not a Contact Form 7 clone — a focused product around:
 
 **Path:** `wp-content/plugins/nestform/`  
 **Main file:** `nestform.php`  
-**Pro add-on:** `wp-content/plugins/nestform-pro/` (sold separately)
+**Pro add-on:** `wp-content/plugins/nestform-pro/` (sold separately on [nestform.app](https://nestform.app/pro))
 
 ## Positioning
 
@@ -24,25 +24,23 @@ Free = strong lead capture. Pro = interactive conversion flows.
 
 | Free | Pro (Nestform Pro + valid license) |
 |------|-------------------------------------|
-| Up to 5 forms (hard limit) | Unlimited forms |
-| Basic/layout fields, file uploads, conditionals | Multi-step + branch rules |
-| Entries, CSV, captcha, honeypot, mail | Webhooks |
-| Templates, appearance, JSON import/export | Quiz & survey (scoring, bands, timer, attempts, share) |
-| Basic analytics | Advanced analytics / lead insights / charts |
-| — | Advanced fields (rating, signature, NPS, scale, ranking, matrix) |
-| — | Calculated fields, repeaters |
+| Unlimited forms | Multi-step + branch rules |
+| Basic/layout fields, file uploads, conditionals | Quizzes & surveys (scoring, bands, timer, attempts, share) |
+| Entries, CSV, captcha, honeypot, mail | Webhooks & automations |
+| Templates, appearance, JSON import/export | Advanced analytics / lead insights |
+| Basic analytics | Advanced fields (rating, signature, NPS, scale, ranking, matrix) |
 | — | HTML email designer + PDF |
 
-Capabilities are registered only by Nestform Pro via `Nestform_Features::register()` after a valid **Freemius** license. Filtering `nestform_is_pro` alone does not unlock gated runtime.
+Capabilities are registered only by **nestform-pro** after a valid license key from nestform.app. Filtering `nestform_is_pro` alone does not unlock gated runtime.
 
-## Pricing (Freemius)
+## Pricing
 
 | Plan | Monthly | Annual |
 |------|---------|--------|
 | **Pro** (1 site) | $9.99 | $89.99 |
 | **Agency** (5 sites) | $29.99 | $269.99 |
 
-Checkout and licensing: see [FREEMIUS.md](FREEMIUS.md).
+Checkout on nestform.app → install **nestform-pro** → activate key under **Forms → License**.
 
 ## Features
 
@@ -78,13 +76,13 @@ Checkout and licensing: see [FREEMIUS.md](FREEMIUS.md).
 | Select must match options | server |
 | Length caps (text 500 / textarea 10k) | server |
 | Nonce + honeypot + rate limit | server |
-| Time trap | server (silent success) |
-| Akismet (optional) | server |
-| File (type / size / count) | server + client |
-| Hidden by condition / skipped steps | skipped on server + front |
 
-## Multi-step & branching (Pro)
+## Release zip
 
-1. Activate Nestform Pro and license.
-2. Fields tab → enable multi-step, name steps, assign fields.
-3. Branch rules: `from|field|op|value|to`
+From the plugin root:
+
+```bash
+python bin/build-release.py
+```
+
+Uses `.distignore` (no Freemius vendor, no dev tooling).

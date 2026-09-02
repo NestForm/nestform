@@ -1,0 +1,1181 @@
+/* Tab bar — underline */
+.nestform-admin__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nestform-space-6);
+    margin: 0 0 var(--nestform-space-4);
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid var(--nestform-border);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.nestform-admin__tab {
+    margin: 0;
+    padding: var(--nestform-space-2) 0;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    color: var(--nestform-muted);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: var(--nestform-transition);
+    box-shadow: none;
+}
+
+.nestform-admin__tab:hover {
+    color: var(--nestform-ink);
+    background: transparent;
+}
+
+.nestform-admin__tab.is-active {
+    color: var(--nestform-accent);
+    background: transparent;
+    font-weight: 500;
+    border-bottom-color: var(--nestform-accent);
+}
+
+.nestform-admin__panel {
+    display: none;
+    margin: 0;
+    padding: var(--nestform-space-6);
+}
+
+.nestform-admin__panel.is-active {
+    display: block;
+}
+
+.nestform-admin__panel-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--nestform-space-2);
+    margin: 0 0 var(--nestform-space-4);
+}
+
+.nestform-admin__panel-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nestform-space-2);
+}
+
+.nestform-admin__panel-title {
+    margin: 0 0 var(--nestform-space-1);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--nestform-ink);
+}
+
+.nestform-admin__panel-desc {
+    margin: 0;
+    max-width: none;
+    width: 100%;
+    color: var(--nestform-muted);
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+.nestform-admin__panel-desc .nestform-admin__token,
+.nestform-admin__panel-desc code.nestform-admin__token {
+    padding: 1px 5px;
+    border: 0;
+    border-radius: 4px;
+    background: var(--nestform-accent-soft);
+    color: var(--nestform-accent);
+    font-family: ui-monospace, Consolas, Monaco, monospace;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.nestform-admin__quick-add {
+    display: block;
+}
+
+.nestform-add {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--nestform-space-2) 12px;
+}
+
+.nestform-add__main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nestform-space-2);
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.nestform-add__label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nestform-space-2);
+    flex: 0 0 auto;
+    margin: 0 2px 0 0;
+    padding: 4px 8px 4px 4px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--nestform-faint);
+    cursor: pointer;
+    transition: var(--nestform-transition);
+}
+
+.nestform-add__label:hover,
+.nestform-add__label:focus {
+    background: var(--nestform-accent-soft);
+    color: var(--nestform-accent-dark);
+    outline: none;
+}
+
+.nestform-add__label[aria-expanded="true"] {
+    background: var(--nestform-accent-soft);
+    color: var(--nestform-accent-dark);
+}
+
+.nestform-add__icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    line-height: 0;
+}
+
+.nestform-add__icon svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+
+.nestform-add__favorites,
+.nestform-add__menus {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nestform-space-2);
+}
+
+.nestform-add__favorites {
+    padding-right: 8px;
+    margin-right: 2px;
+    border-right: 1px solid var(--nestform-border);
+}
+
+.nestform-add__chip.nestform-admin__chip {
+    background: var(--nestform-soft);
+    border-color: var(--nestform-border);
+    color: var(--nestform-ink);
+    font-weight: 600;
+    box-shadow: none;
+    padding: 6px 10px;
+    min-height: 34px;
+    font-size: 13px;
+}
+
+.nestform-add__chip.nestform-admin__chip:hover,
+.nestform-add__chip.nestform-admin__chip:focus,
+.nestform-add__chip.nestform-admin__chip:focus-visible {
+    border-color: var(--nestform-accent);
+    color: var(--nestform-accent-dark);
+    background: var(--nestform-accent-soft);
+    box-shadow: none;
+}
+
+.nestform-add__hint {
+    flex: 0 0 auto;
+    margin-left: auto;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: var(--nestform-accent-soft);
+    border: 1px solid var(--nestform-accent-line);
+    color: var(--nestform-accent-dark);
+    font-size: 11px;
+    font-weight: 600;
+    gap: var(--nestform-space-2);
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 782px) {
+    .nestform-admin__quick-add.nestform-admin__surface {
+        top: 46px;
+    }
+
+    .nestform-add__favorites {
+        padding-right: 0;
+        margin-right: 0;
+        border-right: 0;
+    }
+
+    .nestform-add__hint {
+        margin-left: 0;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+.nestform-add__hint[hidden] {
+    display: none !important;
+}
+
+.nestform-add-menu {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.nestform-add-menu__panel {
+    position: absolute;
+    z-index: 40;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 220px;
+    max-width: min(320px, 90vw);
+    max-height: min(360px, 70vh);
+    overflow: auto;
+    padding: 8px;
+    background: #fff;
+    border: 1px solid var(--nestform-border);
+    border-radius: 8px;
+    box-shadow: 0 10px 28px rgba(16, 18, 24, 0.12);
+    box-sizing: border-box;
+}
+
+.nestform-add-menu__panel[hidden] {
+    display: none !important;
+}
+
+.nestform-add-menu__search {
+    display: block;
+    margin: 0 0 8px;
+}
+
+.nestform-add-menu__search .nestform-admin__input {
+    width: 100%;
+    min-height: 34px;
+    box-sizing: border-box;
+}
+
+.nestform-add-menu__group[hidden],
+.nestform-add-menu__item[hidden] {
+    display: none !important;
+}
+
+.nestform-add-menu__group + .nestform-add-menu__group {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--nestform-border);
+}
+
+.nestform-add-menu__group-label {
+    display: block;
+    margin: 0 0 4px;
+    padding: 0 8px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--nestform-faint);
+}
+
+.nestform-add-menu__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.nestform-add-menu__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin: 0;
+    padding: var(--nestform-space-2) var(--nestform-space-4);
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--nestform-ink);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: var(--nestform-transition);
+}
+
+.nestform-add-menu__item:hover,
+.nestform-add-menu__item:focus {
+    background: var(--nestform-accent-soft);
+    color: var(--nestform-accent-dark);
+    outline: none;
+}
+
+/*
+ * Buttons — Make nf-btn
+ * Base = quiet. --primary = Save/Publish. --outline = white fill.
+ * --ghost / --danger / --accent = color only.
+ */
+.nestform-btn,
+.nestform-admin__chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--nestform-space-2);
+    height: auto;
+    min-height: 40px;
+    margin: 0;
+    padding: 8px 16px;
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    background: transparent;
+    color: var(--nestform-muted);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    box-shadow: none;
+    text-shadow: none;
+    transition: var(--nestform-transition);
+}
+
+.nestform-btn:hover,
+.nestform-btn:focus,
+.nestform-btn:focus-visible,
+.nestform-admin__chip:hover,
+.nestform-admin__chip:focus,
+.nestform-admin__chip:focus-visible {
+    border-color: var(--nestform-border-strong);
+    color: var(--nestform-ink-alt);
+    background: var(--nestform-surface);
+    text-decoration: none;
+    box-shadow: none;
+    outline: none;
+    border-radius: var(--nestform-radius);
+}
+
+.nestform-btn--primary,
+.nestform-btn.button-primary {
+    background: var(--nestform-primary);
+    border-color: var(--nestform-primary);
+    color: #fff;
+    font-weight: 600;
+}
+
+.nestform-btn--primary:hover,
+.nestform-btn--primary:focus,
+.nestform-btn.button-primary:hover,
+.nestform-btn.button-primary:focus {
+    background: var(--nestform-primary-hover);
+    border-color: var(--nestform-primary-hover);
+    color: #fff;
+    box-shadow: 0 1px 8px var(--nestform-accent-mid);
+}
+
+.nestform-btn--danger {
+    background: var(--nestform-danger-soft);
+    border-color: var(--nestform-danger-border);
+    color: var(--nestform-danger);
+    font-weight: 600;
+}
+
+.nestform-btn--danger:hover,
+.nestform-btn--danger:focus {
+    background: var(--nestform-danger);
+    border-color: var(--nestform-danger);
+    color: #fff;
+    box-shadow: 0 1px 8px
+        color-mix(in srgb, var(--nestform-danger) 35%, transparent);
+}
+
+.nestform-btn--outline {
+    background: var(--nestform-surface);
+    color: var(--nestform-ink);
+}
+
+.nestform-btn--outline:hover,
+.nestform-btn--outline:focus {
+    background: var(--nestform-surface);
+    border-color: var(--nestform-border-strong);
+    color: var(--nestform-ink);
+}
+
+.nestform-btn--accent {
+    border-color: var(--nestform-accent-line);
+    color: var(--nestform-accent);
+}
+
+.nestform-btn--accent:hover,
+.nestform-btn--accent:focus {
+    border-color: var(--nestform-accent);
+    color: var(--nestform-accent-dark);
+}
+
+.nestform-btn--warn {
+    background: #fff7ed;
+    border-color: #fdba74;
+    color: #ea580c;
+    font-weight: 600;
+}
+
+.nestform-btn--warn:hover,
+.nestform-btn--warn:focus {
+    background: #ffedd5;
+    border-color: #fb923c;
+    color: #c2410c;
+    box-shadow: none;
+}
+
+.nestform-btn--ghost {
+    background: transparent;
+    border-color: transparent;
+}
+
+.nestform-btn--ghost:hover,
+.nestform-btn--ghost:focus {
+    background: var(--nestform-canvas);
+    border-color: var(--nestform-border);
+    color: var(--nestform-ink);
+}
+
+.nestform-btn--danger-text {
+    color: var(--nestform-danger);
+}
+
+.nestform-btn--danger-text:hover,
+.nestform-btn--danger-text:focus {
+    background: var(--nestform-danger-soft);
+    border-color: transparent;
+    color: var(--nestform-danger);
+}
+
+/* WP #publish / #save-post IDs beat class selectors */
+body.nestform-admin-screen.post-type-nestform #publish.nestform-btn,
+body.nestform-admin-screen.post-type-nestform #save-post.nestform-admin__chip {
+    float: none;
+    width: auto;
+    height: auto !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+body.nestform-admin-screen.post-type-nestform #publish.nestform-btn--primary {
+    background: var(--nestform-primary) !important;
+    border-color: var(--nestform-primary) !important;
+    color: #fff !important;
+}
+
+body.nestform-admin-screen.post-type-nestform
+    #publish.nestform-btn--primary:hover,
+body.nestform-admin-screen.post-type-nestform
+    #publish.nestform-btn--primary:focus {
+    background: var(--nestform-primary-hover) !important;
+    border-color: var(--nestform-primary-hover) !important;
+    color: #fff !important;
+}
+
+/* Leftover WP .button — outline look, never solid primary */
+.nestform-hub .button,
+.nestform-admin .button,
+.nestform-embed .button,
+.nestform-dash .button,
+.wrap.nestform-hub .page-title-action,
+.nestform-hub .button-primary,
+.nestform-admin .button-primary,
+.nestform-embed .button-primary,
+.nestform-dash .button-primary,
+.nestform-entries-screen .button-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--nestform-space-2);
+    height: auto;
+    min-height: 34px;
+    margin: 0;
+    padding: var(--nestform-space-2) var(--nestform-space-4);
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    background: var(--nestform-surface);
+    color: var(--nestform-muted);
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 1.2;
+    text-decoration: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    box-shadow: none !important;
+    text-shadow: none;
+    transition: var(--nestform-transition);
+}
+
+.nestform-hub .button:hover,
+.nestform-hub .button:focus,
+.nestform-hub .button:focus-visible,
+.nestform-admin .button:hover,
+.nestform-admin .button:focus,
+.nestform-admin .button:focus-visible,
+.nestform-embed .button:hover,
+.nestform-embed .button:focus,
+.nestform-embed .button:focus-visible,
+.nestform-dash .button:hover,
+.nestform-dash .button:focus,
+.nestform-dash .button:focus-visible,
+.wrap.nestform-hub .page-title-action:hover,
+.wrap.nestform-hub .page-title-action:focus,
+.wrap.nestform-hub .page-title-action:focus-visible,
+.nestform-hub .button-primary:hover,
+.nestform-hub .button-primary:focus,
+.nestform-hub .button-primary:focus-visible,
+.nestform-admin .button-primary:hover,
+.nestform-admin .button-primary:focus,
+.nestform-admin .button-primary:focus-visible,
+.nestform-embed .button-primary:hover,
+.nestform-embed .button-primary:focus,
+.nestform-embed .button-primary:focus-visible,
+.nestform-dash .button-primary:hover,
+.nestform-dash .button-primary:focus,
+.nestform-dash .button-primary:focus-visible,
+.nestform-entries-screen .button-primary:hover,
+.nestform-entries-screen .button-primary:focus,
+.nestform-entries-screen .button-primary:focus-visible {
+    border-color: var(--nestform-border-strong);
+    color: var(--nestform-ink);
+    background: var(--nestform-surface);
+    text-decoration: none;
+    box-shadow: none !important;
+    outline: none;
+    border-radius: var(--nestform-radius);
+}
+
+/*
+ * WP core paints a square outline / 2px radius on :focus.
+ * Re-assert Nestform corners on every control that looks like a button.
+ */
+body.wp-core-ui.nestform-admin-screen
+    :is(
+        .button,
+        .button-primary,
+        .button-secondary,
+        .page-title-action,
+        .nestform-btn,
+        .nestform-admin__chip,
+        .nestform-step-nav__btn,
+        .nestform-add-menu__toggle,
+        input[type="submit"],
+        input[type="button"]
+    ):is(:focus, :focus-visible) {
+    outline: none;
+    outline-offset: 0;
+    border-radius: var(--nestform-radius);
+}
+
+body.wp-core-ui.nestform-admin-screen
+    .nestform-card__btn:is(:focus, :focus-visible) {
+    outline: none;
+    outline-offset: 0;
+    border-radius: 7px;
+}
+
+body.wp-core-ui.nestform-admin-screen
+    :is(.button-link, .button-link-delete):is(:focus, :focus-visible) {
+    outline: none;
+    outline-offset: 0;
+    border-radius: var(--nestform-radius-sm);
+}
+
+body.wp-core-ui.nestform-admin-screen
+    .nestform-admin__tab:is(:focus, :focus-visible) {
+    outline: none;
+    outline-offset: 0;
+    border-radius: 0;
+}
+
+/* Shared atelier switch — Make light */
+.nestform-switch {
+    position: relative;
+    display: inline-block;
+    flex: 0 0 auto;
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    background: var(--nestform-border-strong);
+    transition: var(--nestform-transition);
+    box-sizing: border-box;
+    box-shadow: none;
+}
+
+.nestform-switch::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    transition: transform 0.15s ease;
+}
+
+.is-on > .nestform-switch,
+:has(> input[type="checkbox"]:checked) > .nestform-switch {
+    background: var(--nestform-accent);
+}
+
+.is-on > .nestform-switch::after,
+:has(> input[type="checkbox"]:checked) > .nestform-switch::after {
+    transform: translateX(16px);
+}
+
+.nestform-admin__fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nestform-space-2);
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border-radius: 0;
+    box-sizing: border-box;
+}
+
+.nestform-admin__empty {
+    margin: 0;
+    padding: 28px 18px;
+    text-align: left;
+    color: var(--nestform-muted);
+    font-size: 13px;
+    line-height: 1.45;
+    background: var(--nestform-surface);
+    border: 1px dashed var(--nestform-border-strong);
+    border-radius: var(--nestform-radius-sm);
+}
+
+.nestform-admin__empty-copy {
+    display: block;
+    margin-bottom: 12px;
+}
+
+.nestform-admin__empty-cta {
+    margin-top: 4px;
+}
+
+.nestform-admin__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--nestform-space-4);
+}
+
+@media (min-width: 782px) {
+    .nestform-admin__grid--2 {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.nestform-admin__field-control {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nestform-space-1);
+}
+
+.nestform-admin__field-control--full {
+    grid-column: 1 / -1;
+}
+
+.nestform-admin__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: none;
+    color: var(--nestform-muted);
+}
+
+.nestform-admin__tip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    color: var(--nestform-faint);
+    cursor: help;
+    line-height: 1;
+    transition: var(--nestform-transition);
+}
+
+.nestform-admin__tip-dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--nestform-danger-soft);
+    color: var(--nestform-danger);
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1;
+    transition: var(--nestform-transition);
+}
+
+.nestform-admin__tip .dashicons {
+    display: none;
+}
+
+.nestform-admin__tip:hover,
+.nestform-admin__tip:focus {
+    color: var(--nestform-danger);
+}
+
+.nestform-admin__tip:hover .nestform-admin__tip-dot,
+.nestform-admin__tip:focus .nestform-admin__tip-dot {
+    background: var(--nestform-danger-soft);
+    color: var(--nestform-danger);
+}
+
+.nestform-admin__chip-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    line-height: 0;
+}
+
+.nestform-admin__chip-icon svg {
+    display: block;
+}
+
+/* Fields — Make nf-input / nf-select. Screens may change size / icon padding. */
+body.wp-core-ui.nestform-admin-screen
+    :is(
+        .nestform-admin__input,
+        .nestform-admin__textarea,
+        .nestform-hub input[type="text"],
+        .nestform-hub input[type="search"],
+        .nestform-hub select,
+        .nestform-dash input[type="text"],
+        .nestform-dash input[type="search"],
+        .nestform-dash select,
+        .nestform-entries-toolbar__select
+    ),
+body.wp-core-ui.nestform-admin-screen.edit-php
+    .tablenav
+    :is(select, .current-page) {
+    width: 100%;
+    max-width: 100%;
+    min-height: 34px;
+    height: auto;
+    margin: 0;
+    padding: 7px 10px;
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    background-color: var(--nestform-surface);
+    color: var(--nestform-ink);
+    font-size: 13px;
+    line-height: 1.3;
+    font-weight: 400;
+    box-shadow: none;
+    box-sizing: border-box;
+    vertical-align: middle;
+    transition: var(--nestform-transition);
+}
+
+body.wp-core-ui.nestform-admin-screen
+    :is(
+        select.nestform-admin__input,
+        .nestform-hub select,
+        .nestform-dash select,
+        .nestform-entries-toolbar__select
+    ),
+body.wp-core-ui.nestform-admin-screen.edit-php .tablenav select {
+    --nestform-select-chevron: var(--nestform-chevron-down);
+    padding-right: 28px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: var(--nestform-surface);
+    background-image: var(--nestform-select-chevron);
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 16px 16px;
+    cursor: pointer;
+    text-align: left;
+}
+
+body.wp-core-ui.nestform-admin-screen .nestform-add-menu__toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: auto;
+    min-height: 34px;
+    margin: 0;
+    padding: 7px 36px 7px 10px;
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    background-color: var(--nestform-surface);
+    color: var(--nestform-muted);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+    box-shadow: none;
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: var(--nestform-transition);
+}
+
+body.wp-core-ui.nestform-admin-screen .nestform-add-menu__toggle::after {
+    content: "";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    margin-top: -8px;
+    background-color: currentColor;
+    mask: var(--nestform-chevron-mask-down) center / 16px 16px no-repeat;
+    -webkit-mask: var(--nestform-chevron-mask-down) center / 16px 16px no-repeat;
+    pointer-events: none;
+    transition: transform 0.15s ease;
+}
+
+body.wp-core-ui.nestform-admin-screen .nestform-add-menu__toggle:hover,
+body.wp-core-ui.nestform-admin-screen .nestform-add-menu__toggle:focus {
+    border-color: var(--nestform-border-strong);
+    color: var(--nestform-ink-alt);
+    outline: none;
+}
+
+body.wp-core-ui.nestform-admin-screen .nestform-add-menu__toggle:focus,
+body.wp-core-ui.nestform-admin-screen
+    .nestform-add-menu.is-open
+    .nestform-add-menu__toggle {
+    border-color: var(--nestform-accent);
+    background-color: #fff;
+    box-shadow: 0 0 0 3px var(--nestform-accent-soft);
+    color: var(--nestform-ink-alt);
+}
+
+body.wp-core-ui.nestform-admin-screen
+    .nestform-add-menu.is-open
+    .nestform-add-menu__toggle::after {
+    background-color: var(--nestform-accent);
+    transform: rotate(180deg);
+}
+
+body.wp-core-ui.nestform-admin-screen
+    :is(
+        select.nestform-admin__input,
+        .nestform-hub select,
+        .nestform-dash select,
+        .nestform-entries-toolbar__select
+    )::-ms-expand,
+body.wp-core-ui.nestform-admin-screen.edit-php .tablenav select::-ms-expand {
+    display: none;
+}
+
+body.wp-core-ui.nestform-admin-screen
+    :is(
+        select.nestform-admin__input,
+        .nestform-hub select,
+        .nestform-dash select,
+        .nestform-entries-toolbar__select
+    )
+    option,
+body.wp-core-ui.nestform-admin-screen.edit-php .tablenav select option {
+    background-color: #fff;
+    background-image: none;
+}
+
+body.wp-core-ui.nestform-admin-screen
+    :is(
+        .nestform-admin__input,
+        .nestform-admin__textarea,
+        .nestform-hub input[type="text"],
+        .nestform-hub input[type="search"],
+        .nestform-hub select,
+        .nestform-dash input[type="text"],
+        .nestform-dash input[type="search"],
+        .nestform-dash select,
+        .nestform-entries-toolbar__select
+    ):hover,
+body.wp-core-ui.nestform-admin-screen.edit-php
+    .tablenav
+    :is(select, .current-page):hover {
+    border-color: var(--nestform-border-strong);
+}
+
+body.wp-core-ui.nestform-admin-screen
+    :is(
+        .nestform-admin__input,
+        .nestform-admin__textarea,
+        .nestform-hub input[type="text"],
+        .nestform-hub input[type="search"],
+        .nestform-hub select,
+        .nestform-dash input[type="text"],
+        .nestform-dash input[type="search"],
+        .nestform-dash select,
+        .nestform-entries-toolbar__select
+    ):focus,
+body.wp-core-ui.nestform-admin-screen.edit-php
+    .tablenav
+    :is(select, .current-page):focus {
+    border-color: var(--nestform-accent);
+    background-color: #fff;
+    box-shadow: 0 0 0 3px var(--nestform-accent-soft);
+    outline: none;
+    color: var(--nestform-ink);
+}
+
+body.wp-core-ui.nestform-admin-screen
+    :is(
+        select.nestform-admin__input,
+        .nestform-hub select,
+        .nestform-dash select,
+        .nestform-entries-toolbar__select
+    ):focus,
+body.wp-core-ui.nestform-admin-screen.edit-php .tablenav select:focus {
+    --nestform-select-chevron: var(--nestform-chevron-down-accent);
+    background-color: #fff;
+    background-image: var(--nestform-select-chevron);
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 16px 16px;
+}
+
+body.wp-core-ui.nestform-admin-screen
+    :is(
+        select.nestform-admin__input,
+        .nestform-hub select,
+        .nestform-dash select,
+        .nestform-entries-toolbar__select
+    ):open,
+body.wp-core-ui.nestform-admin-screen.edit-php .tablenav select:open {
+    --nestform-select-chevron: var(--nestform-chevron-up-accent);
+    background-image: var(--nestform-select-chevron);
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 16px 16px;
+}
+
+.nestform-admin__textarea {
+    min-height: 90px;
+    resize: vertical;
+    line-height: 1.45;
+}
+
+input.nestform-admin__input[data-nestform-name] {
+    font-family: ui-monospace, Consolas, Monaco, monospace;
+    font-size: 12px;
+}
+
+body.wp-core-ui.nestform-admin-screen
+    :is(
+        .nestform-hub__sort,
+        .nestform-dash select,
+        .nestform-entries-toolbar__select
+    ),
+body.wp-core-ui.nestform-admin-screen.edit-php .tablenav select {
+    width: auto;
+}
+
+/* Size — hub toolbar */
+body.wp-core-ui.nestform-admin-screen .nestform-hub input.nestform-hub__search {
+    height: 40px;
+    min-height: 40px;
+    padding-left: 36px;
+    font-size: 13.5px;
+}
+
+body.wp-core-ui.nestform-admin-screen .nestform-hub select.nestform-hub__sort {
+    height: 40px;
+    min-height: 40px;
+    min-width: 168px;
+    max-width: 220px;
+}
+
+/* Size — analytics form pick */
+body.wp-core-ui.nestform-admin-screen .nestform-dash__form-pick select,
+body.wp-core-ui.nestform-admin-screen
+    .nestform-dash__form-pick
+    .nestform-admin__input {
+    min-width: 148px;
+    max-width: 220px;
+    width: auto;
+    min-height: 32px;
+    height: 32px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.nestform-admin__check {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nestform-space-2);
+    font-weight: 500;
+    color: var(--nestform-ink);
+    cursor: pointer;
+}
+
+.nestform-steps-setup__toggle.nestform-admin__check,
+.nestform-card .nestform-admin__check {
+    margin-top: 0;
+    align-self: normal;
+}
+
+/* Plugin checkboxes — Make light (exclude switch-backed inputs) */
+body.wp-core-ui.nestform-admin-screen input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    position: relative;
+    display: inline-grid;
+    place-content: center;
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    min-height: 16px;
+    margin: 0;
+    padding: 0 !important;
+    border: 1.5px solid var(--nestform-border-strong);
+    border-radius: 4px;
+    background: var(--nestform-surface);
+    color: transparent;
+    clear: none;
+    cursor: pointer;
+    line-height: 0;
+    overflow: hidden;
+    vertical-align: middle;
+    box-shadow: none;
+    box-sizing: border-box;
+    transition: var(--nestform-transition);
+}
+
+body.wp-core-ui.nestform-admin-screen input[type="checkbox"]::before {
+    content: "";
+    float: none;
+    display: block;
+    width: 10px;
+    height: 10px;
+    margin: 0;
+    padding: 0;
+    transform: scale(0);
+    transition: transform 0.15s ease;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.2 6.1l2.4 2.4 5.2-5.2' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+        no-repeat center / contain;
+}
+
+body.wp-core-ui.nestform-admin-screen input[type="checkbox"]:hover {
+    border-color: var(--nestform-accent);
+    background: var(--nestform-accent-soft);
+}
+
+body.wp-core-ui.nestform-admin-screen input[type="checkbox"]:focus {
+    border-color: var(--nestform-accent);
+    box-shadow: 0 0 0 3px var(--nestform-accent-soft);
+    outline: none;
+}
+
+body.wp-core-ui.nestform-admin-screen input[type="checkbox"]:checked {
+    background: var(--nestform-accent);
+    border-color: var(--nestform-accent);
+    box-shadow: none;
+}
+
+body.wp-core-ui.nestform-admin-screen input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+
+body.wp-core-ui.nestform-admin-screen input[type="checkbox"]:checked:hover {
+    background: var(--nestform-accent-dark);
+    border-color: var(--nestform-accent-dark);
+}
+
+body.wp-core-ui.nestform-admin-screen input[type="checkbox"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+body.wp-core-ui.nestform-admin-screen
+    .nestform-steps-setup__toggle
+    input[type="checkbox"],
+body.wp-core-ui.nestform-admin-screen
+    .nestform-card__required
+    input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0 !important;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    pointer-events: none;
+}
+
+body.wp-core-ui.nestform-admin-screen
+    .nestform-steps-setup__toggle
+    input[type="checkbox"]::before,
+body.wp-core-ui.nestform-admin-screen
+    .nestform-card__required
+    input[type="checkbox"]::before {
+    content: none;
+    display: none;
+}
+
+body.wp-core-ui.nestform-admin-screen .nestform-hub__filter-wrap {
+    cursor: pointer;
+}
+
+body.wp-core-ui.nestform-admin-screen.nestform-entries-screen.edit-php
+    .wp-list-table
+    .check-column
+    input[type="checkbox"] {
+    display: inline-grid;
+    vertical-align: middle;
+}
+
+.nestform-admin__callout {
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    background: var(--nestform-soft);
+}
+
+.nestform-admin__callout--warn {
+    background: #fcf9e8;
+    border-color: #f0e6b8;
+}
+
+.nestform-admin__callout strong {
+    display: block;
+    margin-bottom: 6px;
+}
+
+.nestform-admin__callout p {
+    margin: 0 0 8px;
+    color: var(--nestform-muted);
+}
+
+.nestform-admin__callout p:last-child {
+    margin-bottom: 0;
+}

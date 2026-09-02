@@ -1,6 +1,6 @@
 <?php
 /**
- * Outbound webhook on successful submit.
+ * Outbound webhooks on successful submit (Nestform Free).
  *
  * @package Nestform
  */
@@ -10,6 +10,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Nestform_Webhook {
+
+	const ENDPOINT_MAX = 5;
 
 	public static function init() {
 		add_action( 'nestform_submitted', array( __CLASS__, 'dispatch' ), 20, 3 );
@@ -29,12 +31,8 @@ class Nestform_Webhook {
 			return;
 		}
 
-		if ( ! class_exists( 'Nestform_Features' ) || ! Nestform_Features::can( Nestform_Features::WEBHOOK ) ) {
-			return;
-		}
-
-		$url = isset( $settings['webhook_url'] ) ? esc_url_raw( (string) $settings['webhook_url'] ) : '';
-		if ( $url === '' || ! Nestform_Form_Config::is_safe_outbound_url( $url ) ) {
+		$endpoints = Nestform_Form_Config::webhook_endpoints_from_settings( $settings );
+		if ( array() === $endpoints ) {
 			return;
 		}
 
@@ -48,24 +46,43 @@ class Nestform_Webhook {
 			'data'       => self::normalize_data( $data ),
 		);
 
+		foreach ( $endpoints as $endpoint ) {
+			self::send_to_endpoint( $payload, $form_id, $data, $entry_id, $endpoint );
+		}
+	}
+
+	/**
+	 * @param array<string, mixed> $payload  Base payload.
+	 * @param int                  $form_id  Form ID.
+	 * @param array<string, mixed> $data     Entry data.
+	 * @param int                  $entry_id Entry ID.
+	 * @param array<string, string> $endpoint url + secret.
+	 */
+	private static function send_to_endpoint( array $payload, $form_id, $data, $entry_id, array $endpoint ) {
+		$url = isset( $endpoint['url'] ) ? esc_url_raw( (string) $endpoint['url'] ) : '';
+		if ( $url === '' || ! Nestform_Form_Config::is_safe_outbound_url( $url ) ) {
+			return;
+		}
+
 		/**
 		 * Filter webhook JSON payload before send.
 		 *
-		 * @param array $payload  Payload.
-		 * @param int   $form_id  Form ID.
-		 * @param array $data     Entry data.
-		 * @param int   $entry_id Entry ID.
+		 * @param array  $payload  Payload.
+		 * @param int    $form_id  Form ID.
+		 * @param array  $data     Entry data.
+		 * @param int    $entry_id Entry ID.
+		 * @param string $url      Target URL for this request.
 		 */
-		$payload = (array) apply_filters( 'nestform_webhook_payload', $payload, $form_id, $data, $entry_id );
+		$body = (array) apply_filters( 'nestform_webhook_payload', $payload, $form_id, $data, $entry_id, $url );
 
 		$headers = array(
 			'Content-Type' => 'application/json; charset=utf-8',
-			'User-Agent'   => 'Nestform/' . NESTFORM_VERSION,
+			'User-Agent'   => 'Nestform/' . ( defined( 'NESTFORM_VERSION' ) ? NESTFORM_VERSION : '1' ),
 		);
 
-		$secret = isset( $settings['webhook_secret'] ) ? (string) $settings['webhook_secret'] : '';
+		$secret = isset( $endpoint['secret'] ) ? (string) $endpoint['secret'] : '';
 		if ( $secret !== '' ) {
-			$headers['X-Nestform-Secret']     = $secret;
+			$headers['X-Nestform-Secret']   = $secret;
 			$headers['X-Vite-Forms-Secret'] = $secret;
 		}
 
@@ -74,24 +91,25 @@ class Nestform_Webhook {
 			'blocking'    => false,
 			'redirection' => 0,
 			'headers'     => $headers,
-			'body'        => wp_json_encode( $payload ),
+			'body'        => wp_json_encode( $body ),
 		);
 
 		/**
 		 * Filter wp_remote_post args for webhook.
 		 *
-		 * @param array $args     Request args.
-		 * @param int   $form_id  Form ID.
-		 * @param array $payload  Payload.
-		 * @param int   $entry_id Entry ID.
+		 * @param array  $args     Request args.
+		 * @param int    $form_id  Form ID.
+		 * @param array  $payload  Payload.
+		 * @param int    $entry_id Entry ID.
+		 * @param string $url      Target URL.
 		 */
-		$args = (array) apply_filters( 'nestform_webhook_request_args', $args, $form_id, $payload, $entry_id );
+		$args = (array) apply_filters( 'nestform_webhook_request_args', $args, $form_id, $body, $entry_id, $url );
 
-		// Force safe transport regardless of filter mutations.
 		$args['redirection'] = 0;
 		if ( isset( $args['headers'] ) && ! is_array( $args['headers'] ) ) {
 			$args['headers'] = $headers;
 		}
+
 		$url_send = $url;
 		if ( isset( $args['url'] ) && is_string( $args['url'] ) && $args['url'] !== '' ) {
 			$candidate = esc_url_raw( $args['url'] );

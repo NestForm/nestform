@@ -91,7 +91,7 @@ class Nestform_Elementor {
 	 */
 	public static function form_options() {
 		$options = array(
-			'0' => __( 'Select a form…', 'nestform' ),
+			'0' => __( 'Select a form...', 'nestform' ),
 		);
 
 		if ( ! class_exists( 'Nestform_Post_Type' ) ) {

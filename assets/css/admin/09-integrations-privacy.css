@@ -1,0 +1,302 @@
+/* Captcha provider tabs (Integrations) */
+.nestform-captcha-integ__tabs {
+    margin: 4px 0 16px;
+    flex-wrap: wrap;
+}
+
+.nestform-captcha-integ__tabs button.nestform-settings__subnav-item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nestform-space-2);
+    margin: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.nestform-captcha-integ__tab-badge {
+    flex-shrink: 0;
+}
+
+.nestform-captcha-integ__panel-lead {
+    margin: 0 0 12px;
+    color: var(--nestform-muted);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.nestform-captcha-integ__panel-lead a {
+    color: var(--nestform-accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.nestform-captcha-integ__panel-lead a:hover {
+    text-decoration: underline;
+}
+
+.nestform-captcha-integ__panel[hidden] {
+    display: none !important;
+}
+
+.nestform-admin__captcha-toggle {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nestform-space-2) 10px;
+}
+
+.nestform-admin__captcha-provider {
+    margin-left: 0;
+}
+
+/* Backup & restore (Privacy) */
+.nestform-backup-import__export {
+    margin: 0 0 16px;
+}
+
+.nestform-backup-import {
+    margin: 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--nestform-border);
+}
+
+.nestform-backup-import__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nestform-space-2);
+    margin: 0 0 var(--nestform-space-4);
+    max-width: 420px;
+}
+
+.nestform-backup-import__field .nestform-admin__label {
+    margin: 0;
+    color: var(--nestform-ink);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+body.wp-core-ui.nestform-settings-screen
+    .nestform-backup-import__file.nestform-admin__input,
+body.nestform-settings-screen
+    .nestform-backup-import__file.nestform-admin__input {
+    width: 100%;
+    max-width: 100%;
+    min-height: 40px;
+    height: auto;
+    margin: 0;
+    padding: var(--nestform-space-2) var(--nestform-space-4);
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    background-color: var(--nestform-surface);
+    color: var(--nestform-ink);
+    font-size: 13px;
+    line-height: 1.3;
+    box-shadow: none;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: var(--nestform-transition);
+}
+
+body.wp-core-ui.nestform-settings-screen
+    .nestform-backup-import__file.nestform-admin__input:hover,
+body.nestform-settings-screen
+    .nestform-backup-import__file.nestform-admin__input:hover,
+body.wp-core-ui.nestform-settings-screen
+    .nestform-backup-import__file.nestform-admin__input:focus,
+body.nestform-settings-screen
+    .nestform-backup-import__file.nestform-admin__input:focus {
+    border-color: var(--nestform-border-strong, #c5c9d4);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--nestform-accent-soft, #eff6ff);
+}
+
+body.wp-core-ui.nestform-settings-screen
+    .nestform-backup-import__file.nestform-admin__input::file-selector-button,
+body.nestform-settings-screen
+    .nestform-backup-import__file.nestform-admin__input::file-selector-button {
+    margin-right: 12px;
+    padding: var(--nestform-space-2) var(--nestform-space-4);
+    border: 1px solid var(--nestform-border);
+    border-radius: 6px;
+    background: var(--nestform-soft);
+    color: var(--nestform-ink);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: var(--nestform-transition);
+}
+
+body.wp-core-ui.nestform-settings-screen
+    .nestform-backup-import__file.nestform-admin__input::file-selector-button:hover,
+body.nestform-settings-screen
+    .nestform-backup-import__file.nestform-admin__input::file-selector-button:hover {
+    border-color: var(--nestform-border-strong, #c5c9d4);
+    background: var(--nestform-surface);
+}
+
+.nestform-backup-import__hint {
+    margin: 10px 0 0;
+    color: var(--nestform-muted);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+body.nestform-import-screen #wpcontent {
+    background: var(--nestform-canvas);
+}
+
+body.nestform-import-screen .wrap.nestform-admin,
+body.nestform-import-screen .wrap.nestform-settings {
+    margin: 0;
+    max-width: 760px;
+    background: transparent;
+}
+
+body.nestform-import-screen .nestform-import .nestform-settings__card {
+    padding: var(--nestform-space-4) 18px;
+}
+
+.nestform-import__card + .nestform-import__card {
+    margin-top: 16px;
+}
+
+.nestform-import__form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--nestform-space-4);
+    max-width: 480px;
+}
+
+.nestform-import__form .nestform-admin__field-control {
+    width: 100%;
+}
+
+.nestform-import__empty {
+    margin: 0;
+    color: var(--nestform-muted);
+    font-size: 13px;
+}
+
+.nestform-import__notes {
+    margin: 8px 0 0;
+    padding-left: 1.25em;
+    color: var(--nestform-muted);
+}
+
+.nestform-import__notes li {
+    margin: 0 0 4px;
+}
+
+body.nestform-settings-screen .nestform-settings__form {
+    margin-bottom: 24px;
+}
+
+body.nestform-settings-screen .nestform-settings__card {
+    padding: var(--nestform-space-4) 18px;
+}
+
+body.nestform-settings-screen .nestform-settings__table {
+    margin: 0 0 16px;
+}
+
+body.nestform-settings-screen .nestform-settings__table th {
+    padding: var(--nestform-space-4) 12px 12px 0;
+    width: 180px;
+    color: var(--nestform-ink);
+    font-weight: 600;
+}
+
+body.nestform-settings-screen .nestform-settings__table td {
+    padding: var(--nestform-space-4) 0;
+}
+
+body.nestform-settings-screen .nestform-settings__table .nestform-admin__input {
+    max-width: 100%;
+}
+
+body.nestform-settings-screen
+    .nestform-settings__table
+    .small-text.nestform-admin__input {
+    width: 88px;
+}
+
+/* Number + unit groups (days / seconds) */
+.nestform-settings__qty-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--nestform-space-2);
+}
+
+.nestform-settings__qty {
+    display: inline-flex;
+    align-items: stretch;
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    background: var(--nestform-surface);
+    overflow: hidden;
+    transition: var(--nestform-transition);
+    justify-content: space-between;
+    max-width: 100%;
+    width: 100%;
+}
+
+.nestform-settings__qty:focus-within {
+    border-color: var(--nestform-border-strong, #c5c9d4);
+    box-shadow: 0 0 0 3px var(--nestform-accent-soft, #eff6ff);
+}
+
+body.wp-core-ui.nestform-settings-screen
+    .nestform-settings__qty
+    .nestform-settings__qty-input.nestform-admin__input,
+body.nestform-settings-screen
+    .nestform-settings__qty
+    .nestform-settings__qty-input.nestform-admin__input {
+    width: 100%;
+    min-width: 72px;
+    min-height: 34px;
+    height: 34px;
+    margin: 0;
+    padding: 7px 10px;
+    border: 0 !important;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none !important;
+    font-variant-numeric: tabular-nums;
+}
+
+.nestform-settings__unit {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    min-width: 5.5em;
+    justify-content: center;
+    padding: 0 12px;
+    border-left: 1px solid var(--nestform-border);
+    background: var(--nestform-soft);
+    color: var(--nestform-muted);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    user-select: none;
+}
+
+body.nestform-settings-screen .nestform-settings__table .description {
+    margin-top: 6px;
+    color: var(--nestform-muted);
+}
+
+body.nestform-settings-screen .wrap.nestform-admin {
+    background: transparent;
+}
+
+body.nestform-settings-screen .nestform-settings .nestform-admin__check {
+    margin-top: 0;
+}

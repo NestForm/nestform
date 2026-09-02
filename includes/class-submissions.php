@@ -16,10 +16,14 @@ class Nestform_Submissions {
 	const META_DATA = '_nestform_payload';
 	const META_IP   = '_nestform_ip';
 	const META_STATUS = '_nestform_status';
+	const META_STARRED = '_nestform_starred';
+	const META_NOTES   = '_nestform_notes';
 	const PAGE_SLUG = 'nestform-entries';
 	const STATUS_NEW  = 'new';
 	const STATUS_READ = 'read';
 	const STATUS_SPAM = 'spam';
+
+	const RETENTION_CRON = 'nestform_cleanup_entries';
 
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register' ) );
@@ -38,15 +42,89 @@ class Nestform_Submissions {
 		add_filter( 'post_row_actions', array( __CLASS__, 'row_actions' ), 10, 2 );
 		add_filter( 'post_class', array( __CLASS__, 'entry_post_class' ), 10, 3 );
 		add_action( 'load-post.php', array( __CLASS__, 'on_load_entry_edit' ) );
+		add_action( 'admin_footer', array( __CLASS__, 'render_entry_notes_form_footer' ) );
 		add_filter( 'bulk_actions-edit-' . self::POST_TYPE, array( __CLASS__, 'bulk_actions' ) );
 		add_filter( 'handle_bulk_actions-edit-' . self::POST_TYPE, array( __CLASS__, 'handle_bulk_actions' ), 10, 3 );
 		add_action( 'admin_notices', array( __CLASS__, 'bulk_admin_notice' ) );
+		add_action( 'admin_notices', array( __CLASS__, 'notes_saved_notice' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'list_page_head' ), 1 );
 		add_action( 'admin_notices', array( __CLASS__, 'entry_page_head' ), 1 );
 		add_filter( 'views_edit-' . self::POST_TYPE, array( __CLASS__, 'list_views' ) );
 		add_action( 'admin_post_nestform_set_entry_status', array( __CLASS__, 'handle_set_status' ) );
+		add_action( 'admin_post_nestform_toggle_entry_star', array( __CLASS__, 'handle_toggle_star' ) );
+		add_action( 'admin_post_nestform_save_entry_notes', array( __CLASS__, 'handle_save_notes' ) );
 		add_filter( 'post_updated_messages', array( __CLASS__, 'updated_messages' ) );
 		add_filter( 'bulk_post_updated_messages', array( __CLASS__, 'bulk_updated_messages' ), 10, 2 );
+		add_action( self::RETENTION_CRON, array( __CLASS__, 'cleanup_old_entries' ) );
+		self::schedule_retention_cleanup();
+	}
+
+	/**
+	 * Schedule daily purge of expired entries.
+	 */
+	public static function schedule_retention_cleanup() {
+		if ( ! wp_next_scheduled( self::RETENTION_CRON ) ) {
+			wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', self::RETENTION_CRON );
+		}
+	}
+
+	/**
+	 * @return int Days to keep entries (0 = forever).
+	 */
+	public static function retention_days() {
+		if ( ! class_exists( 'Nestform_Settings' ) ) {
+			return 0;
+		}
+		$s = Nestform_Settings::get();
+		return max( 0, (int) ( $s['entry_retention_days'] ?? 0 ) );
+	}
+
+	/**
+	 * Delete entries older than the retention window.
+	 */
+	public static function cleanup_old_entries() {
+		$days = self::retention_days();
+		if ( $days <= 0 ) {
+			return;
+		}
+
+		$cutoff = gmdate( 'Y-m-d H:i:s', time() - ( $days * DAY_IN_SECONDS ) );
+		$batch  = 100;
+
+		do {
+			$query = new WP_Query(
+				array(
+					'post_type'              => self::POST_TYPE,
+					'post_status'            => 'any',
+					'posts_per_page'         => $batch,
+					'fields'                 => 'ids',
+					'orderby'                => 'date',
+					'order'                  => 'ASC',
+					'no_found_rows'          => true,
+					'update_post_meta_cache' => false,
+					'update_post_term_cache' => false,
+					'date_query'             => array(
+						array(
+							'column' => 'post_date_gmt',
+							'before' => $cutoff,
+							'inclusive' => false,
+						),
+					),
+				)
+			);
+
+			$ids = is_array( $query->posts ) ? $query->posts : array();
+			foreach ( $ids as $entry_id ) {
+				$entry_id = (int) $entry_id;
+				/**
+				 * Fires before an entry is removed by retention.
+				 *
+				 * @param int $entry_id Entry ID.
+				 */
+				do_action( 'nestform_entry_before_retention_delete', $entry_id );
+				wp_delete_post( $entry_id, true );
+			}
+		} while ( count( $ids ) === $batch );
 	}
 
 	/**
@@ -285,10 +363,13 @@ class Nestform_Submissions {
 				$actions .= '</a>';
 			}
 		}
-		if ( $form_id > 0 && class_exists( 'Nestform_Export' ) ) {
-			$actions .= ' <a class="nestform-btn nestform-btn--primary" href="' . esc_url( Nestform_Export::url( $form_id ) ) . '">';
-			$actions .= nestform_admin_icon_html( 'download' ) . ' ' . esc_html__( 'Export CSV', 'nestform' );
+		if ( $form_id > 0 && class_exists( 'Nestform_Response_Summary' ) ) {
+			$actions .= ' <a class="nestform-btn nestform-btn--outline" href="' . esc_url( Nestform_Response_Summary::url( $form_id ) ) . '">';
+			$actions .= nestform_admin_icon_html( 'analytics' ) . ' ' . esc_html__( 'Summary', 'nestform' );
 			$actions .= '</a>';
+		}
+		if ( $form_id > 0 && class_exists( 'Nestform_Export' ) ) {
+			$actions .= ' ' . Nestform_Export::dropdown_html( $form_id );
 		}
 
 		nestform_render_page_head(
@@ -355,6 +436,12 @@ class Nestform_Submissions {
 			$actions .= '</a>';
 		}
 
+		if ( class_exists( 'Nestform_Entry_Print' ) ) {
+			$actions .= ' <a class="nestform-btn nestform-btn--outline" href="' . esc_url( Nestform_Entry_Print::url( $post->ID ) ) . '" target="_blank" rel="noopener noreferrer">';
+			$actions .= esc_html__( 'Print', 'nestform' );
+			$actions .= '</a>';
+		}
+
 		$trash = get_delete_post_link( $post->ID, '', false );
 		if ( $trash ) {
 			$actions .= ' <a class="nestform-btn nestform-btn--danger-text" href="' . esc_url( $trash ) . '">';
@@ -388,13 +475,14 @@ class Nestform_Submissions {
 		if ( $current !== '' && ! isset( self::status_labels()[ $current ] ) ) {
 			$current = '';
 		}
+		$starred_only = isset( $_GET['starred'] ) && '1' === (string) wp_unslash( $_GET['starred'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		$out   = array();
 		$all_n = self::count_for_form( $form_id );
 		$out['all'] = sprintf(
 			'<a href="%1$s"%2$s>%3$s <span class="count">(%4$s)</span></a>',
 			esc_url( self::list_url( $form_id ) ),
-			'' === $current ? ' class="current" aria-current="page"' : '',
+			( '' === $current && ! $starred_only ) ? ' class="current" aria-current="page"' : '',
 			esc_html__( 'All', 'nestform' ),
 			esc_html( number_format_i18n( $all_n ) )
 		);
@@ -409,11 +497,25 @@ class Nestform_Submissions {
 			$out[ $key ] = sprintf(
 				'<a href="%1$s"%2$s>%3$s <span class="count">(%4$s)</span></a>',
 				esc_url( self::list_url( $form_id, $key ) ),
-				$current === $key ? ' class="current" aria-current="page"' : '',
+				( $current === $key && ! $starred_only ) ? ' class="current" aria-current="page"' : '',
 				esc_html( $label ),
 				esc_html( number_format_i18n( $count ) )
 			);
 		}
+
+		$starred_n = self::count_entries(
+			array(
+				'form_id' => $form_id,
+				'starred' => true,
+			)
+		);
+		$out['starred'] = sprintf(
+			'<a href="%1$s"%2$s>%3$s <span class="count">(%4$s)</span></a>',
+			esc_url( self::list_url( $form_id, '', array( 'starred' => '1' ) ) ),
+			$starred_only ? ' class="current" aria-current="page"' : '',
+			esc_html__( 'Starred', 'nestform' ),
+			esc_html( number_format_i18n( $starred_n ) )
+		);
 
 		return $out;
 	}
@@ -437,10 +539,10 @@ class Nestform_Submissions {
 		if ( ! self::is_entries_screen( $hook ) ) {
 			return;
 		}
-		$ver = (string) filemtime( NESTFORM_PATH . 'assets/admin.css' );
+		$ver = (string) filemtime( nestform_admin_css_path() );
 		wp_enqueue_style(
 			'nestform-admin',
-			NESTFORM_URL . 'assets/admin.css',
+			nestform_admin_css_url(),
 			nestform_admin_style_deps(),
 			$ver ? $ver : NESTFORM_VERSION
 		);
@@ -451,7 +553,7 @@ class Nestform_Submissions {
 	 * @param string $status  Optional status filter (new|read|spam).
 	 * @return string
 	 */
-	public static function list_url( $form_id, $status = '' ) {
+	public static function list_url( $form_id, $status = '', $extra = array() ) {
 		$args = array(
 			'post_type'          => self::POST_TYPE,
 			'nestform_form_id' => (int) $form_id,
@@ -460,7 +562,79 @@ class Nestform_Submissions {
 		if ( $status !== '' && isset( self::status_labels()[ $status ] ) ) {
 			$args['nestform_status'] = $status;
 		}
+		if ( is_array( $extra ) && array() !== $extra ) {
+			$args = array_merge( $args, $extra );
+		}
 		return add_query_arg( $args, admin_url( 'edit.php' ) );
+	}
+
+	/**
+	 * @param int $entry_id Entry ID.
+	 * @return bool
+	 */
+	public static function is_starred( $entry_id ) {
+		return '1' === (string) get_post_meta( (int) $entry_id, self::META_STARRED, true );
+	}
+
+	/**
+	 * @param int  $entry_id Entry ID.
+	 * @param bool $starred  Starred.
+	 * @return bool
+	 */
+	public static function set_starred( $entry_id, $starred ) {
+		$entry_id = (int) $entry_id;
+		if ( $entry_id <= 0 || self::POST_TYPE !== get_post_type( $entry_id ) ) {
+			return false;
+		}
+		update_post_meta( $entry_id, self::META_STARRED, $starred ? '1' : '0' );
+		return true;
+	}
+
+	/**
+	 * @param int $entry_id Entry ID.
+	 * @return string
+	 */
+	public static function get_notes( $entry_id ) {
+		return (string) get_post_meta( (int) $entry_id, self::META_NOTES, true );
+	}
+
+	/**
+	 * @param int    $entry_id Entry ID.
+	 * @param string $notes    Notes.
+	 * @return bool
+	 */
+	public static function set_notes( $entry_id, $notes ) {
+		$entry_id = (int) $entry_id;
+		if ( $entry_id <= 0 || self::POST_TYPE !== get_post_type( $entry_id ) ) {
+			return false;
+		}
+		update_post_meta( $entry_id, self::META_NOTES, sanitize_textarea_field( (string) $notes ) );
+		return true;
+	}
+
+	/**
+	 * Admin-post URL to toggle entry star.
+	 *
+	 * @param int $entry_id Entry ID.
+	 * @return string
+	 */
+	public static function star_action_url( $entry_id, array $args = array() ) {
+		$entry_id = (int) $entry_id;
+		$form_id  = isset( $args['form_id'] ) ? (int) $args['form_id'] : (int) get_post_meta( $entry_id, self::META_FORM, true );
+		$params   = array(
+			'action'           => 'nestform_toggle_entry_star',
+			'entry_id'         => $entry_id,
+			'nestform_form_id' => $form_id,
+		);
+		if ( ! empty( $args['redirect_to'] ) ) {
+			$params['redirect_to'] = sanitize_key( (string) $args['redirect_to'] );
+		} else {
+			$params['redirect_to'] = 'list';
+		}
+		return wp_nonce_url(
+			add_query_arg( $params, admin_url( 'admin-post.php' ) ),
+			'nestform_toggle_entry_star_' . $entry_id
+		);
 	}
 
 	/**
@@ -757,6 +931,13 @@ class Nestform_Submissions {
 					'value' => $status,
 				);
 			}
+		}
+
+		if ( ! empty( $args['starred'] ) ) {
+			$meta_query[] = array(
+				'key'   => self::META_STARRED,
+				'value' => '1',
+			);
 		}
 
 		if ( count( $meta_query ) > 1 ) {
@@ -1187,8 +1368,16 @@ class Nestform_Submissions {
 	}
 
 	public static function render_hub() {
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		$can_view = class_exists( 'Nestform_Capabilities' )
+			? Nestform_Capabilities::can_view_entries()
+			: current_user_can( 'edit_posts' );
+		if ( ! $can_view ) {
 			wp_die( esc_html__( 'You do not have permission to view entries.', 'nestform' ) );
+		}
+
+		$want_summary = isset( $_GET['summary'] ) && '1' === (string) wp_unslash( $_GET['summary'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( $want_summary && class_exists( 'Nestform_Response_Summary' ) && Nestform_Response_Summary::render_summary_screen() ) {
+			return;
 		}
 
 		$status = isset( $_GET['nestform_status'] ) ? sanitize_key( wp_unslash( $_GET['nestform_status'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -1283,13 +1472,6 @@ class Nestform_Submissions {
 				}
 				if ( $lead_html !== '' ) {
 					echo $lead_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				} elseif ( class_exists( 'Nestform_Features' ) && ! Nestform_Features::can( Nestform_Features::LEAD_INSIGHTS ) ) {
-					?>
-					<a class="nestform-entries__stat nestform-entries__stat--pro" href="<?php echo esc_url( Nestform_Upgrade::url() ); ?>">
-						<span class="nestform-entries__stat-value"><?php echo Nestform_Upgrade::pill_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-						<span class="nestform-entries__stat-label"><?php esc_html_e( 'Lead insights', 'nestform' ); ?></span>
-					</a>
-					<?php
 				}
 				?>
 			</div>
@@ -1781,6 +1963,13 @@ class Nestform_Submissions {
 				);
 			}
 		}
+		$starred_only = isset( $_GET['starred'] ) && '1' === (string) wp_unslash( $_GET['starred'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( $starred_only ) {
+			$meta_query[] = array(
+				'key'   => self::META_STARRED,
+				'value' => '1',
+			);
+		}
 		if ( count( $meta_query ) > 1 ) {
 			$query->set( 'meta_query', $meta_query );
 		}
@@ -1832,6 +2021,29 @@ class Nestform_Submissions {
 				esc_html__( 'Not spam', 'nestform' )
 			);
 		}
+
+		if ( class_exists( 'Nestform_Entry_Print' ) ) {
+			$actions['nestform_print'] = sprintf(
+				'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
+				esc_url( Nestform_Entry_Print::url( (int) $post->ID ) ),
+				esc_html__( 'Print', 'nestform' )
+			);
+		}
+
+		$starred = self::is_starred( $post->ID );
+		$actions['nestform_star'] = sprintf(
+			'<a href="%s">%s</a>',
+			esc_url(
+				self::star_action_url(
+					(int) $post->ID,
+					array(
+						'form_id'     => (int) get_post_meta( $post->ID, self::META_FORM, true ),
+						'redirect_to' => 'list',
+					)
+				)
+			),
+			$starred ? esc_html__( 'Unstar', 'nestform' ) : esc_html__( 'Star', 'nestform' )
+		);
 
 		return $actions;
 	}
@@ -1960,6 +2172,60 @@ class Nestform_Submissions {
 		exit;
 	}
 
+	public static function handle_toggle_star() {
+		$entry_id = isset( $_GET['entry_id'] ) ? (int) $_GET['entry_id'] : 0;
+		$form_id  = isset( $_GET['nestform_form_id'] ) ? (int) $_GET['nestform_form_id'] : 0;
+
+		if ( $entry_id <= 0 || self::POST_TYPE !== get_post_type( $entry_id ) ) {
+			wp_die( esc_html__( 'Invalid entry.', 'nestform' ), 400 );
+		}
+		check_admin_referer( 'nestform_toggle_entry_star_' . $entry_id );
+		if ( ! current_user_can( 'edit_post', $entry_id ) ) {
+			wp_die( esc_html__( 'You do not have permission to update this entry.', 'nestform' ), 403 );
+		}
+
+		self::set_starred( $entry_id, ! self::is_starred( $entry_id ) );
+
+		if ( $form_id <= 0 ) {
+			$form_id = (int) get_post_meta( $entry_id, self::META_FORM, true );
+		}
+
+		$redirect_to = isset( $_GET['redirect_to'] ) ? sanitize_key( wp_unslash( $_GET['redirect_to'] ) ) : 'list'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( 'edit' === $redirect_to ) {
+			$redirect = get_edit_post_link( $entry_id, 'raw' );
+			if ( ! $redirect ) {
+				$redirect = self::list_url( $form_id );
+			}
+		} else {
+			$redirect = self::list_url( $form_id );
+		}
+
+		wp_safe_redirect( $redirect );
+		exit;
+	}
+
+	public static function handle_save_notes() {
+		$entry_id = isset( $_POST['entry_id'] ) ? (int) $_POST['entry_id'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+		if ( $entry_id <= 0 || self::POST_TYPE !== get_post_type( $entry_id ) ) {
+			wp_die( esc_html__( 'Invalid entry.', 'nestform' ), 400 );
+		}
+		check_admin_referer( 'nestform_save_entry_notes_' . $entry_id );
+		if ( ! current_user_can( 'edit_post', $entry_id ) ) {
+			wp_die( esc_html__( 'You do not have permission to update this entry.', 'nestform' ), 403 );
+		}
+
+		$notes   = isset( $_POST['nestform_notes'] ) ? wp_unslash( $_POST['nestform_notes'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing
+		$starred = ! empty( $_POST['nestform_starred'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+		self::set_notes( $entry_id, $notes );
+		self::set_starred( $entry_id, $starred );
+
+		$edit = get_edit_post_link( $entry_id, 'raw' );
+		wp_safe_redirect( $edit ? add_query_arg( 'nestform_notes_saved', '1', $edit ) : self::hub_url() );
+		exit;
+	}
+
 	/**
 	 * Highlight new entries in the list table.
 	 *
@@ -1974,6 +2240,9 @@ class Nestform_Submissions {
 		}
 		$status     = self::get_status( $post_id );
 		$classes[]  = 'nestform-entry--' . $status;
+		if ( self::is_starred( $post_id ) ) {
+			$classes[] = 'nestform-entry--starred';
+		}
 		return $classes;
 	}
 
@@ -1985,6 +2254,14 @@ class Nestform_Submissions {
 			self::POST_TYPE,
 			'side',
 			'high'
+		);
+		add_meta_box(
+			'nestform_entry_notes',
+			__( 'Notes & star', 'nestform' ),
+			array( __CLASS__, 'render_notes_box' ),
+			self::POST_TYPE,
+			'side',
+			'default'
 		);
 	}
 
@@ -2102,6 +2379,92 @@ class Nestform_Submissions {
 					<?php echo nestform_admin_icon_html( 'back' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG ?>
 					<?php esc_html_e( 'Choose another form', 'nestform' ); ?>
 				</a>
+			</p>
+		</div>
+		<?php
+	}
+
+	public static function notes_saved_notice() {
+		if ( ! self::is_entry_edit_screen() ) {
+			return;
+		}
+		if ( empty( $_GET['nestform_notes_saved'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+		printf(
+			'<div class="notice notice-success is-dismissible"><p>%s</p></div>',
+			esc_html__( 'Notes saved.', 'nestform' )
+		);
+	}
+
+	/**
+	 * Entry notes form shell (outside WP #post — avoids nested forms).
+	 */
+	public static function render_entry_notes_form_footer() {
+		if ( ! self::is_entry_edit_screen() ) {
+			return;
+		}
+		$post_id = isset( $_GET['post'] ) ? (int) $_GET['post'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( $post_id <= 0 || self::POST_TYPE !== get_post_type( $post_id ) ) {
+			return;
+		}
+		$form_id = 'nestform-entry-notes-form-' . $post_id;
+		?>
+		<form
+			id="<?php echo esc_attr( $form_id ); ?>"
+			method="post"
+			action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"
+			class="nestform-entry-notes-form"
+			hidden
+		>
+			<input type="hidden" name="action" value="nestform_save_entry_notes" />
+			<input type="hidden" name="entry_id" value="<?php echo (int) $post_id; ?>" />
+			<?php wp_nonce_field( 'nestform_save_entry_notes_' . (int) $post_id ); ?>
+		</form>
+		<?php
+	}
+
+	/**
+	 * Notes + star metabox on entry edit.
+	 *
+	 * @param WP_Post $post Post.
+	 */
+	public static function render_notes_box( $post ) {
+		$starred  = self::is_starred( $post->ID );
+		$notes    = self::get_notes( $post->ID );
+		$form_id  = 'nestform-entry-notes-form-' . (int) $post->ID;
+		$star_id  = 'nestform_starred_' . (int) $post->ID;
+		$notes_id = 'nestform_notes_' . (int) $post->ID;
+		?>
+		<div class="nestform-entry-notes">
+			<p>
+				<label class="nestform-admin__check" for="<?php echo esc_attr( $star_id ); ?>">
+					<input
+						type="checkbox"
+						id="<?php echo esc_attr( $star_id ); ?>"
+						name="nestform_starred"
+						value="1"
+						form="<?php echo esc_attr( $form_id ); ?>"
+						<?php checked( $starred ); ?>
+					/>
+					<span><?php esc_html_e( 'Starred', 'nestform' ); ?></span>
+				</label>
+			</p>
+			<p>
+				<label class="nestform-admin__label" for="<?php echo esc_attr( $notes_id ); ?>"><?php esc_html_e( 'Internal notes', 'nestform' ); ?></label>
+				<textarea
+					class="nestform-admin__input nestform-admin__textarea nestform-entry-notes__textarea"
+					rows="5"
+					id="<?php echo esc_attr( $notes_id ); ?>"
+					name="nestform_notes"
+					form="<?php echo esc_attr( $form_id ); ?>"
+				><?php echo esc_textarea( $notes ); ?></textarea>
+			</p>
+			<p>
+				<button type="submit" class="nestform-btn nestform-btn--primary" form="<?php echo esc_attr( $form_id ); ?>">
+					<?php nestform_admin_icon( 'save' ); ?>
+					<?php esc_html_e( 'Save notes', 'nestform' ); ?>
+				</button>
 			</p>
 		</div>
 		<?php

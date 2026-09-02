@@ -1,0 +1,236 @@
+/* ---- Form edit screen: plugin chrome (not stock WP post UI) ---- */
+body.nestform-admin-screen.post-type-nestform {
+    background: var(--nestform-canvas);
+}
+
+body.nestform-admin-screen.post-type-nestform #wpbody-content > .wrap > h1,
+body.nestform-admin-screen.post-type-nestform
+    #wpbody-content
+    > .wrap
+    > .wp-heading-inline,
+body.nestform-admin-screen.post-type-nestform
+    #wpbody-content
+    > .wrap
+    > .page-title-action,
+body.nestform-admin-screen.post-type-nestform
+    #wpbody-content
+    > .wrap
+    > .wp-header-end {
+    display: none;
+}
+
+body.nestform-admin-screen.post-type-nestform #screen-meta-links {
+    display: none;
+}
+
+body.nestform-admin-screen.post-type-nestform #poststuff {
+    padding-top: 0;
+}
+
+body.nestform-admin-screen.post-type-nestform #post-body.columns-2 {
+    margin-right: 320px;
+}
+
+body.nestform-admin-screen.post-type-nestform
+    #post-body.columns-2
+    #postbox-container-1 {
+    margin-right: -320px;
+    width: 300px;
+}
+
+/* Title header — Make: logo mark + flat title (no card chrome) */
+body.nestform-admin-screen.post-type-nestform #titlediv {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    column-gap: var(--nestform-space-4);
+    align-items: center;
+    margin: 0 0 var(--nestform-space-4);
+}
+
+body.nestform-admin-screen.post-type-nestform #titlediv::before {
+    content: "";
+    grid-column: 1;
+    grid-row: 1;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background-color: var(--nestform-accent);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3Cline x1='9' y1='13' x2='15' y2='13'/%3E%3Cline x1='9' y1='17' x2='13' y2='17'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 18px;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+    flex-shrink: 0;
+}
+
+body.nestform-admin-screen.post-type-nestform #titlediv #titlewrap {
+    grid-column: 2;
+    grid-row: 1;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+body.wp-core-ui.nestform-admin-screen.post-type-nestform #titlediv #title,
+body.nestform-admin-screen.post-type-nestform #titlediv #title {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    height: auto;
+    min-height: 0;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: var(--nestform-ink);
+}
+
+body.wp-core-ui.nestform-admin-screen.post-type-nestform #titlediv #title:focus,
+body.nestform-admin-screen.post-type-nestform #titlediv #title:focus {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none;
+}
+
+body.nestform-admin-screen.post-type-nestform #title-prompt-text {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--nestform-faint);
+    pointer-events: none;
+}
+
+body.nestform-admin-screen.post-type-nestform #edit-slug-box {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 4px 0 0;
+    padding: 0;
+    color: var(--nestform-faint);
+    font-size: 12px;
+}
+
+body.nestform-admin-screen.post-type-nestform #nestform_builder {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+body.nestform-admin-screen.post-type-nestform
+    #nestform_builder
+    > .postbox-header,
+body.nestform-admin-screen.post-type-nestform #nestform_builder .handlediv,
+body.nestform-admin-screen.post-type-nestform
+    #nestform_builder
+    .handle-order-higher,
+body.nestform-admin-screen.post-type-nestform
+    #nestform_builder
+    .handle-order-lower {
+    display: none !important;
+}
+
+body.nestform-admin-screen.post-type-nestform #nestform_builder .inside {
+    display: block !important;
+}
+
+body.nestform-admin-screen.post-type-nestform #nestform_shortcode {
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    background: var(--nestform-surface);
+    box-shadow: var(--nestform-shadow-md);
+}
+
+body.nestform-admin-screen.post-type-nestform
+    #nestform_shortcode
+    > .postbox-header {
+    border-bottom: 1px solid var(--nestform-border);
+    background: var(--nestform-surface);
+}
+
+body.nestform-admin-screen.post-type-nestform
+    #nestform_shortcode
+    > .postbox-header
+    .handle-actions {
+    display: none;
+}
+
+body.nestform-admin-screen.post-type-nestform #nestform_shortcode .hndle {
+    cursor: default;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+body.nestform-admin-screen.post-type-nestform #post-body-content,
+body.nestform-admin-screen.post-type-nestform
+    #postbox-container-1
+    .meta-box-sortables {
+    min-height: 0 !important;
+}
+
+@media screen and (max-width: 850px) {
+    body.nestform-admin-screen.post-type-nestform #post-body.columns-2 {
+        margin-right: 0;
+    }
+
+    body.nestform-admin-screen.post-type-nestform
+        #post-body.columns-2
+        #postbox-container-1 {
+        margin-right: 0;
+        width: 100%;
+    }
+}
+
+.nestform-admin {
+    margin: 0;
+    font-size: 13px;
+    color: var(--nestform-ink);
+    background: var(--nestform-shell);
+    border-radius: var(--nestform-radius);
+}
+
+.nestform-admin__surface {
+    margin: 0;
+    padding: var(--nestform-space-4);
+    background: var(--nestform-surface);
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    box-shadow: none;
+    box-sizing: border-box;
+}
+
+.nestform-admin__surface:last-child {
+    margin-bottom: 0;
+}
+
+.nestform-admin__quick-add.nestform-admin__surface {
+    padding: var(--nestform-space-2) var(--nestform-space-4);
+    background: var(--nestform-surface);
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    box-shadow: var(--nestform-shadow);
+    position: sticky;
+    top: calc(var(--nestform-space-2) * -1);
+    z-index: 20;
+}
+
+.nestform-admin__quick-add.nestform-admin__surface:last-child {
+    margin-bottom: var(--nestform-space-4);
+}
+
+.nestform-steps-setup.nestform-admin__surface {
+    background: var(--nestform-surface);
+    padding: var(--nestform-space-2) var(--nestform-space-4);
+}

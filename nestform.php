@@ -20,83 +20,39 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( function_exists( 'nes_fs' ) ) {
-	nes_fs()->set_basename( false, __FILE__ );
-} else {
-	if ( defined( 'NESTFORM_VERSION' ) ) {
-		return;
-	}
+if ( defined( 'NESTFORM_VERSION' ) ) {
+	return;
+}
 
-	if ( ! function_exists( 'nes_fs' ) ) {
-		// Create a helper function for easy SDK access.
-		function nes_fs() {
-			global $nes_fs;
+define( 'NESTFORM_VERSION', '2.2.0' );
+define( 'NESTFORM_PATH', trailingslashit( dirname( __FILE__ ) ) );
+define( 'NESTFORM_URL', trailingslashit( plugin_dir_url( __FILE__ ) ) );
 
-			if ( ! isset( $nes_fs ) ) {
-				// Include Freemius SDK.
-				require_once dirname( __FILE__ ) . '/vendor/freemius/start.php';
-
-				$nes_fs = fs_dynamic_init(
-					array(
-						'id'                  => '37981',
-						'slug'                => 'nestform',
-						'premium_slug'        => 'nestform-pro',
-						'type'                => 'plugin',
-						'public_key'          => 'pk_7337f922428c7467840c937e4cf5d',
-						'is_premium'          => false,
-						'premium_suffix'      => '(Pro)',
-						'has_premium_version' => true,
-						'has_addons'          => false,
-						'has_paid_plans'      => true,
-						'is_org_compliant'    => true,
-						'wp_org_gatekeeper'   => 'OA7#BoRiBNqdf52FvzEf!!074aRLPs8fspif$7K1#4u4Csys1fQlCecVcUTOs2mcpeVHi#C2j9d09fOTvbC0HloPT7fFee5WdS3G',
-						'menu'                => array(
-							'slug'       => 'nestform-forms',
-							'parent'     => array(
-								'slug' => 'edit.php?post_type=nestform',
-							),
-							'first-path' => 'edit.php?post_type=nestform&page=nestform-forms',
-							// Keep account registered under CPT (nestform-forms-account) for app shell.
-							'account'    => true,
-							'contact'    => false,
-							'support'    => false,
-							'pricing'    => true,
-						),
-					)
-				);
-			}
-
-			return $nes_fs;
-		}
-
-		// Init Freemius.
-		nes_fs();
-		nes_fs()->add_filter( 'deactivate_on_activation', '__return_false' );
-		nes_fs()->add_action( 'after_uninstall', 'nestform_fs_uninstall_cleanup' );
-		nes_fs()->add_filter(
-			'is_submenu_visible',
-			static function ( $is_visible, $menu_id ) {
-				// Hide contact/support from WP menu. Account stays registered (CSS-hidden)
-				// so nestform-forms-account works inside Nestform app shell.
-				if ( in_array( (string) $menu_id, array( 'contact', 'affiliation', 'support' ), true ) ) {
-					return false;
-				}
-				return $is_visible;
-			},
-			10,
-			2
-		);
-		// Signal that SDK was initiated.
-		do_action( 'nes_fs_loaded' );
-	}
-
-	define( 'NESTFORM_VERSION', '2.2.0' );
-	define( 'NESTFORM_PATH', trailingslashit( dirname( __FILE__ ) ) );
-	define( 'NESTFORM_URL', trailingslashit( plugin_dir_url( __FILE__ ) ) );
-
-require_once NESTFORM_PATH . 'freemius.config.php';
-require_once NESTFORM_PATH . 'includes/class-freemius-bridge.php';
 require_once NESTFORM_PATH . 'includes/uninstall-cleanup.php';
+
+register_uninstall_hook( NESTFORM_PATH . 'nestform.php', 'nestform_uninstall_cleanup' );
+
+/**
+ * Activation: install custom tables and schedule cleanup.
+ */
+function nestform_activate() {
+	require_once NESTFORM_PATH . 'includes/class-spam-log.php';
+	Nestform_Spam_Log::install();
+
+	require_once NESTFORM_PATH . 'includes/class-email-log.php';
+	Nestform_Email_Log::install();
+
+	require_once NESTFORM_PATH . 'includes/class-submissions.php';
+	Nestform_Submissions::schedule_retention_cleanup();
+
+	require_once NESTFORM_PATH . 'includes/class-settings.php';
+	require_once NESTFORM_PATH . 'includes/class-capabilities.php';
+	Nestform_Capabilities::install();
+
+	require_once NESTFORM_PATH . 'includes/class-onboarding.php';
+	Nestform_Onboarding::schedule_redirect();
+}
+register_activation_hook( __FILE__, 'nestform_activate' );
 
 /**
  * Plugin logo URL.
@@ -104,7 +60,7 @@ require_once NESTFORM_PATH . 'includes/uninstall-cleanup.php';
  * @return string
  */
 function nestform_logo_url() {
-	return NESTFORM_URL . 'assets/logo.png';
+	return nestform_assets_url( 'images/logo.png' );
 }
 
 /**
@@ -114,6 +70,166 @@ function nestform_logo_url() {
  */
 function nestform_admin_style_deps() {
 	return array( 'dashicons' );
+}
+
+/**
+ * Path under assets/ (plugin root).
+ *
+ * @param string $relative Relative path, e.g. admin.css or css/admin/01-tokens.css.
+ * @return string
+ */
+function nestform_assets_path( $relative = '' ) {
+	$relative = ltrim( str_replace( '\\', '/', (string) $relative ), '/' );
+	return $relative === '' ? NESTFORM_PATH . 'assets/' : NESTFORM_PATH . 'assets/' . $relative;
+}
+
+/**
+ * URL under assets/.
+ *
+ * @param string $relative Relative path.
+ * @return string
+ */
+function nestform_assets_url( $relative = '' ) {
+	$relative = ltrim( str_replace( '\\', '/', (string) $relative ), '/' );
+	return $relative === '' ? NESTFORM_URL . 'assets/' : NESTFORM_URL . 'assets/' . $relative;
+}
+
+/**
+ * Bundled admin stylesheet (built from assets/css/admin/*.css).
+ *
+ * @return string
+ */
+function nestform_admin_css_path() {
+	return nestform_assets_path( 'css/admin.css' );
+}
+
+/**
+ * @return string
+ */
+function nestform_admin_css_url() {
+	return nestform_assets_url( 'css/admin.css' );
+}
+
+/**
+ * Bundled front stylesheet (built from assets/css/front/forms.css).
+ *
+ * @return string
+ */
+function nestform_front_css_path() {
+	return nestform_assets_path( 'css/front.css' );
+}
+
+/**
+ * @return string
+ */
+function nestform_front_css_url() {
+	return nestform_assets_url( 'css/front.css' );
+}
+
+/**
+ * Whether to load minified JS bundles (*.min.js).
+ *
+ * @return bool
+ */
+function nestform_use_minified_js() {
+	return ! ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG );
+}
+
+/**
+ * Normalize a .js basename and optionally return the .min.js variant.
+ *
+ * @param string $file   e.g. admin.js or admin.min.js.
+ * @param bool   $minify Force min/non-min; null uses SCRIPT_DEBUG.
+ * @return string
+ */
+function nestform_js_basename( $file, $minify = null ) {
+	$file = basename( str_replace( '\\', '/', (string) $file ) );
+	$file = preg_replace( '/\.min\.js$/i', '', $file );
+	$file = preg_replace( '/\.js$/i', '', $file ) . '.js';
+
+	if ( null === $minify ) {
+		$minify = nestform_use_minified_js();
+	}
+
+	if ( $minify ) {
+		return preg_replace( '/\.js$/i', '.min.js', $file );
+	}
+
+	return $file;
+}
+
+/**
+ * Resolve a plugin-relative JS path (prefers readable *.min.js when built).
+ *
+ * @param string $relative Path from plugin root, e.g. assets/js/admin/admin.js.
+ * @return string Absolute filesystem path.
+ */
+function nestform_js_path( $relative ) {
+	$relative = ltrim( str_replace( '\\', '/', (string) $relative ), '/' );
+	$dir      = dirname( $relative );
+	$base     = basename( $relative );
+	$resolved = ( '.' === $dir ? '' : $dir . '/' ) . nestform_js_basename( $base );
+	$path     = NESTFORM_PATH . $resolved;
+
+	if ( ! is_readable( $path ) && nestform_use_minified_js() && preg_match( '/\.min\.js$/', $resolved ) ) {
+		$fallback = ( '.' === $dir ? '' : $dir . '/' ) . nestform_js_basename( $base, false );
+		$path     = NESTFORM_PATH . $fallback;
+	}
+
+	return $path;
+}
+
+/**
+ * @param string $relative Path from plugin root.
+ * @return string
+ */
+function nestform_js_url( $relative ) {
+	$relative = ltrim( str_replace( '\\', '/', (string) $relative ), '/' );
+	$dir      = dirname( $relative );
+	$base     = basename( $relative );
+	$resolved = ( '.' === $dir ? '' : $dir . '/' ) . nestform_js_basename( $base );
+
+	if ( ! is_readable( NESTFORM_PATH . $resolved ) && nestform_use_minified_js() && preg_match( '/\.min\.js$/', $resolved ) ) {
+		$resolved = ( '.' === $dir ? '' : $dir . '/' ) . nestform_js_basename( $base, false );
+	}
+
+	return NESTFORM_URL . $resolved;
+}
+
+/**
+ * Admin script path under assets/js/admin/.
+ *
+ * @param string $file Basename, e.g. admin.js or admin-notices.js.
+ * @return string
+ */
+function nestform_admin_js_path( $file = 'admin.js' ) {
+	$file = ltrim( str_replace( '\\', '/', (string) $file ), '/' );
+	return nestform_js_path( 'assets/js/admin/' . $file );
+}
+
+/**
+ * @param string $file Basename.
+ * @return string
+ */
+function nestform_admin_js_url( $file = 'admin.js' ) {
+	$file = ltrim( str_replace( '\\', '/', (string) $file ), '/' );
+	return nestform_js_url( 'assets/js/admin/' . $file );
+}
+
+/**
+ * Front script path (assets/js/front/front.js).
+ *
+ * @return string
+ */
+function nestform_front_js_path() {
+	return nestform_js_path( 'assets/js/front/front.js' );
+}
+
+/**
+ * @return string
+ */
+function nestform_front_js_url() {
+	return nestform_js_url( 'assets/js/front/front.js' );
 }
 
 /**
@@ -240,6 +356,12 @@ function nestform_render_app_open( $current ) {
 			'icon'  => 'forms',
 		),
 		array(
+			'id'    => 'import',
+			'label' => __( 'Import', 'nestform' ),
+			'url'   => class_exists( 'Nestform_Importer' ) && Nestform_Importer::user_can_import() ? Nestform_Importer::url() : '',
+			'icon'  => 'download',
+		),
+		array(
 			'id'    => 'entries',
 			'label' => __( 'Entries', 'nestform' ),
 			'url'   => class_exists( 'Nestform_Submissions' ) ? Nestform_Submissions::hub_url() : '',
@@ -263,39 +385,24 @@ function nestform_render_app_open( $current ) {
 			'url'   => class_exists( 'Nestform_Developers' ) ? Nestform_Developers::url() : '',
 			'icon'  => 'developers',
 		),
-		array(
-			'id'    => 'docs',
-			'label' => __( 'Docs', 'nestform' ),
-			'url'   => class_exists( 'Nestform_Docs' ) ? Nestform_Docs::url() : '',
-			'icon'  => 'docs',
-		),
 	);
 
-	if ( class_exists( 'Nestform_Upgrade' ) && ! Nestform_Upgrade::is_pro() ) {
+	if ( class_exists( 'Nestform_Promotion' ) && Nestform_Promotion::should_promote() ) {
 		$items[] = array(
-			'id'    => 'upgrade',
-			'label' => __( 'Upgrade', 'nestform' ),
-			'url'   => Nestform_Upgrade::url(),
+			'id'    => 'pro',
+			'label' => __( 'Pro', 'nestform' ),
+			'url'   => Nestform_Promotion::url(),
 			'icon'  => 'crown',
 		);
 	}
 
-	if ( current_user_can( 'manage_options' ) ) {
-		if ( class_exists( 'Nestform_Freemius' ) && Nestform_Freemius::is_configured() ) {
-			$items[] = array(
-				'id'    => 'license',
-				'label' => __( 'Account', 'nestform' ),
-				'url'   => Nestform_Freemius::account_url(),
-				'icon'  => 'crown',
-			);
-		} elseif ( class_exists( 'Nestform_Pro_License' ) ) {
-			$items[] = array(
-				'id'    => 'license',
-				'label' => __( 'Account', 'nestform' ),
-				'url'   => Nestform_Pro_License::url(),
-				'icon'  => 'crown',
-			);
-		}
+	if ( current_user_can( 'manage_options' ) && class_exists( 'Nestform_Pro_License' ) ) {
+		$items[] = array(
+			'id'    => 'license',
+			'label' => __( 'License', 'nestform' ),
+			'url'   => Nestform_Pro_License::url(),
+			'icon'  => 'crown',
+		);
 	}
 
 	/**
@@ -461,9 +568,6 @@ function nestform_render_app_open( $current ) {
  * Close Nestform app shell.
  */
 function nestform_render_app_close() {
-	if ( class_exists( 'Nestform_Upgrade' ) ) {
-		Nestform_Upgrade::render_modal();
-	}
 	echo '</div></div>';
 }
 
@@ -479,13 +583,14 @@ function nestform_admin_current_view() {
 	$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$map  = array(
 		'nestform-forms'       => 'forms',
+		'nestform-import'      => 'import',
 		'nestform-dashboard'   => 'dashboard',
 		'nestform-entries'     => 'entries',
 		'nestform-settings'      => 'settings',
 		'nestform-integrations'  => 'integrations',
 		'nestform-developers'    => 'developers',
-		'nestform-docs'          => 'docs',
-		'nestform-upgrade'           => 'upgrade',
+		'nestform-pro'               => 'pro',
+		'nestform-upgrade'           => 'pro',
 		'nestform-account'           => 'license',
 		'nestform-forms-account'     => 'license',
 		'nestform-pro-license'       => 'license',
@@ -567,6 +672,9 @@ add_filter(
 		if ( 'license' === $view ) {
 			$classes .= ' nestform-license-screen';
 		}
+		if ( 'pro' === $view ) {
+			$classes .= ' nestform-upgrade-screen';
+		}
 		return $classes;
 	}
 );
@@ -620,6 +728,7 @@ function nestform_render_page_head( array $args ) {
 		$map  = array(
 			'forms'        => 'forms',
 			'editor'       => 'forms',
+			'import'       => 'forms',
 			'dashboard'    => 'analytics',
 			'analytics'    => 'analytics',
 			'entries'      => 'entries',
@@ -627,20 +736,13 @@ function nestform_render_page_head( array $args ) {
 			'integrations' => 'integrations',
 			'developers'   => 'developers',
 			'docs'         => 'docs',
-			'upgrade'      => 'crown',
+			'pro'          => 'crown',
 			'license'      => 'crown',
 		);
 		$icon = isset( $map[ $view ] ) ? $map[ $view ] : '';
 	}
 	$icon_html = $icon !== '' ? nestform_admin_icon_html( $icon ) : '';
 	$actions   = (string) $args['actions_html'];
-	$view      = nestform_admin_current_view();
-	if ( ! in_array( $view, array( 'upgrade', 'license' ), true ) && class_exists( 'Nestform_Upgrade' ) ) {
-		$chip = Nestform_Upgrade::header_chip_html();
-		if ( $chip !== '' ) {
-			$actions = $chip . ( $actions !== '' ? ' ' . $actions : '' );
-		}
-	}
 	?>
 	<header class="nestform-page-head">
 		<div class="nestform-page-head__lead">
@@ -667,26 +769,37 @@ function nestform_render_page_head( array $args ) {
 require_once NESTFORM_PATH . 'includes/class-migration.php';
 require_once NESTFORM_PATH . 'includes/class-compat.php';
 require_once NESTFORM_PATH . 'includes/class-features.php';
-require_once NESTFORM_PATH . 'includes/class-formula.php';
-require_once NESTFORM_PATH . 'includes/class-mail-html.php';
 require_once NESTFORM_PATH . 'includes/class-form-config.php';
 require_once NESTFORM_PATH . 'includes/class-security.php';
+require_once NESTFORM_PATH . 'includes/class-spam-filter.php';
+require_once NESTFORM_PATH . 'includes/class-spam-log.php';
+require_once NESTFORM_PATH . 'includes/class-email-log.php';
 require_once NESTFORM_PATH . 'includes/class-phone.php';
+require_once NESTFORM_PATH . 'includes/class-capabilities.php';
 require_once NESTFORM_PATH . 'includes/class-post-type.php';
 require_once NESTFORM_PATH . 'includes/class-submissions.php';
+require_once NESTFORM_PATH . 'includes/class-response-summary.php';
+require_once NESTFORM_PATH . 'includes/class-qr-code.php';
 require_once NESTFORM_PATH . 'includes/class-dashboard.php';
 require_once NESTFORM_PATH . 'includes/class-settings.php';
 require_once NESTFORM_PATH . 'includes/class-integrations.php';
 require_once NESTFORM_PATH . 'includes/class-developers.php';
-require_once NESTFORM_PATH . 'includes/class-docs.php';
+require_once NESTFORM_PATH . 'includes/class-webhook.php';
 require_once NESTFORM_PATH . 'includes/class-upgrade.php';
+require_once NESTFORM_PATH . 'includes/class-promotion.php';
+require_once NESTFORM_PATH . 'includes/class-review-request.php';
+require_once NESTFORM_PATH . 'includes/class-privacy.php';
+require_once NESTFORM_PATH . 'includes/class-onboarding.php';
 require_once NESTFORM_PATH . 'includes/class-admin-ui.php';
 require_once NESTFORM_PATH . 'includes/class-renderer.php';
 require_once NESTFORM_PATH . 'includes/class-submit.php';
 require_once NESTFORM_PATH . 'includes/class-captcha.php';
+require_once NESTFORM_PATH . 'includes/class-xlsx-export.php';
 require_once NESTFORM_PATH . 'includes/class-export.php';
+require_once NESTFORM_PATH . 'includes/class-entry-print.php';
 require_once NESTFORM_PATH . 'includes/class-form-io.php';
-require_once NESTFORM_PATH . 'includes/class-webhook.php';
+require_once NESTFORM_PATH . 'includes/class-importer.php';
+require_once NESTFORM_PATH . 'includes/class-backup.php';
 require_once NESTFORM_PATH . 'includes/class-templates.php';
 require_once NESTFORM_PATH . 'includes/class-block.php';
 require_once NESTFORM_PATH . 'includes/class-elementor.php';
@@ -696,25 +809,38 @@ add_action(
 	static function () {
 		Nestform_Migration::init();
 		Nestform_Compat::init();
+		Nestform_Capabilities::init();
 		Nestform_Post_Type::init();
 		if ( class_exists( 'Nestform_Security' ) ) {
 			Nestform_Security::init();
 		}
+		if ( class_exists( 'Nestform_Spam_Log' ) ) {
+			Nestform_Spam_Log::init();
+		}
+		if ( class_exists( 'Nestform_Email_Log' ) ) {
+			Nestform_Email_Log::init();
+		}
 		Nestform_Submissions::init();
+		Nestform_Response_Summary::init();
 		Nestform_Dashboard::init();
 		Nestform_Settings::init();
 		Nestform_Integrations::init();
 		Nestform_Developers::init();
-		Nestform_Docs::init();
+		Nestform_Webhook::init();
 		Nestform_Upgrade::init();
-		Nestform_Freemius::init();
+		Nestform_Promotion::init();
+		Nestform_Review_Request::init();
+		Nestform_Privacy::init();
+		Nestform_Onboarding::init();
 		Nestform_Admin_UI::init();
 		Nestform_Renderer::init();
 		Nestform_Submit::init();
 		Nestform_Captcha::init();
 		Nestform_Export::init();
+		Nestform_Entry_Print::init();
 		Nestform_Form_IO::init();
-		Nestform_Webhook::init();
+		Nestform_Importer::init();
+		Nestform_Backup::init();
 		Nestform_Templates::init();
 		Nestform_Block::init();
 		Nestform_Elementor::init();
@@ -733,33 +859,34 @@ add_action(
 		if ( '' === nestform_admin_current_view() ) {
 			return;
 		}
-		$ver = (string) filemtime( NESTFORM_PATH . 'assets/admin.css' );
+		$ver = (string) filemtime( nestform_admin_css_path() );
 		wp_enqueue_style(
 			'nestform-admin',
-			NESTFORM_URL . 'assets/admin.css',
+			nestform_admin_css_url(),
 			nestform_admin_style_deps(),
 			$ver ? $ver : NESTFORM_VERSION
 		);
-		$ver_js = (string) filemtime( NESTFORM_PATH . 'assets/admin-notices.js' );
+		$ver_js = (string) filemtime( nestform_admin_js_path( 'admin-notices.js' ) );
 		wp_enqueue_script(
 			'nestform-admin-notices',
-			NESTFORM_URL . 'assets/admin-notices.js',
+			nestform_admin_js_url( 'admin-notices.js' ),
 			array( 'jquery', 'common' ),
 			$ver_js ? $ver_js : NESTFORM_VERSION,
 			true
 		);
-		$ver_pro = (string) filemtime( NESTFORM_PATH . 'assets/admin-pro.js' );
+		$ver_export = (string) filemtime( nestform_admin_js_path( 'admin-export-menu.js' ) );
 		wp_enqueue_script(
-			'freemius-checkout',
-			'https://checkout.freemius.com/js/v1/',
+			'nestform-admin-export-menu',
+			nestform_admin_js_url( 'admin-export-menu.js' ),
 			array(),
-			null,
+			$ver_export ? $ver_export : NESTFORM_VERSION,
 			true
 		);
+		$ver_pro = (string) filemtime( nestform_admin_js_path( 'admin-pro.js' ) );
 		wp_enqueue_script(
 			'nestform-admin-pro',
-			NESTFORM_URL . 'assets/admin-pro.js',
-			array( 'freemius-checkout' ),
+			nestform_admin_js_url( 'admin-pro.js' ),
+			array(),
 			$ver_pro ? $ver_pro : NESTFORM_VERSION,
 			true
 		);
@@ -770,57 +897,15 @@ add_action(
 			}
 		}
 
-		$user = wp_get_current_user();
-		$fs   = class_exists( 'Nestform_Freemius' ) ? Nestform_Freemius::instance() : null;
-
 		wp_localize_script(
 			'nestform-admin-pro',
 			'nestformPro',
 			array(
-				'isPro'      => class_exists( 'Nestform_Upgrade' ) ? Nestform_Upgrade::is_pro() : false,
-				'url'        => class_exists( 'Nestform_Upgrade' ) ? Nestform_Upgrade::url() : '',
-				'accountUrl' => class_exists( 'Nestform_Freemius' ) ? Nestform_Freemius::account_url() : '',
-				'features'   => $features,
-				'userEmail'  => ( $user && $user->exists() ) ? (string) $user->user_email : '',
-				'fs'         => array(
-					'productId' => $fs ? (int) $fs->get_id() : 37981,
-					'publicKey' => $fs ? (string) $fs->get_public_key() : 'pk_7337f922428c7467840c937e4cf5d',
-					'plans'     => array(
-						'pro'    => array(
-							'planId'    => defined( 'NESTFORM_FS_PLAN_PRO' ) ? (int) NESTFORM_FS_PLAN_PRO : 0,
-							'pricingId' => defined( 'NESTFORM_FS_PRICING_PRO' ) ? (int) NESTFORM_FS_PRICING_PRO : 0,
-							'title'     => __( 'Nestform Pro', 'nestform' ),
-						),
-						'agency' => array(
-							'planId'    => defined( 'NESTFORM_FS_PLAN_AGENCY' ) ? (int) NESTFORM_FS_PLAN_AGENCY : 0,
-							'pricingId' => defined( 'NESTFORM_FS_PRICING_AGENCY' ) ? (int) NESTFORM_FS_PRICING_AGENCY : 0,
-							'title'     => __( 'Nestform Agency', 'nestform' ),
-						),
-					),
-				),
-				'i18n'       => array(
-					'conversionTitle' => __( 'Track your conversion rate', 'nestform' ),
-					'conversionText'  => __( 'See which forms convert visitors into submissions.', 'nestform' ),
-					'stepsTitle'      => __( 'Build multi-step forms with Nestform Pro', 'nestform' ),
-					'stepsText'       => __( 'Split long forms into simple steps and increase completion rate.', 'nestform' ),
-					'fieldTitle'      => __( 'Advanced fields in Nestform Pro', 'nestform' ),
-					'fieldText'       => __( 'Rating, signature, NPS, scale, ranking, and matrix unlock with Pro.', 'nestform' ),
-					'webhookTitle'    => __( 'Webhooks with Nestform Pro', 'nestform' ),
-					'webhookText'     => __( 'Send submissions to Zapier, Make, n8n, or your own endpoint.', 'nestform' ),
-					'limitTitle'      => __( 'Form limit reached', 'nestform' ),
-					'limitText'       => __( 'Free includes up to 5 forms. Upgrade to Nestform Pro for unlimited forms.', 'nestform' ),
-					'emailTitle'      => __( 'HTML email designer in Nestform Pro', 'nestform' ),
-					'emailText'       => __( 'Visual templates, logo, and live preview for notification emails.', 'nestform' ),
-					'calcTitle'       => __( 'Calculated fields in Nestform Pro', 'nestform' ),
-					'calcText'        => __( 'Auto-compute totals and scores from other fields.', 'nestform' ),
-					'repeaterTitle'   => __( 'Repeaters in Nestform Pro', 'nestform' ),
-					'repeaterText'    => __( 'Let visitors add repeating groups — line items, contacts, and more.', 'nestform' ),
-					'pdfTitle'        => __( 'PDF export in Nestform Pro', 'nestform' ),
-					'pdfText'         => __( 'Download entries as PDF and attach them to notification emails.', 'nestform' ),
-					'quizTitle'       => __( 'Quizzes & surveys in Nestform Pro', 'nestform' ),
-					'quizText'        => __( 'Scoring, result bands, timers, attempts, and shareable results that convert.', 'nestform' ),
-					'autoTitle'       => __( 'Automations in Nestform Pro', 'nestform' ),
-					'autoText'        => __( 'When a submission matches a condition, set status, alert email, or fire a webhook.', 'nestform' ),
+				'isPro'     => class_exists( 'Nestform_Upgrade' ) ? Nestform_Upgrade::is_pro() : false,
+				'url'       => class_exists( 'Nestform_Promotion' ) ? Nestform_Promotion::url() : '',
+				'storeUrl'  => class_exists( 'Nestform_Promotion' ) ? Nestform_Promotion::store_url() : 'https://nestform.app/pro',
+				'features'  => $features,
+				'i18n'      => array(
 					'sidebar'         => array(
 						'collapse' => __( 'Collapse', 'nestform' ),
 						'expand'   => __( 'Expand', 'nestform' ),
@@ -831,4 +916,3 @@ add_action(
 	},
 	5
 );
-}

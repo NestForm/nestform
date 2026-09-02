@@ -2,8 +2,7 @@
 /**
  * Feature capability registry (Free vs Pro).
  *
- * Free ships stubs and upsell UI. Pro registers capabilities after a valid license.
- * Calling nestform_is_pro alone does not unlock gated runtime.
+ * Free ships core forms. Pro registers capabilities after a valid license in nestform-pro.
  *
  * @package Nestform
  */
@@ -73,15 +72,11 @@ class Nestform_Features {
 	}
 
 	/**
-	 * Whether capability registration is allowed (licensed Pro / Freemius).
+	 * Whether capability registration is allowed (licensed Pro add-on).
 	 *
 	 * @return bool
 	 */
 	private static function registration_allowed() {
-		if ( class_exists( 'Nestform_Freemius' ) && Nestform_Freemius::is_configured() ) {
-			return (bool) Nestform_Freemius::can_use_premium();
-		}
-		// Offline / legacy Pro bootstrap: require Pro plugin to be loaded.
 		return defined( 'NESTFORM_PRO_VERSION' )
 			|| class_exists( 'Nestform_Pro_License' )
 			|| class_exists( 'Nestform_Pro' );
@@ -106,19 +101,11 @@ class Nestform_Features {
 	 */
 	public static function can( $feature ) {
 		$feature = sanitize_key( (string) $feature );
+		if ( self::WEBHOOK === $feature ) {
+			return (bool) apply_filters( 'nestform_feature_allowed', true, $feature );
+		}
 		$allowed = ! empty( self::$capabilities[ $feature ] );
 
-		if ( $allowed && class_exists( 'Nestform_Freemius' ) && Nestform_Freemius::is_configured() && ! Nestform_Freemius::can_use_premium() ) {
-			$allowed = false;
-		}
-
-		/**
-		 * Filter a single Nestform capability.
-		 * Can only further restrict — cannot grant a capability that was not registered.
-		 *
-		 * @param bool   $allowed Whether allowed.
-		 * @param string $feature Feature key.
-		 */
 		if ( ! $allowed ) {
 			return false;
 		}
@@ -126,18 +113,12 @@ class Nestform_Features {
 	}
 
 	/**
-	 * Free-plan form limit. 0 = unlimited (Pro).
+	 * Form limit. Free is unlimited; kept for backward compatibility.
 	 *
-	 * @return int
+	 * @return int Always 0 (unlimited).
 	 */
 	public static function form_limit() {
-		if ( self::can( self::UNLIMITED_FORMS ) ) {
-			return 0;
-		}
-		$limit = class_exists( 'Nestform_Upgrade' )
-			? Nestform_Upgrade::free_form_limit()
-			: 5;
-		return max( 0, (int) $limit );
+		return 0;
 	}
 
 	/**
@@ -146,17 +127,11 @@ class Nestform_Features {
 	 * @return bool
 	 */
 	public static function can_create_form() {
-		$limit = self::form_limit();
-		if ( $limit <= 0 ) {
-			return true;
-		}
-		$stats = function_exists( 'nestform_admin_stats' ) ? nestform_admin_stats() : array();
-		$forms = isset( $stats['forms'] ) ? (int) $stats['forms'] : 0;
-		return $forms < $limit;
+		return true;
 	}
 
 	/**
-	 * Pro field type teasers / labels (shown as upsell when locked).
+	 * Pro-only field type labels (used when Pro registers capabilities).
 	 *
 	 * @return array<string, string>
 	 */
@@ -179,7 +154,7 @@ class Nestform_Features {
 	}
 
 	/**
-	 * Specialty Pro field teasers (own capabilities).
+	 * Specialty Pro field labels (calculated, repeater).
 	 *
 	 * @return array<string, string>
 	 */

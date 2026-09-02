@@ -66,7 +66,10 @@ class Nestform_Submit {
 		if ( '' === $hp && isset( $_POST['vite_forms_hp'] ) ) {
 			$hp = trim( (string) wp_unslash( $_POST['vite_forms_hp'] ) );
 		}
+		$ip = self::client_ip();
+
 		if ( $hp !== '' ) {
+			self::log_spam( $form_id, 'honeypot', '', $ip );
 			wp_send_json_success(
 				array(
 					'message'  => $messages['success'],
@@ -87,6 +90,7 @@ class Nestform_Submit {
 			}
 			$elapsed   = time() - $loaded_at;
 			if ( $loaded_at <= 0 || $elapsed < $trap_seconds ) {
+				self::log_spam( $form_id, 'too_fast', '', $ip );
 				wp_send_json_success(
 					array(
 						'message'  => $messages['success'],
@@ -96,8 +100,17 @@ class Nestform_Submit {
 			}
 		}
 
-		$ip = self::client_ip();
+		if ( ! $is_preview && class_exists( 'Nestform_Spam_Filter' ) && Nestform_Spam_Filter::is_blocked_ip( $ip ) ) {
+			self::log_spam( $form_id, 'ip_blocked', '', $ip );
+			wp_send_json_error(
+				array(
+					'message' => $messages['error_generic'],
+				),
+				403
+			);
+		}
 		if ( ! $is_preview && self::is_rate_limited( $ip ) ) {
+			self::log_spam( $form_id, 'rate_limited', '', $ip );
 			wp_send_json_error(
 				array(
 					'message' => $messages['rate_limited'],
@@ -109,6 +122,7 @@ class Nestform_Submit {
 		if ( ! empty( $config['settings']['enable_akismet'] ) && '1' === (string) $config['settings']['enable_akismet'] ) {
 			$akismet = self::check_akismet( $form_id, $config, $ip );
 			if ( is_wp_error( $akismet ) ) {
+				self::log_spam( $form_id, 'akismet', '', $ip );
 				wp_send_json_error(
 					array(
 						'message' => $messages['error_generic'],
@@ -143,6 +157,7 @@ class Nestform_Submit {
 			$captcha = apply_filters( 'nestform_verify_captcha', true, $form_id, $messages );
 		}
 		if ( is_wp_error( $captcha ) ) {
+			self::log_spam( $form_id, 'captcha', '', $ip );
 			wp_send_json_error(
 				array(
 					'message' => $captcha->get_error_message() ? $captcha->get_error_message() : $messages['invalid_captcha'],
@@ -151,6 +166,7 @@ class Nestform_Submit {
 			);
 		}
 		if ( true !== $captcha && false === $captcha ) {
+			self::log_spam( $form_id, 'captcha', '', $ip );
 			wp_send_json_error(
 				array(
 					'message' => $messages['invalid_captcha'],
@@ -182,8 +198,35 @@ class Nestform_Submit {
 		/** @var array<string, mixed> $data */
 		$data = $validated;
 
-		// Recalculate calculated fields server-side (do not trust client).
-		$data = self::apply_calculated_fields( $config['fields'], $data );
+		if ( ! $is_preview && class_exists( 'Nestform_Spam_Filter' ) ) {
+			if ( Nestform_Spam_Filter::is_duplicate( $form_id, $data, $ip ) ) {
+				self::log_spam( $form_id, 'duplicate', '', $ip );
+				wp_send_json_error(
+					array(
+						'message' => $messages['rate_limited'],
+					),
+					429
+				);
+			}
+			$content_hit = Nestform_Spam_Filter::check_content( $data );
+			if ( is_array( $content_hit ) && ! empty( $content_hit['reason'] ) ) {
+				self::log_spam(
+					$form_id,
+					(string) $content_hit['reason'],
+					(string) ( $content_hit['detail'] ?? '' ),
+					$ip
+				);
+				wp_send_json_error(
+					array(
+						'message' => $messages['error_generic'],
+					),
+					403
+				);
+			}
+		}
+
+		// Recalculate calculated fields server-side (Pro add-on).
+		$data = apply_filters( 'nestform_apply_calculated_fields', $data, $config['fields'] );
 
 		/**
 		 * Filter sanitized entry payload before store/mail.
@@ -239,6 +282,9 @@ class Nestform_Submit {
 		}
 
 		self::bump_rate_limit( $ip );
+		if ( class_exists( 'Nestform_Spam_Filter' ) ) {
+			Nestform_Spam_Filter::remember_submission( $form_id, $data, $ip );
+		}
 
 		$success_message = self::apply_success_merge_tags( (string) $messages['success'], $data, $form_id );
 		/**
@@ -252,9 +298,7 @@ class Nestform_Submit {
 		$success_message = (string) apply_filters( 'nestform_success_message', $success_message, $data, $form_id, $entry_id );
 
 		$redirect = isset( $config['settings']['redirect_url'] ) ? (string) $config['settings']['redirect_url'] : '';
-		if ( class_exists( 'Nestform_Security' ) ) {
-			$redirect = Nestform_Security::sanitize_redirect_url( $redirect );
-		}
+		$redirect = self::resolve_redirect_url( $redirect, $form_id, $data, $entry_id );
 
 		$payload = array(
 			'message'  => $success_message,
@@ -320,9 +364,7 @@ class Nestform_Submit {
 
 		$payload = array(
 			'message'  => $success_message,
-			'redirect' => class_exists( 'Nestform_Security' )
-				? Nestform_Security::sanitize_redirect_url( (string) ( $config['settings']['redirect_url'] ?? '' ) )
-				: (string) ( $config['settings']['redirect_url'] ?? '' ),
+			'redirect' => self::resolve_redirect_url( (string) ( $config['settings']['redirect_url'] ?? '' ), $form_id, $data, 0 ),
 			'entry_id' => 0,
 			'preview'  => true,
 		);
@@ -407,8 +449,10 @@ class Nestform_Submit {
 			 * @param bool                 $required Required.
 			 */
 			$early = null;
-			if ( class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::ADVANCED_FIELDS ) ) {
-				$early = apply_filters( 'nestform_pre_validate_field', null, $field, $raw, $messages, $req );
+			if ( class_exists( 'Nestform_Features' ) ) {
+				if ( Nestform_Features::can( Nestform_Features::ADVANCED_FIELDS ) || Nestform_Features::can( Nestform_Features::REPEATERS ) ) {
+					$early = apply_filters( 'nestform_pre_validate_field', null, $field, $raw, $messages, $req );
+				}
 			}
 			if ( is_array( $early ) && ! empty( $early['handled'] ) ) {
 				if ( ! empty( $early['error'] ) ) {
@@ -420,18 +464,11 @@ class Nestform_Submit {
 			}
 
 			if ( 'calculated' === $type ) {
-				// Placeholder; filled after all other fields via apply_calculated_fields().
 				$data[ $name ] = '';
 				continue;
 			}
 
 			if ( 'repeater' === $type ) {
-				$rows = self::validate_repeater( $field, $raw, $messages );
-				if ( is_wp_error( $rows ) ) {
-					$errors[ $name ] = $rows->get_error_message();
-					continue;
-				}
-				$data[ $name ] = $rows;
 				continue;
 			}
 
@@ -769,6 +806,9 @@ class Nestform_Submit {
 		);
 
 		$attach = isset( $args['attachments'] ) && is_array( $args['attachments'] ) ? $args['attachments'] : array();
+		if ( class_exists( 'Nestform_Email_Log' ) ) {
+			return Nestform_Email_Log::send( 'admin', $args['to'], $args['subject'], $args['body'], $args['headers'], $attach, $form_id, 0 );
+		}
 		return (bool) wp_mail( $args['to'], $args['subject'], $args['body'], $args['headers'], $attach );
 	}
 
@@ -829,7 +869,9 @@ class Nestform_Submit {
 			$data
 		);
 
-		return (bool) wp_mail( $args['to'], $args['subject'], $args['body'], $args['headers'] );
+		return class_exists( 'Nestform_Email_Log' )
+			? Nestform_Email_Log::send( 'extra', $args['to'], $args['subject'], $args['body'], $args['headers'], array(), $form_id, 0 )
+			: (bool) wp_mail( $args['to'], $args['subject'], $args['body'], $args['headers'] );
 	}
 
 	/**
@@ -888,7 +930,9 @@ class Nestform_Submit {
 			$data
 		);
 
-		return (bool) wp_mail( $args['to'], $args['subject'], $args['body'], $args['headers'] );
+		return class_exists( 'Nestform_Email_Log' )
+			? Nestform_Email_Log::send( 'user', $args['to'], $args['subject'], $args['body'], $args['headers'], array(), $form_id, 0 )
+			: (bool) wp_mail( $args['to'], $args['subject'], $args['body'], $args['headers'] );
 	}
 
 	/**
@@ -931,29 +975,7 @@ class Nestform_Submit {
 	 * @param array<string, mixed>             $data   Data.
 	 * @return array<string, mixed>
 	 */
-	private static function apply_calculated_fields( array $fields, array $data ) {
-		if ( ! class_exists( 'Nestform_Features' ) || ! Nestform_Features::can( Nestform_Features::CALCULATED_FIELDS ) ) {
-			return $data;
-		}
-		if ( ! class_exists( 'Nestform_Formula' ) ) {
-			return $data;
-		}
-		// Two passes so calculated fields can reference earlier calculated fields.
-		for ( $pass = 0; $pass < 2; $pass++ ) {
-			foreach ( $fields as $field ) {
-				if ( ! is_array( $field ) || 'calculated' !== ( $field['type'] ?? '' ) ) {
-					continue;
-				}
-				$name = (string) ( $field['name'] ?? '' );
-				if ( '' === $name ) {
-					continue;
-				}
-				$formula = (string) ( $field['options'] ?? '' );
-				$data[ $name ] = Nestform_Formula::evaluate( $formula, $data );
-			}
-		}
-		return $data;
-	}
+	
 
 	/**
 	 * Validate a repeater field (supports nested repeaters).
@@ -963,144 +985,7 @@ class Nestform_Submit {
 	 * @param array<string, string> $messages Messages.
 	 * @return array<int, array<string, mixed>>|WP_Error
 	 */
-	private static function validate_repeater( array $field, $raw, array $messages ) {
-		$subfields = isset( $field['subfields'] ) && is_array( $field['subfields'] ) ? $field['subfields'] : array();
-		$req       = ! empty( $field['required'] );
-		if ( ! is_array( $raw ) ) {
-			if ( $req ) {
-				return new WP_Error( 'required', $messages['required'] );
-			}
-			return array();
-		}
-
-		$rows = array();
-		foreach ( $raw as $row_raw ) {
-			if ( ! is_array( $row_raw ) ) {
-				continue;
-			}
-			$row_data = array();
-			$row_empty = true;
-			foreach ( $subfields as $sub ) {
-				if ( ! is_array( $sub ) ) {
-					continue;
-				}
-				$sub_name = (string) ( $sub['name'] ?? '' );
-				$sub_type = (string) ( $sub['type'] ?? 'text' );
-				if ( '' === $sub_name ) {
-					continue;
-				}
-				$sub_raw = array_key_exists( $sub_name, $row_raw ) ? $row_raw[ $sub_name ] : null;
-
-				if ( 'repeater' === $sub_type ) {
-					$nested = self::validate_repeater( $sub, $sub_raw, $messages );
-					if ( is_wp_error( $nested ) ) {
-						return $nested;
-					}
-					if ( array() !== $nested ) {
-						$row_empty = false;
-					}
-					$row_data[ $sub_name ] = $nested;
-					continue;
-				}
-
-				if ( in_array( $sub_type, array( 'checkbox', 'acceptance' ), true ) ) {
-					$checked = ! empty( $sub_raw );
-					if ( $checked ) {
-						$row_empty = false;
-					}
-					if ( ! empty( $sub['required'] ) && ! $checked ) {
-						return new WP_Error( 'required', $messages['required'] );
-					}
-					$row_data[ $sub_name ] = $checked;
-					continue;
-				}
-
-				if ( 'checkboxes' === $sub_type ) {
-					$options = Nestform_Form_Config::parse_choice_values( (string) ( $sub['options'] ?? '' ) );
-					$picked  = array();
-					if ( is_array( $sub_raw ) ) {
-						foreach ( $sub_raw as $item ) {
-							if ( is_string( $item ) && in_array( trim( $item ), $options, true ) ) {
-								$picked[] = sanitize_text_field( trim( $item ) );
-							}
-						}
-					}
-					$picked = array_values( array_unique( $picked ) );
-					if ( array() !== $picked ) {
-						$row_empty = false;
-					}
-					if ( ! empty( $sub['required'] ) && array() === $picked ) {
-						return new WP_Error( 'required', $messages['required'] );
-					}
-					$row_data[ $sub_name ] = $picked;
-					continue;
-				}
-
-				if ( 'calculated' === $sub_type ) {
-					$row_data[ $sub_name ] = '';
-					continue;
-				}
-
-				$value = is_string( $sub_raw ) ? trim( $sub_raw ) : '';
-				if ( '' !== $value ) {
-					$row_empty = false;
-				}
-				if ( ! empty( $sub['required'] ) && '' === $value ) {
-					return new WP_Error( 'required', $messages['required'] );
-				}
-				if ( 'email' === $sub_type && '' !== $value ) {
-					$email = sanitize_email( $value );
-					if ( ! is_email( $email ) ) {
-						return new WP_Error( 'invalid_email', $messages['invalid_email'] );
-					}
-					$row_data[ $sub_name ] = $email;
-					continue;
-				}
-				if ( ( 'number' === $sub_type || 'range' === $sub_type ) && '' !== $value ) {
-					if ( ! is_numeric( $value ) ) {
-						return new WP_Error( 'invalid_number', $messages['invalid_number'] ?? $messages['error_generic'] );
-					}
-					$row_data[ $sub_name ] = sanitize_text_field( $value );
-					continue;
-				}
-				if ( 'textarea' === $sub_type ) {
-					$row_data[ $sub_name ] = sanitize_textarea_field( $value );
-				} else {
-					$row_data[ $sub_name ] = sanitize_text_field( $value );
-				}
-			}
-
-			// Apply calculated subfields within the row.
-			if ( class_exists( 'Nestform_Formula' ) ) {
-				foreach ( $subfields as $sub ) {
-					if ( ! is_array( $sub ) || 'calculated' !== ( $sub['type'] ?? '' ) ) {
-						continue;
-					}
-					$sn = (string) ( $sub['name'] ?? '' );
-					if ( '' === $sn ) {
-						continue;
-					}
-					$row_data[ $sn ] = Nestform_Formula::evaluate( (string) ( $sub['options'] ?? '' ), $row_data );
-					if ( '' !== (string) $row_data[ $sn ] ) {
-						$row_empty = false;
-					}
-				}
-			}
-
-			if ( $row_empty ) {
-				continue;
-			}
-			$rows[] = $row_data;
-			if ( count( $rows ) >= 50 ) {
-				break;
-			}
-		}
-
-		if ( $req && array() === $rows ) {
-			return new WP_Error( 'required', $messages['required'] );
-		}
-		return $rows;
-	}
+	
 
 	/**
 	 * @param string $name Field name.
@@ -1133,6 +1018,87 @@ class Nestform_Submit {
 			$replacements[ '{' . $key . '}' ] = self::format_data_value( $value );
 		}
 		return str_replace( array_keys( $replacements ), array_values( $replacements ), (string) $template );
+	}
+
+	/**
+	 * Resolve redirect URL template with entry field merge tags (URL-encoded values).
+	 *
+	 * Example: https://game.example/play?email={email}
+	 *
+	 * @param string               $template Redirect template.
+	 * @param int                  $form_id  Form ID.
+	 * @param array<string, mixed> $data     Entry data.
+	 * @param int                  $entry_id Entry ID (0 in preview).
+	 * @return string
+	 */
+	public static function resolve_redirect_url( $template, $form_id, array $data, $entry_id = 0 ) {
+		$template = trim( (string) $template );
+		if ( $template === '' ) {
+			return '';
+		}
+
+		$form = get_post( (int) $form_id );
+		$replacements = array(
+			'{form_title}' => rawurlencode( $form ? (string) $form->post_title : '' ),
+			'{form_id}'    => (string) (int) $form_id,
+			'{entry_id}'   => (string) (int) $entry_id,
+		);
+
+		$field_keys = array_keys( $data );
+		usort(
+			$field_keys,
+			static function ( $a, $b ) {
+				return strlen( (string) $b ) - strlen( (string) $a );
+			}
+		);
+		foreach ( $field_keys as $key ) {
+			if ( ! is_string( $key ) || $key === '' ) {
+				continue;
+			}
+			$replacements[ '{' . $key . '}' ] = rawurlencode( self::format_data_value_for_redirect( $data[ $key ] ?? '' ) );
+		}
+
+		$url = str_replace( array_keys( $replacements ), array_values( $replacements ), $template );
+		$url = (string) preg_replace( '/\{[a-zA-Z0-9_]+\}/', '', $url );
+
+		/**
+		 * Filter resolved redirect URL after merge tags are applied.
+		 *
+		 * @param string               $url      Resolved URL (not yet re-sanitized).
+		 * @param string               $template Original template.
+		 * @param int                  $form_id  Form ID.
+		 * @param array<string, mixed> $data     Entry data.
+		 * @param int                  $entry_id Entry ID.
+		 */
+		$url = (string) apply_filters( 'nestform_redirect_url', $url, $template, $form_id, $data, $entry_id );
+
+		if ( class_exists( 'Nestform_Security' ) ) {
+			return Nestform_Security::sanitize_redirect_url( $url );
+		}
+		return esc_url_raw( $url );
+	}
+
+	/**
+	 * @param mixed $value Field value.
+	 * @return string Plain text for redirect query/path segments.
+	 */
+	private static function format_data_value_for_redirect( $value ) {
+		if ( is_bool( $value ) ) {
+			return $value ? 'yes' : 'no';
+		}
+		if ( is_array( $value ) && ! empty( $value['url'] ) ) {
+			return (string) $value['url'];
+		}
+		if ( is_array( $value ) ) {
+			$flat = array();
+			foreach ( $value as $item ) {
+				if ( is_scalar( $item ) ) {
+					$flat[] = (string) $item;
+				}
+			}
+			return implode( ',', $flat );
+		}
+		return is_scalar( $value ) ? (string) $value : '';
 	}
 
 	/**
@@ -1470,6 +1436,20 @@ class Nestform_Submit {
 	}
 
 	/**
+	 * Record a blocked attempt when the spam log is available.
+	 *
+	 * @param int    $form_id Form ID.
+	 * @param string $reason  Reason key.
+	 * @param string $detail  Optional detail.
+	 * @param string $ip      Client IP.
+	 */
+	private static function log_spam( $form_id, $reason, $detail = '', $ip = '' ) {
+		if ( class_exists( 'Nestform_Spam_Log' ) ) {
+			Nestform_Spam_Log::record( (int) $form_id, (string) $reason, (string) $detail, (string) $ip );
+		}
+	}
+
+	/**
 	 * @return string
 	 */
 	private static function client_ip() {
@@ -1482,6 +1462,9 @@ class Nestform_Submit {
 	 * @return bool
 	 */
 	private static function is_rate_limited( $ip ) {
+		if ( class_exists( 'Nestform_Spam_Filter' ) ) {
+			return Nestform_Spam_Filter::is_rate_limited( $ip );
+		}
 		$bucket = $ip !== '' ? $ip : 'unknown';
 		$key    = 'nestform_rl_' . md5( $bucket );
 		return (bool) get_transient( $key );
@@ -1491,6 +1474,10 @@ class Nestform_Submit {
 	 * @param string $ip IP.
 	 */
 	private static function bump_rate_limit( $ip ) {
+		if ( class_exists( 'Nestform_Spam_Filter' ) ) {
+			Nestform_Spam_Filter::bump_rate_limit( $ip );
+			return;
+		}
 		$bucket = $ip !== '' ? $ip : 'unknown';
 		$key    = 'nestform_rl_' . md5( $bucket );
 		set_transient( $key, 1, self::RATE_LIMIT_SECONDS );

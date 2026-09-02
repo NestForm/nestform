@@ -73,8 +73,8 @@ class Nestform_Renderer {
 		$settings = $config['settings'];
 		$settings = Nestform_Form_Config::apply_feature_gates( $settings );
 		$messages = $config['messages'];
-		$fields   = $config['fields'];
-		$steps_on = ( '1' === (string) ( $settings['enable_steps'] ?? '0' ) );
+		$fields   = self::filter_public_fields( Nestform_Form_Config::get_fields( $form_id ) );
+		$steps_on = self::multi_step_enabled( $settings, $fields );
 		$steps    = $steps_on ? Nestform_Form_Config::collect_steps( $fields ) : array( 1 );
 		$labels   = Nestform_Form_Config::parse_step_labels( (string) ( $settings['step_labels'] ?? '' ) );
 		$steps_count = count( $steps );
@@ -152,13 +152,18 @@ class Nestform_Renderer {
 			?>
 		>
 			<input type="hidden" name="action" value="nestform_submit" />
-			<?php if ( ! empty( $settings['quiz_timer_seconds'] ) && (int) $settings['quiz_timer_seconds'] > 0 ) : ?>
+			<?php
+			$can_quiz = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::QUIZ_SURVEY );
+			if ( $can_quiz && ! empty( $settings['quiz_timer_seconds'] ) && (int) $settings['quiz_timer_seconds'] > 0 ) :
+				?>
 				<input type="hidden" name="nestform_quiz_started_at" value="<?php echo esc_attr( (string) time() ); ?>" data-nestform-quiz-started />
 			<?php endif; ?>
 			<div class="nest-form__result" data-nest-form-result hidden></div>
 			<input type="hidden" name="form_id" value="<?php echo esc_attr( (string) $form_id ); ?>" />
 			<input type="hidden" name="nestform_loaded_at" value="<?php echo esc_attr( (string) time() ); ?>" />
-			<input type="hidden" name="nestform_visited_steps" value="1" data-nest-form-visited-steps />
+			<?php if ( $steps_on ) : ?>
+				<input type="hidden" name="nestform_visited_steps" value="1" data-nest-form-visited-steps />
+			<?php endif; ?>
 			<?php wp_nonce_field( 'nestform_submit_' . $form_id, 'nestform_nonce' ); ?>
 			<?php if ( $is_preview ) : ?>
 				<input type="hidden" name="nestform_preview" value="1" />
@@ -267,6 +272,12 @@ class Nestform_Renderer {
 			<div class="nest-form__status" data-nest-form-status role="status" aria-live="polite" aria-atomic="true" hidden></div>
 		</form>
 		<?php
+		if ( class_exists( 'Nestform_Settings' ) ) {
+			$credit = Nestform_Settings::credit_html();
+			if ( $credit !== '' ) {
+				echo $credit; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in credit_html()
+			}
+		}
 		$html = ob_get_clean();
 
 		/**
@@ -298,8 +309,21 @@ class Nestform_Renderer {
 		 * @param bool                 $start_hidden Hidden initially.
 		 */
 		$custom = null;
-		if ( class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::ADVANCED_FIELDS ) ) {
-			$custom = apply_filters( 'nestform_render_field', null, $field, $uid, $start_hidden );
+		if ( class_exists( 'Nestform_Features' ) ) {
+			$pro_cap = null;
+			if ( 'calculated' === $type ) {
+				$pro_cap = Nestform_Features::CALCULATED_FIELDS;
+			} elseif ( 'repeater' === $type ) {
+				$pro_cap = Nestform_Features::REPEATERS;
+			}
+			if ( null !== $pro_cap ) {
+				if ( ! Nestform_Features::can( $pro_cap ) ) {
+					return '';
+				}
+				$custom = apply_filters( 'nestform_render_field', null, $field, $uid, $start_hidden );
+			} elseif ( Nestform_Features::can( Nestform_Features::ADVANCED_FIELDS ) ) {
+				$custom = apply_filters( 'nestform_render_field', null, $field, $uid, $start_hidden );
+			}
 		}
 		if ( is_string( $custom ) ) {
 			return $custom;
@@ -406,7 +430,7 @@ class Nestform_Renderer {
 				$choices = Nestform_Form_Config::parse_choice_lines( (string) $field['options'] );
 				$allow_other = ! empty( $field['allow_other'] );
 				$other_label = Nestform_Form_Config::other_choice_label( $field );
-				$ph_text = $ph !== '' ? $ph : __( 'Select…', 'nestform' );
+				$ph_text = $ph !== '' ? $ph : __( 'Select...', 'nestform' );
 				$list_id = $id . '-list';
 				$selected_label = $ph_text;
 				$is_placeholder = ( $def === '' );
@@ -553,16 +577,6 @@ class Nestform_Renderer {
 					esc_attr( $val ),
 					$req ? ' required' : ''
 				);
-			} elseif ( 'calculated' === $type ) {
-				$formula = (string) ( $field['options'] ?? '' );
-				printf(
-					'<input type="text" class="input nest-form__input nest-form__input--calculated" name="%1$s" id="%2$s" value="" readonly tabindex="-1" data-nestform-calculated data-nestform-formula="%3$s" />',
-					esc_attr( $name ),
-					esc_attr( $id ),
-					esc_attr( $formula )
-				);
-			} elseif ( 'repeater' === $type ) {
-				self::render_repeater_field( $field, $uid, $id, $name, $req );
 			} else {
 				$input_type = Nestform_Form_Config::html_input_type( $type );
 				$autocomplete = 'on';
@@ -611,166 +625,7 @@ class Nestform_Renderer {
 	}
 
 	/**
-	 * Render repeater field (supports nested repeaters).
-	 *
-	 * @param array  $field Field.
-	 * @param string $uid   Form uid.
-	 * @param string $id    Input id base.
-	 * @param string $name  Field name.
-	 * @param bool   $req   Required.
-	 */
-	private static function render_repeater_field( array $field, $uid, $id, $name, $req ) {
-		$subfields = isset( $field['subfields'] ) && is_array( $field['subfields'] ) ? $field['subfields'] : array();
-		echo '<div class="nest-form__repeater" data-nestform-repeater data-nestform-repeater-name="' . esc_attr( $name ) . '"' . ( $req ? ' data-nestform-repeater-required="1"' : '' ) . '>';
-		echo '<div class="nest-form__repeater-rows" data-nestform-repeater-rows>';
-		self::render_repeater_row( $subfields, $name, 0, $uid );
-		echo '</div>';
-		echo '<template data-nestform-repeater-template>';
-		self::render_repeater_row( $subfields, $name, '__INDEX__', $uid );
-		echo '</template>';
-		echo '<button type="button" class="button button--outline nest-form__repeater-add" data-nestform-repeater-add>' . esc_html__( 'Add row', 'nestform' ) . '</button>';
-		echo '</div>';
-	}
-
-	/**
-	 * @param array        $subfields Subfields.
-	 * @param string       $base_name Parent name prefix.
-	 * @param int|string   $index     Row index.
-	 * @param string       $uid       Form uid.
-	 */
-	private static function render_repeater_row( array $subfields, $base_name, $index, $uid ) {
-		echo '<div class="nest-form__repeater-row" data-nestform-repeater-row>';
-		echo '<div class="nest-form__repeater-row-fields">';
-		foreach ( $subfields as $sub ) {
-			if ( ! is_array( $sub ) ) {
-				continue;
-			}
-			$sub_name = (string) ( $sub['name'] ?? '' );
-			$sub_type = (string) ( $sub['type'] ?? 'text' );
-			if ( '' === $sub_name ) {
-				continue;
-			}
-			$input_name = $base_name . '[' . $index . '][' . $sub_name . ']';
-			$input_id   = $uid . '-' . sanitize_html_class( $base_name . '-' . $index . '-' . $sub_name );
-			$label      = (string) ( $sub['label'] ?? $sub_name );
-			$ph         = (string) ( $sub['placeholder'] ?? '' );
-			$def        = (string) ( $sub['default'] ?? '' );
-			$sub_req    = ! empty( $sub['required'] );
-
-			echo '<div class="nest-form__repeater-subfield nest-form__field nest-form__field--' . esc_attr( $sub_type ) . '" data-field-name="' . esc_attr( $sub_name ) . '">';
-			if ( 'calculated' === $sub_type ) {
-				if ( $label !== '' ) {
-					echo '<label class="label nest-form__label" for="' . esc_attr( $input_id ) . '">' . esc_html( $label ) . '</label>';
-				}
-				printf(
-					'<input type="text" class="input nest-form__input nest-form__input--calculated" name="%1$s" id="%2$s" value="" readonly tabindex="-1" data-nestform-calculated data-nestform-formula="%3$s" />',
-					esc_attr( $input_name ),
-					esc_attr( $input_id ),
-					esc_attr( (string) ( $sub['options'] ?? '' ) )
-				);
-			} elseif ( 'textarea' === $sub_type ) {
-				if ( $label !== '' ) {
-					echo '<label class="label nest-form__label" for="' . esc_attr( $input_id ) . '">' . esc_html( $label ) . '</label>';
-				}
-				printf(
-					'<textarea class="input nest-form__input" name="%1$s" id="%2$s" rows="3" placeholder="%3$s"%4$s>%5$s</textarea>',
-					esc_attr( $input_name ),
-					esc_attr( $input_id ),
-					esc_attr( $ph ),
-					$sub_req ? ' required' : '',
-					esc_textarea( $def )
-				);
-			} elseif ( in_array( $sub_type, array( 'select', 'radio', 'checkboxes' ), true ) ) {
-				if ( $label !== '' ) {
-					echo '<span class="label nest-form__label" id="' . esc_attr( $input_id . '-legend' ) . '">' . esc_html( $label );
-					if ( $sub_req ) {
-						echo ' <span class="nest-form__req" aria-hidden="true">*</span>';
-					}
-					echo '</span>';
-				}
-				$choices = Nestform_Form_Config::parse_choice_lines( (string) ( $sub['options'] ?? '' ) );
-				if ( 'select' === $sub_type ) {
-					echo '<select class="input nest-form__input" name="' . esc_attr( $input_name ) . '" id="' . esc_attr( $input_id ) . '"' . ( $sub_req ? ' required' : '' ) . '>';
-					echo '<option value="">' . esc_html( $ph !== '' ? $ph : __( 'Select…', 'nestform' ) ) . '</option>';
-					foreach ( $choices as $choice ) {
-						$val = (string) ( $choice['value'] ?? '' );
-						$lab = (string) ( $choice['label'] ?? $val );
-						echo '<option value="' . esc_attr( $val ) . '"' . selected( $def, $val, false ) . '>' . esc_html( $lab ) . '</option>';
-					}
-					echo '</select>';
-				} elseif ( 'radio' === $sub_type || 'checkboxes' === $sub_type ) {
-					$group_role = 'radio' === $sub_type ? 'radiogroup' : 'group';
-					echo '<div class="nest-form__choices nest-form__choices--' . esc_attr( $sub_type ) . '" role="' . esc_attr( $group_role ) . '"' . ( $label !== '' ? ' aria-labelledby="' . esc_attr( $input_id . '-legend' ) . '"' : '' ) . ( $sub_req ? ' data-required="1"' : '' ) . '>';
-					foreach ( $choices as $i => $choice ) {
-						$val    = (string) ( $choice['value'] ?? '' );
-						$lab    = (string) ( $choice['label'] ?? $val );
-						$cid    = $input_id . '-' . (int) $i;
-						$checked = ( 'radio' === $sub_type && $def === $val );
-						if ( 'radio' === $sub_type ) {
-							echo '<label class="radio-field nest-form__choice" for="' . esc_attr( $cid ) . '">';
-							printf(
-								'<input type="radio" class="radio nest-form__radio" name="%1$s" id="%2$s" value="%3$s"%4$s%5$s />',
-								esc_attr( $input_name ),
-								esc_attr( $cid ),
-								esc_attr( $val ),
-								$checked ? ' checked' : '',
-								( $sub_req && 0 === (int) $i ) ? ' required' : ''
-							);
-							echo '<span class="nest-form__choice-label">' . esc_html( $lab ) . '</span></label>';
-						} else {
-							echo '<label class="checkbox-field nest-form__choice" for="' . esc_attr( $cid ) . '">';
-							printf(
-								'<input type="checkbox" class="checkbox nest-form__checkbox" name="%1$s[]" id="%2$s" value="%3$s" />',
-								esc_attr( $input_name ),
-								esc_attr( $cid ),
-								esc_attr( $val )
-							);
-							echo '<span class="nest-form__choice-label">' . esc_html( $lab ) . '</span></label>';
-						}
-					}
-					echo '</div>';
-				}
-			} elseif ( in_array( $sub_type, array( 'checkbox', 'acceptance' ), true ) ) {
-				$check_label_class = 'checkbox-field nest-form__check';
-				if ( $sub_req ) {
-					$check_label_class .= ' label--required';
-				}
-				echo '<label class="' . esc_attr( $check_label_class ) . '" for="' . esc_attr( $input_id ) . '">';
-				printf(
-					'<input type="checkbox" class="checkbox nest-form__checkbox" name="%1$s" id="%2$s" value="1"%3$s />',
-					esc_attr( $input_name ),
-					esc_attr( $input_id ),
-					$sub_req ? ' required' : ''
-				);
-				echo '<span class="nest-form__choice-label">' . esc_html( $label !== '' ? $label : $sub_name ) . '</span></label>';
-			} else {
-				if ( $label !== '' ) {
-					echo '<label class="label nest-form__label" for="' . esc_attr( $input_id ) . '">' . esc_html( $label ) . '</label>';
-				}
-				$input_type = Nestform_Form_Config::html_input_type( $sub_type );
-				printf(
-					'<input type="%1$s" class="input nest-form__input" name="%2$s" id="%3$s" placeholder="%4$s" value="%5$s"%6$s />',
-					esc_attr( $input_type ),
-					esc_attr( $input_name ),
-					esc_attr( $input_id ),
-					esc_attr( $ph ),
-					esc_attr( $def ),
-					$sub_req ? ' required' : ''
-				);
-			}
-			echo '</div>';
-		}
-		echo '</div>';
-		printf(
-			'<button type="button" class="button button--outline nest-form__repeater-remove" data-nestform-repeater-remove aria-label="%1$s" hidden>%2$s</button>',
-			esc_attr__( 'Remove row', 'nestform' ),
-			esc_html__( 'Remove', 'nestform' )
-		);
-		echo '</div>';
-	}
-
-	/**
-	 * Layout-only blocks (heading, image, HTML) — not submitted.
+	 * Layout-only blocks (heading, image, HTML) -- not submitted.
 	 *
 	 * @param array  $field        Field config.
 	 * @param string $uid          Form uid.
@@ -878,22 +733,37 @@ class Nestform_Renderer {
 	}
 
 	/**
-	 * @param string $raw Options text.
-	 * @return array<int, string>
+	 * @param array<int, array<string, mixed>> $fields Fields.
+	 * @return array<int, array<string, mixed>>
 	 */
-	private static function parse_options( $raw ) {
-		$lines = preg_split( '/\r\n|\r|\n/', $raw );
-		if ( ! is_array( $lines ) ) {
-			return array();
-		}
+	private static function filter_public_fields( array $fields ) {
 		$out = array();
-		foreach ( $lines as $line ) {
-			$line = trim( $line );
-			if ( $line !== '' ) {
-				$out[] = $line;
+		foreach ( $fields as $field ) {
+			if ( ! is_array( $field ) ) {
+				continue;
 			}
+			$type = (string) ( $field['type'] ?? '' );
+			if ( class_exists( 'Nestform_Features' ) && ! Nestform_Features::can_use_field_type( $type ) ) {
+				continue;
+			}
+			$out[] = $field;
 		}
 		return $out;
+	}
+
+	/**
+	 * @param array<string, mixed>             $settings Settings.
+	 * @param array<int, array<string, mixed>> $fields   Fields.
+	 * @return bool
+	 */
+	private static function multi_step_enabled( array $settings, array $fields ) {
+		if ( ! class_exists( 'Nestform_Features' ) || ! Nestform_Features::can( Nestform_Features::MULTI_STEP ) ) {
+			return false;
+		}
+		if ( '1' !== (string) ( $settings['enable_steps'] ?? '0' ) ) {
+			return false;
+		}
+		return count( Nestform_Form_Config::collect_steps( $fields ) ) > 1;
 	}
 
 	public static function enqueue_front() {
@@ -902,17 +772,17 @@ class Nestform_Renderer {
 		}
 		self::$assets_queued = true;
 
-		$css = NESTFORM_PATH . 'assets/front.css';
-		$js  = NESTFORM_PATH . 'assets/front.js';
+		$css = nestform_front_css_path();
+		$js  = nestform_front_js_path();
 		wp_enqueue_style(
 			'nestform-front',
-			NESTFORM_URL . 'assets/front.css',
+			nestform_front_css_url(),
 			array(),
 			(string) filemtime( $css ) ?: NESTFORM_VERSION
 		);
 		wp_enqueue_script(
 			'nestform-front',
-			NESTFORM_URL . 'assets/front.js',
+			nestform_front_js_url(),
 			array(),
 			(string) filemtime( $js ) ?: NESTFORM_VERSION,
 			true

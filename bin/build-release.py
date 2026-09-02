@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Build a Freemius / WordPress.org distribution zip for Nestform.
+Build a WordPress.org distribution zip for Nestform.
 
 Usage (from plugin root):
   python bin/build-release.py

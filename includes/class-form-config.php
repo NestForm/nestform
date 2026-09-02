@@ -160,6 +160,7 @@ class Nestform_Form_Config {
 			'webhook_enabled'    => '0',
 			'webhook_url'        => '',
 			'webhook_secret'     => '',
+			'webhook_endpoints'  => array(),
 			'time_trap_seconds'  => '3',
 			'enable_akismet'     => '0',
 			'store_ip'           => '1',
@@ -766,6 +767,95 @@ class Nestform_Form_Config {
 	}
 
 	/**
+	 * @param mixed $raw Endpoint rows from POST/meta.
+	 * @return array<int, array{url:string,secret:string}>
+	 */
+	public static function sanitize_webhook_endpoints( $raw ) {
+		if ( ! is_array( $raw ) ) {
+			return array();
+		}
+		$max = class_exists( 'Nestform_Webhook' ) ? Nestform_Webhook::ENDPOINT_MAX : 5;
+		$out = array();
+		foreach ( $raw as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+			$url = isset( $row['url'] ) ? esc_url_raw( (string) $row['url'] ) : '';
+			if ( $url === '' || ! self::is_safe_outbound_url( $url ) ) {
+				continue;
+			}
+			$out[] = array(
+				'url'    => $url,
+				'secret' => isset( $row['secret'] ) ? sanitize_text_field( (string) $row['secret'] ) : '',
+			);
+			if ( count( $out ) >= $max ) {
+				break;
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Resolved webhook endpoints for a form (supports legacy single URL fields).
+	 *
+	 * @param array<string, mixed> $settings Form settings.
+	 * @return array<int, array{url:string,secret:string}>
+	 */
+	public static function webhook_endpoints_from_settings( array $settings ) {
+		$endpoints = array();
+		if ( isset( $settings['webhook_endpoints'] ) && is_array( $settings['webhook_endpoints'] ) ) {
+			$endpoints = self::sanitize_webhook_endpoints( $settings['webhook_endpoints'] );
+		}
+		if ( array() !== $endpoints ) {
+			return $endpoints;
+		}
+		$legacy_url = isset( $settings['webhook_url'] ) ? esc_url_raw( (string) $settings['webhook_url'] ) : '';
+		if ( $legacy_url !== '' && self::is_safe_outbound_url( $legacy_url ) ) {
+			$endpoints[] = array(
+				'url'    => $legacy_url,
+				'secret' => isset( $settings['webhook_secret'] ) ? sanitize_text_field( (string) $settings['webhook_secret'] ) : '',
+			);
+		}
+		return $endpoints;
+	}
+
+	/**
+	 * Merge + sanitize webhook keys from raw settings into $out.
+	 *
+	 * @param array<string, mixed> $raw Raw settings.
+	 * @param array<string, mixed> $out Target settings.
+	 * @return array<string, mixed>
+	 */
+	public static function merge_webhook_settings( array $raw, array $out ) {
+		$out['webhook_enabled'] = ! empty( $raw['webhook_enabled'] ) && '0' !== (string) $raw['webhook_enabled'] ? '1' : '0';
+
+		$endpoints = array();
+		if ( isset( $raw['webhook_endpoints'] ) && is_array( $raw['webhook_endpoints'] ) ) {
+			$endpoints = self::sanitize_webhook_endpoints( $raw['webhook_endpoints'] );
+		}
+		if ( array() === $endpoints && isset( $raw['webhook_url'] ) && is_string( $raw['webhook_url'] ) ) {
+			$endpoints = self::sanitize_webhook_endpoints(
+				array(
+					array(
+						'url'    => $raw['webhook_url'],
+						'secret' => isset( $raw['webhook_secret'] ) ? $raw['webhook_secret'] : '',
+					),
+				)
+			);
+		}
+
+		$out['webhook_endpoints'] = $endpoints;
+		$first                    = isset( $endpoints[0] ) ? $endpoints[0] : array(
+			'url'    => '',
+			'secret' => '',
+		);
+		$out['webhook_url']       = (string) ( $first['url'] ?? '' );
+		$out['webhook_secret']    = (string) ( $first['secret'] ?? '' );
+
+		return $out;
+	}
+
+	/**
 	 * @param mixed $rules Raw rules.
 	 * @return array<int, array{field:string,op:string,value:string}>
 	 */
@@ -855,7 +945,7 @@ class Nestform_Form_Config {
 				'message'  => isset( $parts[3] ) ? sanitize_text_field( $parts[3] ) : '',
 				'redirect' => isset( $parts[4] )
 					? ( class_exists( 'Nestform_Security' )
-						? Nestform_Security::sanitize_redirect_url( $parts[4] )
+						? Nestform_Security::sanitize_redirect_template( $parts[4] )
 						: esc_url_raw( $parts[4] ) )
 					: '',
 			);
@@ -887,7 +977,7 @@ class Nestform_Form_Config {
 			$message  = isset( $row['message'] ) ? sanitize_text_field( (string) $row['message'] ) : '';
 			$redirect = isset( $row['redirect'] )
 				? ( class_exists( 'Nestform_Security' )
-					? Nestform_Security::sanitize_redirect_url( (string) $row['redirect'] )
+					? Nestform_Security::sanitize_redirect_template( (string) $row['redirect'] )
 					: esc_url_raw( (string) $row['redirect'] ) )
 				: '';
 			$line     = $min . '|' . $max . '|' . $title;
@@ -942,6 +1032,12 @@ class Nestform_Form_Config {
 						? sanitize_textarea_field( $raw[ $key ] )
 						: sanitize_text_field( $raw[ $key ] );
 				}
+			}
+		}
+		if ( class_exists( 'Nestform_Settings' ) ) {
+			$plugin_success = Nestform_Settings::default_success_message();
+			if ( $plugin_success !== '' && ( ! is_array( $raw ) || empty( $raw['success'] ) ) ) {
+				$out['success'] = $plugin_success;
 			}
 		}
 		return $out;
@@ -1006,9 +1102,6 @@ class Nestform_Form_Config {
 		if ( ! class_exists( 'Nestform_Features' ) || ! Nestform_Features::can( Nestform_Features::MULTI_STEP ) ) {
 			$settings['enable_steps'] = '0';
 		}
-		if ( ! class_exists( 'Nestform_Features' ) || ! Nestform_Features::can( Nestform_Features::WEBHOOK ) ) {
-			$settings['webhook_enabled'] = '0';
-		}
 		if ( ! class_exists( 'Nestform_Features' ) || ! Nestform_Features::can( Nestform_Features::QUIZ_SURVEY ) ) {
 			$settings['form_mode']          = 'form';
 			$settings['quiz_show_score']    = '0';
@@ -1048,7 +1141,7 @@ class Nestform_Form_Config {
 			}
 			if ( isset( $raw['redirect_url'] ) && is_string( $raw['redirect_url'] ) ) {
 				$out['redirect_url'] = class_exists( 'Nestform_Security' )
-					? Nestform_Security::sanitize_redirect_url( $raw['redirect_url'] )
+					? Nestform_Security::sanitize_redirect_template( $raw['redirect_url'] )
 					: esc_url_raw( $raw['redirect_url'] );
 			}
 			$display = isset( $raw['success_display'] ) ? sanitize_key( (string) $raw['success_display'] ) : 'inline';
@@ -1068,13 +1161,7 @@ class Nestform_Form_Config {
 				$out['branch_rules'] = sanitize_textarea_field( $raw['branch_rules'] );
 			}
 			$out['webhook_enabled'] = ! empty( $raw['webhook_enabled'] ) && '0' !== (string) $raw['webhook_enabled'] ? '1' : '0';
-			if ( isset( $raw['webhook_url'] ) && is_string( $raw['webhook_url'] ) ) {
-				$candidate = esc_url_raw( $raw['webhook_url'] );
-				$out['webhook_url'] = ( $candidate !== '' && self::is_safe_outbound_url( $candidate ) ) ? $candidate : '';
-			}
-			if ( isset( $raw['webhook_secret'] ) && is_string( $raw['webhook_secret'] ) ) {
-				$out['webhook_secret'] = sanitize_text_field( $raw['webhook_secret'] );
-			}
+			$out                    = self::merge_webhook_settings( $raw, $out );
 			if ( isset( $raw['time_trap_seconds'] ) ) {
 				$out['time_trap_seconds'] = (string) max( 0, min( 60, (int) $raw['time_trap_seconds'] ) );
 			}
@@ -1107,6 +1194,12 @@ class Nestform_Form_Config {
 			$out = self::merge_automation_settings( $raw, $out );
 
 			$out = self::apply_style_settings( $raw, $out );
+		}
+		if ( class_exists( 'Nestform_Settings' ) ) {
+			$plugin_label = Nestform_Settings::default_submit_label();
+			if ( $plugin_label !== '' && ( ! is_array( $raw ) || empty( $raw['submit_label'] ) ) ) {
+				$out['submit_label'] = $plugin_label;
+			}
 		}
 		return self::apply_feature_gates( $out );
 	}
@@ -1195,7 +1288,7 @@ class Nestform_Form_Config {
 			}
 			if ( isset( $config['settings']['redirect_url'] ) ) {
 				$settings['redirect_url'] = class_exists( 'Nestform_Security' )
-					? Nestform_Security::sanitize_redirect_url( (string) $config['settings']['redirect_url'] )
+					? Nestform_Security::sanitize_redirect_template( (string) $config['settings']['redirect_url'] )
 					: esc_url_raw( (string) $config['settings']['redirect_url'] );
 			}
 			$display = isset( $config['settings']['success_display'] )
@@ -1205,7 +1298,6 @@ class Nestform_Form_Config {
 			$settings['enable_captcha'] = ! empty( $config['settings']['enable_captcha'] ) ? '1' : '0';
 
 			$can_steps   = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::MULTI_STEP );
-			$can_webhook = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::WEBHOOK );
 			$existing    = self::get_settings_raw( $form_id );
 
 			if ( $can_steps ) {
@@ -1231,20 +1323,11 @@ class Nestform_Form_Config {
 				$settings['branch_rules']  = isset( $existing['branch_rules'] ) ? (string) $existing['branch_rules'] : '';
 			}
 
-			if ( $can_webhook ) {
-				$settings['webhook_enabled'] = ! empty( $config['settings']['webhook_enabled'] ) ? '1' : '0';
-				if ( isset( $config['settings']['webhook_url'] ) ) {
-					$candidate = esc_url_raw( (string) $config['settings']['webhook_url'] );
-					$settings['webhook_url'] = ( $candidate !== '' && self::is_safe_outbound_url( $candidate ) ) ? $candidate : '';
-				}
-				if ( isset( $config['settings']['webhook_secret'] ) ) {
-					$settings['webhook_secret'] = sanitize_text_field( (string) $config['settings']['webhook_secret'] );
-				}
-			} else {
-				$settings['webhook_enabled'] = isset( $existing['webhook_enabled'] ) ? (string) $existing['webhook_enabled'] : '0';
-				$settings['webhook_url']     = isset( $existing['webhook_url'] ) ? (string) $existing['webhook_url'] : '';
-				$settings['webhook_secret']  = isset( $existing['webhook_secret'] ) ? (string) $existing['webhook_secret'] : '';
-			}
+			$settings = self::merge_webhook_settings(
+				isset( $config['settings'] ) && is_array( $config['settings'] ) ? $config['settings'] : array(),
+				$settings
+			);
+
 			if ( isset( $config['settings']['time_trap_seconds'] ) ) {
 				$settings['time_trap_seconds'] = (string) max( 0, min( 60, (int) $config['settings']['time_trap_seconds'] ) );
 			}
@@ -1550,53 +1633,16 @@ class Nestform_Form_Config {
 			return array();
 		}
 
-		$max = 1;
-		foreach ( $fields as $field ) {
-			if ( self::is_layout_field( (string) ( $field['type'] ?? '' ) ) ) {
-				continue;
-			}
-			$max = max( $max, max( 1, (int) ( $field['step'] ?? 1 ) ) );
-		}
-
-		$rules = self::parse_branch_rules( (string) ( $settings['branch_rules'] ?? '' ) );
-		if ( array() === $rules ) {
-			return range( 1, $max );
-		}
-
-		$path    = array();
-		$current = 1;
-		$guard   = 0;
-		while ( $guard++ < 100 ) {
-			if ( in_array( $current, $path, true ) ) {
-				break;
-			}
-			$path[] = $current;
-			$jumped = null;
-			foreach ( $rules as $rule ) {
-				if ( (int) $rule['from'] !== $current ) {
-					continue;
-				}
-				$field_key = (string) $rule['field'];
-				$raw       = array_key_exists( $field_key, $raw_map ) ? $raw_map[ $field_key ] : null;
-				if ( self::match_condition( (string) $rule['op'], (string) $rule['value'], $raw ) ) {
-					$jumped = (int) $rule['to'];
-					break;
-				}
-			}
-			if ( null !== $jumped ) {
-				if ( $jumped === $current ) {
-					break;
-				}
-				$current = max( 1, $jumped );
-				continue;
-			}
-			if ( $current >= $max ) {
-				break;
-			}
-			++$current;
-		}
-
-		return array_values( array_unique( array_map( 'intval', $path ) ) );
+		/**
+		 * Filter active steps for branch-aware multi-step forms (Nestform Pro).
+		 *
+		 * @param array<int, int>                  $steps    Default empty — Pro supplies path.
+		 * @param array<int, array<string, mixed>> $fields   Fields.
+		 * @param array<string, string>            $settings Settings.
+		 * @param array<string, mixed>             $raw_map  Submitted values.
+		 */
+		$resolved = apply_filters( 'nestform_resolve_active_steps', array(), $fields, $settings, $raw_map );
+		return is_array( $resolved ) ? array_values( array_map( 'intval', $resolved ) ) : array();
 	}
 
 	/**
@@ -1670,38 +1716,14 @@ class Nestform_Form_Config {
 	 * @return array<int, array{from:int,field:string,op:string,value:string,to:int}>
 	 */
 	public static function parse_branch_rules( $raw ) {
-		$lines = preg_split( '/\r\n|\r|\n/', (string) $raw );
-		if ( ! is_array( $lines ) ) {
-			return array();
-		}
-		$ops = self::condition_operators();
-		$out = array();
-		foreach ( $lines as $line ) {
-			$line = trim( (string) $line );
-			if ( $line === '' || 0 === strpos( $line, '#' ) ) {
-				continue;
-			}
-			$parts = array_map( 'trim', explode( '|', $line ) );
-			if ( count( $parts ) < 5 ) {
-				continue;
-			}
-			$from  = max( 1, (int) $parts[0] );
-			$field = sanitize_key( str_replace( '-', '_', $parts[1] ) );
-			$op    = sanitize_key( $parts[2] );
-			$value = sanitize_text_field( $parts[3] );
-			$to    = max( 1, (int) $parts[4] );
-			if ( $field === '' || ! isset( $ops[ $op ] ) ) {
-				continue;
-			}
-			$out[] = array(
-				'from'  => $from,
-				'field' => $field,
-				'op'    => $op,
-				'value' => $value,
-				'to'    => $to,
-			);
-		}
-		return $out;
+		/**
+		 * Filter parsed branch rules (Nestform Pro).
+		 *
+		 * @param array<int, array<string, mixed>> $rules Default empty.
+		 * @param string                           $raw   Raw textarea.
+		 */
+		$rules = apply_filters( 'nestform_parse_branch_rules', array(), $raw );
+		return is_array( $rules ) ? $rules : array();
 	}
 
 	/**

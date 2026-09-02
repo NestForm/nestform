@@ -117,8 +117,8 @@ class Nestform_Admin_UI {
 			return;
 		}
 
-		$ver_css = (string) filemtime( NESTFORM_PATH . 'assets/admin.css' );
-		$ver_js  = (string) filemtime( NESTFORM_PATH . 'assets/admin.js' );
+		$ver_css = (string) filemtime( nestform_admin_css_path() );
+		$ver_js  = (string) filemtime( nestform_admin_js_path( 'admin.js' ) );
 
 		wp_enqueue_media();
 		if ( class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::EMAIL_DESIGNER ) ) {
@@ -126,27 +126,17 @@ class Nestform_Admin_UI {
 		}
 		wp_enqueue_style(
 			'nestform-admin',
-			NESTFORM_URL . 'assets/admin.css',
+			nestform_admin_css_url(),
 			nestform_admin_style_deps(),
 			$ver_css ? $ver_css : NESTFORM_VERSION
 		);
 		wp_enqueue_script(
 			'nestform-admin',
-			NESTFORM_URL . 'assets/admin.js',
+			nestform_admin_js_url( 'admin.js' ),
 			array( 'jquery', 'media-editor' ),
 			$ver_js ? $ver_js : NESTFORM_VERSION,
 			true
 		);
-		$mail_preview = NESTFORM_PATH . 'assets/mail-preview.js';
-		if ( is_readable( $mail_preview ) ) {
-			wp_enqueue_script(
-				'nestform-mail-preview',
-				NESTFORM_URL . 'assets/mail-preview.js',
-				array( 'nestform-admin', 'jquery' ),
-				(string) filemtime( $mail_preview ) ?: NESTFORM_VERSION,
-				true
-			);
-		}
 		wp_localize_script(
 			'nestform-admin',
 			'nestformAdmin',
@@ -169,7 +159,7 @@ class Nestform_Admin_UI {
 					'removeImage'    => __( 'Remove', 'nestform' ),
 					'noImage'        => __( 'No image selected', 'nestform' ),
 					'mediaUnavailable' => __( 'WordPress media library is not available.', 'nestform' ),
-					'selectPlaceholder' => __( 'Select…', 'nestform' ),
+					'selectPlaceholder' => __( 'Select...', 'nestform' ),
 					'fieldPlaceholder'  => __( 'Optional hint', 'nestform' ),
 					'previewNeedSave'   => __( 'Save the form to refresh preview.', 'nestform' ),
 					'templateSaveFirst' => __( 'Save the form as a draft first, then you can apply a template.', 'nestform' ),
@@ -314,7 +304,6 @@ class Nestform_Admin_UI {
 		$input_types  = Nestform_Form_Config::input_field_type_labels();
 		$steps_enabled = ( '1' === (string) ( $settings['enable_steps'] ?? '0' ) );
 		$can_multi     = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::MULTI_STEP );
-		$can_webhook   = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::WEBHOOK );
 		$can_quiz      = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::QUIZ_SURVEY );
 		$can_advanced  = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::ADVANCED_FIELDS );
 		$can_auto      = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::AUTOMATIONS );
@@ -419,15 +408,16 @@ class Nestform_Admin_UI {
 				</div>
 				<?php endif; ?>
 
-				<div class="nestform-admin__surface nestform-steps-setup<?php echo $steps_enabled ? ' is-on' : ''; ?><?php echo ! $can_multi ? ' nestform-steps-setup--locked' : ''; ?>" data-nestform-steps-setup data-nestform-can-multi-step="<?php echo $can_multi ? '1' : '0'; ?>">
+				<?php if ( $can_multi ) : ?>
+				<div class="nestform-admin__surface nestform-steps-setup<?php echo $steps_enabled ? ' is-on' : ''; ?>" data-nestform-steps-setup data-nestform-can-multi-step="1">
 					<div class="nestform-steps-setup__bar">
 						<label class="nestform-steps-setup__toggle<?php echo $steps_enabled ? ' is-on' : ''; ?>">
 							<input type="hidden" name="nestform[settings][enable_steps]" value="0" />
 							<input type="checkbox" name="nestform[settings][enable_steps]" value="1" <?php checked( $steps_enabled ); ?> data-nestform-enable-steps />
 							<span class="nestform-switch" aria-hidden="true"></span>
 							<span class="nestform-steps-setup__toggle-copy">
-								<span class="nestform-steps-setup__toggle-title"><?php esc_html_e( 'Multi-step form', 'nestform' ); ?><?php echo ! $can_multi ? ' ' . Nestform_Upgrade::pill_html() : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-								<span class="nestform-steps-setup__toggle-desc"><?php echo $can_multi ? esc_html__( 'Split into wizard steps.', 'nestform' ) : esc_html__( 'Available in Nestform Pro.', 'nestform' ); ?></span>
+								<span class="nestform-steps-setup__toggle-title"><?php esc_html_e( 'Multi-step form', 'nestform' ); ?></span>
+								<span class="nestform-steps-setup__toggle-desc"><?php esc_html_e( 'Split into wizard steps.', 'nestform' ); ?></span>
 							</span>
 						</label>
 
@@ -493,6 +483,7 @@ class Nestform_Admin_UI {
 					</details>
 					<textarea class="nestform-admin__input" hidden name="nestform[settings][step_labels]" data-nestform-step-labels><?php echo esc_textarea( (string) ( $settings['step_labels'] ?? '' ) ); ?></textarea>
 				</div>
+				<?php endif; ?>
 
 				<div class="nestform-admin__surface nestform-admin__quick-add" data-nestform-quick-add>
 					<?php
@@ -514,7 +505,12 @@ class Nestform_Admin_UI {
 							'calculated' => __( 'Calculated', 'nestform' ),
 							'repeater'   => __( 'Repeater', 'nestform' ),
 						);
-					$pro_menu_types = array_merge( $pro_teasers, $specialty_teasers );
+					$pro_menu_types = array();
+					foreach ( array_merge( $pro_teasers, $specialty_teasers ) as $type_key => $type_label ) {
+						if ( class_exists( 'Nestform_Features' ) && Nestform_Features::can_use_field_type( (string) $type_key ) ) {
+							$pro_menu_types[ $type_key ] = $type_label;
+						}
+					}
 					?>
 					<div class="nestform-add">
 						<div class="nestform-add__main">
@@ -584,16 +580,9 @@ class Nestform_Admin_UI {
 												<span class="nestform-add-menu__group-label"><?php esc_html_e( 'Pro fields', 'nestform' ); ?></span>
 												<div class="nestform-add-menu__list">
 													<?php foreach ( $pro_menu_types as $pro_key => $pro_label ) : ?>
-														<?php if ( isset( $input_types[ $pro_key ] ) ) : ?>
-															<button type="button" class="nestform-add-menu__item" data-nestform-add-type="<?php echo esc_attr( $pro_key ); ?>">
-																<?php echo esc_html( $input_types[ $pro_key ] ); ?>
-															</button>
-														<?php else : ?>
-															<button type="button" class="nestform-add-menu__item" data-nestform-pro-field="<?php echo esc_attr( $pro_key ); ?>">
-																<?php echo esc_html( $pro_label ); ?>
-																<?php echo Nestform_Upgrade::pill_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-															</button>
-														<?php endif; ?>
+														<button type="button" class="nestform-add-menu__item" data-nestform-add-type="<?php echo esc_attr( $pro_key ); ?>">
+															<?php echo esc_html( $pro_label ); ?>
+														</button>
 													<?php endforeach; ?>
 												</div>
 											</div>
@@ -927,22 +916,20 @@ class Nestform_Admin_UI {
 								<input type="hidden" name="nestform[mail][html_enabled]" value="0" />
 								<input type="hidden" name="nestform[mail][logo_id]" value="0" />
 								<textarea class="nestform-admin__input nestform-admin__textarea" rows="8" name="nestform[mail][body_template]"><?php echo esc_textarea( $mail['body_template'] ); ?></textarea>
-								<p class="description">
-									<button type="button" class="button-link" data-nestform-pro-upsell="email"><?php esc_html_e( 'Upgrade to Pro for the HTML email designer', 'nestform' ); ?></button>
-								</p>
 							<?php endif; ?>
 						</div>
+						<?php if ( $can_pdf ) : ?>
 						<label class="nestform-admin__check nestform-admin__check--full" style="margin-top:12px">
 							<input type="hidden" name="nestform[mail][pdf_attach]" value="0" />
-							<input type="checkbox" name="nestform[mail][pdf_attach]" value="1" <?php checked( $can_pdf && '1' === (string) ( $mail['pdf_attach'] ?? '0' ) ); ?> <?php disabled( ! $can_pdf ); ?> />
+							<input type="checkbox" name="nestform[mail][pdf_attach]" value="1" <?php checked( '1' === (string) ( $mail['pdf_attach'] ?? '0' ) ); ?> />
 							<span>
 								<?php esc_html_e( 'Attach PDF of the submission to this notification', 'nestform' ); ?>
 								<?php self::render_field_tip( __( 'With HTML email on, the PDF uses your message body template. Otherwise it is a field report.', 'nestform' ) ); ?>
-								<?php if ( ! $can_pdf ) : ?>
-									<span class="nestform-admin__pro-pill"><?php esc_html_e( 'Pro', 'nestform' ); ?></span>
-								<?php endif; ?>
 							</span>
 						</label>
+						<?php else : ?>
+							<input type="hidden" name="nestform[mail][pdf_attach]" value="0" />
+						<?php endif; ?>
 					</section>
 
 					<details class="nestform-admin__fold" <?php echo $user_mail_open ? 'open' : ''; ?>>
@@ -1062,7 +1049,7 @@ class Nestform_Admin_UI {
 				<div class="nestform-admin__panel-head">
 					<div>
 						<h3 class="nestform-admin__panel-title"><?php esc_html_e( 'Settings', 'nestform' ); ?></h3>
-						<p class="nestform-admin__panel-desc"><?php esc_html_e( 'Submit behavior, spam protection, and optional Pro integrations.', 'nestform' ); ?></p>
+						<p class="nestform-admin__panel-desc"><?php esc_html_e( 'Submit behavior, spam protection, webhooks, and optional Pro features.', 'nestform' ); ?></p>
 					</div>
 				</div>
 
@@ -1092,7 +1079,16 @@ class Nestform_Admin_UI {
 									<?php esc_html_e( 'Redirect URL', 'nestform' ); ?>
 									<?php self::render_field_tip( __( 'Optional. Leave empty to stay on the page and show the success message.', 'nestform' ) ); ?>
 								</span>
-								<input type="url" class="nestform-admin__input" name="nestform[settings][redirect_url]" value="<?php echo esc_attr( $settings['redirect_url'] ); ?>" placeholder="https://" />
+								<input type="text" class="nestform-admin__input" name="nestform[settings][redirect_url]" value="<?php echo esc_attr( $settings['redirect_url'] ); ?>" placeholder="https://game.example/play?email={email}" spellcheck="false" />
+								<p class="nestform-admin__hint">
+									<?php
+									esc_html_e(
+										'Use {field_name} merge tags — the Name from each field (not the label). Values are URL-encoded automatically. Also: {form_id}, {form_title}, {entry_id}.',
+										'nestform'
+									);
+									?>
+									<code class="nestform-admin__hint-code">https://game.example/play?email={email}</code>
+								</p>
 							</label>
 						</div>
 					</section>
@@ -1102,15 +1098,34 @@ class Nestform_Admin_UI {
 							<span class="nestform-admin__fold-chevron" aria-hidden="true"></span>
 							<span class="nestform-admin__fold-copy">
 								<span class="nestform-admin__fold-title"><?php esc_html_e( 'Spam & privacy', 'nestform' ); ?></span>
-								<span class="nestform-admin__fold-hint"><?php esc_html_e( 'Captcha, time trap, Akismet, and IP storage.', 'nestform' ); ?></span>
+								<span class="nestform-admin__fold-hint">
+									<?php
+									if ( ! empty( $captcha_status['global_on'] ) && ! empty( $captcha_status['provider_label'] ) ) {
+										echo esc_html(
+											sprintf(
+												/* translators: %s: captcha provider short name */
+												__( 'Captcha ready: %s · time trap, Akismet, IP storage.', 'nestform' ),
+												(string) $captcha_status['provider_label']
+											)
+										);
+									} else {
+										esc_html_e( 'Captcha, time trap, Akismet, and IP storage.', 'nestform' );
+									}
+									?>
+								</span>
 							</span>
 						</summary>
 						<div class="nestform-admin__fold-body">
 							<div class="nestform-admin__grid nestform-admin__grid--2">
-								<label class="nestform-admin__check nestform-admin__field-control--full" style="margin-top:0">
+								<label class="nestform-admin__check nestform-admin__field-control--full nestform-admin__captcha-toggle" style="margin-top:0">
 									<input type="hidden" name="nestform[settings][enable_captcha]" value="0" />
 									<input type="checkbox" name="nestform[settings][enable_captcha]" value="1" <?php checked( (string) ( $settings['enable_captcha'] ?? '0' ), '1' ); ?> />
-									<span><?php esc_html_e( 'Enable reCAPTCHA on this form', 'nestform' ); ?></span>
+									<span><?php esc_html_e( 'Enable captcha on this form', 'nestform' ); ?></span>
+									<?php if ( ! empty( $captcha_status['global_on'] ) && ! empty( $captcha_status['provider_label'] ) ) : ?>
+										<span class="nestform-badge nestform-badge--ok nestform-admin__captcha-provider"><?php echo esc_html( (string) $captcha_status['provider_label'] ); ?></span>
+									<?php elseif ( ! empty( $captcha_status['provider_label'] ) ) : ?>
+										<span class="nestform-badge nestform-badge--draft nestform-admin__captcha-provider"><?php echo esc_html( (string) $captcha_status['provider_label'] ); ?></span>
+									<?php endif; ?>
 								</label>
 								<label class="nestform-admin__field-control">
 									<span class="nestform-admin__label">
@@ -1131,7 +1146,7 @@ class Nestform_Admin_UI {
 								</label>
 							</div>
 							<div class="nestform-admin__note<?php echo empty( $captcha_status['global_on'] ) ? ' nestform-admin__note--warn' : ''; ?>">
-								<strong><?php esc_html_e( 'Captcha keys', 'nestform' ); ?></strong>
+								<strong><?php esc_html_e( 'Site captcha', 'nestform' ); ?></strong>
 								<p><?php echo esc_html( (string) ( $captcha_status['message'] ?? '' ) ); ?></p>
 								<?php if ( ! empty( $captcha_status['url'] ) ) : ?>
 									<p><a href="<?php echo esc_url( (string) $captcha_status['url'] ); ?>"><?php esc_html_e( 'Open Integrations', 'nestform' ); ?></a></p>
@@ -1141,23 +1156,16 @@ class Nestform_Admin_UI {
 						</div>
 					</details>
 
+					<?php if ( $can_quiz ) : ?>
 					<details class="nestform-admin__fold" <?php echo $settings_quiz_open ? 'open' : ''; ?>>
 						<summary>
 							<span class="nestform-admin__fold-chevron" aria-hidden="true"></span>
 							<span class="nestform-admin__fold-copy">
-								<span class="nestform-admin__fold-title">
-									<?php esc_html_e( 'Quiz & survey', 'nestform' ); ?>
-									<?php
-									if ( ! $can_quiz ) {
-										echo ' ' . Nestform_Upgrade::pill_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-									}
-									?>
-								</span>
-								<span class="nestform-admin__fold-hint"><?php echo $can_quiz ? esc_html__( 'Scoring, result messages, timer, attempts, resume, and shareable results.', 'nestform' ) : esc_html__( 'Available in Nestform Pro.', 'nestform' ); ?></span>
+								<span class="nestform-admin__fold-title"><?php esc_html_e( 'Quiz & survey', 'nestform' ); ?></span>
+								<span class="nestform-admin__fold-hint"><?php esc_html_e( 'Scoring, result messages, timer, attempts, resume, and shareable results.', 'nestform' ); ?></span>
 							</span>
 						</summary>
 						<div class="nestform-admin__fold-body">
-							<?php if ( $can_quiz ) : ?>
 							<div class="nestform-admin__grid nestform-admin__grid--2">
 								<label class="nestform-admin__field-control">
 									<span class="nestform-admin__label"><?php esc_html_e( 'Form mode', 'nestform' ); ?></span>
@@ -1244,7 +1252,7 @@ class Nestform_Admin_UI {
 													</label>
 													<label class="nestform-admin__field-control nestform-bands__redirect">
 														<span class="nestform-admin__label"><?php esc_html_e( 'Redirect URL', 'nestform' ); ?></span>
-														<input type="url" class="nestform-admin__input" name="nestform[settings][quiz_bands][<?php echo (int) $bi; ?>][redirect]" value="<?php echo esc_attr( (string) ( $band['redirect'] ?? '' ) ); ?>" placeholder="https://" data-nestform-bands-redirect />
+														<input type="text" class="nestform-admin__input" name="nestform[settings][quiz_bands][<?php echo (int) $bi; ?>][redirect]" value="<?php echo esc_attr( (string) ( $band['redirect'] ?? '' ) ); ?>" placeholder="https://game.example/?email={email}" data-nestform-bands-redirect spellcheck="false" />
 													</label>
 													<button type="button" class="nestform-btn nestform-btn--ghost nestform-btn--danger-text nestform-bands__remove" data-nestform-bands-remove aria-label="<?php esc_attr_e( 'Remove result', 'nestform' ); ?>">
 														<?php esc_html_e( 'Remove', 'nestform' ); ?>
@@ -1278,7 +1286,7 @@ class Nestform_Admin_UI {
 												</label>
 												<label class="nestform-admin__field-control nestform-bands__redirect">
 													<span class="nestform-admin__label"><?php esc_html_e( 'Redirect URL', 'nestform' ); ?></span>
-													<input type="url" class="nestform-admin__input" name="nestform[settings][quiz_bands][__i__][redirect]" value="" placeholder="https://" data-nestform-bands-redirect />
+													<input type="text" class="nestform-admin__input" name="nestform[settings][quiz_bands][__i__][redirect]" value="" placeholder="https://game.example/?email={email}" data-nestform-bands-redirect spellcheck="false" />
 												</label>
 												<button type="button" class="nestform-btn nestform-btn--ghost nestform-btn--danger-text nestform-bands__remove" data-nestform-bands-remove aria-label="<?php esc_attr_e( 'Remove result', 'nestform' ); ?>">
 													<?php esc_html_e( 'Remove', 'nestform' ); ?>
@@ -1319,81 +1327,105 @@ class Nestform_Admin_UI {
 									<input type="text" class="nestform-admin__input" name="nestform[settings][quiz_cta_label]" value="<?php echo esc_attr( (string) ( $settings['quiz_cta_label'] ?? '' ) ); ?>" placeholder="<?php esc_attr_e( 'Continue', 'nestform' ); ?>" />
 								</label>
 							</div>
-							<?php else : ?>
-							<p>
-								<button type="button" class="nestform-btn nestform-btn--outline" data-nestform-pro-upsell="quiz_survey">
-									<?php esc_html_e( 'Unlock quiz & survey with Pro', 'nestform' ); ?>
-								</button>
-							</p>
-							<?php endif; ?>
 						</div>
 					</details>
+					<?php endif; ?>
 
 					<details class="nestform-admin__fold" <?php echo $settings_hook_open ? 'open' : ''; ?>>
 						<summary>
 							<span class="nestform-admin__fold-chevron" aria-hidden="true"></span>
 							<span class="nestform-admin__fold-copy">
-								<span class="nestform-admin__fold-title">
-									<?php esc_html_e( 'Webhook', 'nestform' ); ?>
-									<?php
-									if ( ! $can_webhook ) {
-										echo ' ' . Nestform_Upgrade::pill_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-									}
-									?>
-								</span>
-								<span class="nestform-admin__fold-hint"><?php echo $can_webhook ? esc_html__( 'POST JSON after a successful submission (non-blocking).', 'nestform' ) : esc_html__( 'Available in Nestform Pro.', 'nestform' ); ?></span>
+								<span class="nestform-admin__fold-title"><?php esc_html_e( 'Webhooks', 'nestform' ); ?></span>
+								<span class="nestform-admin__fold-hint"><?php esc_html_e( 'POST JSON to one or more HTTPS endpoints after each successful submission (non-blocking).', 'nestform' ); ?></span>
 							</span>
 						</summary>
 						<div class="nestform-admin__fold-body">
-							<?php if ( $can_webhook ) : ?>
-							<div class="nestform-admin__grid">
+							<div class="nestform-webhooks" data-nestform-webhooks>
 								<label class="nestform-admin__check nestform-admin__field-control--full">
 									<input type="hidden" name="nestform[settings][webhook_enabled]" value="0" />
-									<input type="checkbox" name="nestform[settings][webhook_enabled]" value="1" <?php checked( $settings_hook_open ); ?> />
-									<span><?php esc_html_e( 'Enable webhook', 'nestform' ); ?></span>
+									<input type="checkbox" name="nestform[settings][webhook_enabled]" value="1" <?php checked( $settings_hook_open ); ?> data-nestform-webhooks-enabled />
+									<span><?php esc_html_e( 'Enable webhooks', 'nestform' ); ?></span>
 								</label>
-								<label class="nestform-admin__field-control">
-									<span class="nestform-admin__label">
-										<?php esc_html_e( 'Webhook URL', 'nestform' ); ?>
-										<?php self::render_field_tip( __( 'HTTPS endpoint that accepts application/json POST.', 'nestform' ) ); ?>
+								<?php
+								$webhook_endpoints = Nestform_Form_Config::webhook_endpoints_from_settings( $settings );
+								if ( array() === $webhook_endpoints ) {
+									$webhook_endpoints = array(
+										array(
+											'url'    => '',
+											'secret' => '',
+										),
+									);
+								}
+								$webhook_max = class_exists( 'Nestform_Webhook' ) ? Nestform_Webhook::ENDPOINT_MAX : 5;
+								?>
+								<div class="nestform-webhooks__list" data-nestform-webhooks-list>
+									<?php foreach ( $webhook_endpoints as $wi => $endpoint ) : ?>
+										<div class="nestform-webhooks__row" data-nestform-webhooks-row>
+											<label class="nestform-admin__field-control nestform-webhooks__url">
+												<span class="nestform-admin__label">
+													<?php esc_html_e( 'Endpoint URL', 'nestform' ); ?>
+													<?php self::render_field_tip( __( 'HTTPS endpoint that accepts application/json POST.', 'nestform' ) ); ?>
+												</span>
+												<input type="url" class="nestform-admin__input" name="nestform[settings][webhook_endpoints][<?php echo (int) $wi; ?>][url]" value="<?php echo esc_attr( (string) ( $endpoint['url'] ?? '' ) ); ?>" placeholder="https://" data-nestform-webhooks-url />
+											</label>
+											<label class="nestform-admin__field-control nestform-webhooks__secret">
+												<span class="nestform-admin__label">
+													<?php esc_html_e( 'Secret (optional)', 'nestform' ); ?>
+													<?php self::render_field_tip( __( 'Sent as X-Nestform-Secret header for this endpoint.', 'nestform' ) ); ?>
+												</span>
+												<input type="text" class="nestform-admin__input" name="nestform[settings][webhook_endpoints][<?php echo (int) $wi; ?>][secret]" value="<?php echo esc_attr( (string) ( $endpoint['secret'] ?? '' ) ); ?>" autocomplete="off" data-nestform-webhooks-secret />
+											</label>
+											<button type="button" class="nestform-btn nestform-btn--ghost nestform-btn--danger-text nestform-webhooks__remove" data-nestform-webhooks-remove aria-label="<?php esc_attr_e( 'Remove endpoint', 'nestform' ); ?>">
+												<?php esc_html_e( 'Remove', 'nestform' ); ?>
+											</button>
+										</div>
+									<?php endforeach; ?>
+								</div>
+								<p class="nestform-webhooks__actions">
+									<button type="button" class="nestform-btn nestform-btn--outline" data-nestform-webhooks-add <?php echo count( $webhook_endpoints ) >= $webhook_max ? 'hidden' : ''; ?>>
+										<?php esc_html_e( 'Add endpoint', 'nestform' ); ?>
+									</button>
+									<span class="nestform-webhooks__limit">
+										<?php
+										echo esc_html(
+											sprintf(
+												/* translators: %d: max endpoints */
+												__( 'Up to %d endpoints', 'nestform' ),
+												$webhook_max
+											)
+										);
+										?>
 									</span>
-									<input type="url" class="nestform-admin__input" name="nestform[settings][webhook_url]" value="<?php echo esc_attr( (string) ( $settings['webhook_url'] ?? '' ) ); ?>" placeholder="https://" />
-								</label>
-								<label class="nestform-admin__field-control">
-									<span class="nestform-admin__label">
-										<?php esc_html_e( 'Shared secret', 'nestform' ); ?>
-										<?php self::render_field_tip( __( 'Optional. Sent as X-Nestform-Secret header.', 'nestform' ) ); ?>
-									</span>
-									<input type="text" class="nestform-admin__input" name="nestform[settings][webhook_secret]" value="<?php echo esc_attr( (string) ( $settings['webhook_secret'] ?? '' ) ); ?>" autocomplete="off" />
-								</label>
+								</p>
+								<template data-nestform-webhooks-tpl>
+									<div class="nestform-webhooks__row" data-nestform-webhooks-row>
+										<label class="nestform-admin__field-control nestform-webhooks__url">
+											<span class="nestform-admin__label"><?php esc_html_e( 'Endpoint URL', 'nestform' ); ?></span>
+											<input type="url" class="nestform-admin__input" name="nestform[settings][webhook_endpoints][__i__][url]" value="" placeholder="https://" data-nestform-webhooks-url />
+										</label>
+										<label class="nestform-admin__field-control nestform-webhooks__secret">
+											<span class="nestform-admin__label"><?php esc_html_e( 'Secret (optional)', 'nestform' ); ?></span>
+											<input type="text" class="nestform-admin__input" name="nestform[settings][webhook_endpoints][__i__][secret]" value="" autocomplete="off" data-nestform-webhooks-secret />
+										</label>
+										<button type="button" class="nestform-btn nestform-btn--ghost nestform-btn--danger-text nestform-webhooks__remove" data-nestform-webhooks-remove aria-label="<?php esc_attr_e( 'Remove endpoint', 'nestform' ); ?>">
+											<?php esc_html_e( 'Remove', 'nestform' ); ?>
+										</button>
+									</div>
+								</template>
 							</div>
-							<?php else : ?>
-							<p>
-								<button type="button" class="nestform-btn nestform-btn--outline" data-nestform-pro-webhook>
-									<?php esc_html_e( 'Unlock webhooks with Pro', 'nestform' ); ?>
-								</button>
-							</p>
-							<?php endif; ?>
 						</div>
 					</details>
 
+					<?php if ( $can_auto ) : ?>
 					<details class="nestform-admin__fold" <?php echo $settings_auto_open ? 'open' : ''; ?>>
 						<summary>
 							<span class="nestform-admin__fold-chevron" aria-hidden="true"></span>
 							<span class="nestform-admin__fold-copy">
-								<span class="nestform-admin__fold-title">
-									<?php esc_html_e( 'Automations', 'nestform' ); ?>
-									<?php
-									if ( ! $can_auto ) {
-										echo ' ' . Nestform_Upgrade::pill_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-									}
-									?>
-								</span>
-								<span class="nestform-admin__fold-hint"><?php echo $can_auto ? esc_html__( 'When submitted → if conditions → then actions.', 'nestform' ) : esc_html__( 'Available in Nestform Pro.', 'nestform' ); ?></span>
+								<span class="nestform-admin__fold-title"><?php esc_html_e( 'Automations', 'nestform' ); ?></span>
+								<span class="nestform-admin__fold-hint"><?php esc_html_e( 'When submitted → if conditions → then actions.', 'nestform' ); ?></span>
 							</span>
 						</summary>
 						<div class="nestform-admin__fold-body">
-							<?php if ( $can_auto ) : ?>
 								<?php
 								$auto_rules = Nestform_Form_Config::get_automation_rules( $settings );
 								if ( array() === $auto_rules ) {
@@ -1550,20 +1582,16 @@ class Nestform_Admin_UI {
 									</label>
 								</section>
 							</div>
-							<?php else : ?>
-							<p>
-								<button type="button" class="nestform-btn nestform-btn--outline" data-nestform-pro-upsell="automations">
-									<?php esc_html_e( 'Unlock automations with Pro', 'nestform' ); ?>
-								</button>
-							</p>
-							<?php endif; ?>
 						</div>
 					</details>
+					<?php endif; ?>
 
+					<?php if ( $can_multi ) : ?>
 					<div class="nestform-admin__note">
 						<strong><?php esc_html_e( 'Multi-step', 'nestform' ); ?></strong>
 						<p><?php esc_html_e( 'Configure steps on the Fields tab: enable wizard, name each step, add fields into the active step.', 'nestform' ); ?></p>
 					</div>
+					<?php endif; ?>
 				</div>
 			</div>
 
@@ -2265,7 +2293,7 @@ class Nestform_Admin_UI {
 										<?php esc_html_e( 'Placeholder', 'nestform' ); ?>
 										<?php self::render_field_tip( __( 'Text inputs: hint inside the field. Select: label on the custom trigger when nothing is chosen.', 'nestform' ) ); ?>
 									</span>
-									<input type="text" class="nestform-admin__input" name="<?php echo esc_attr( $prefix . '[placeholder]' ); ?>" value="<?php echo esc_attr( $ph_val ); ?>" data-nestform-placeholder placeholder="<?php echo esc_attr( 'select' === $type ? __( 'Select…', 'nestform' ) : __( 'Optional hint', 'nestform' ) ); ?>"<?php echo self::disabled_for_show( $type, 'placeholder' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> />
+									<input type="text" class="nestform-admin__input" name="<?php echo esc_attr( $prefix . '[placeholder]' ); ?>" value="<?php echo esc_attr( $ph_val ); ?>" data-nestform-placeholder placeholder="<?php echo esc_attr( 'select' === $type ? __( 'Select...', 'nestform' ) : __( 'Optional hint', 'nestform' ) ); ?>"<?php echo self::disabled_for_show( $type, 'placeholder' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> />
 								</label>
 								<label class="nestform-admin__field-control" data-nestform-show="default">
 									<span class="nestform-admin__label"><?php esc_html_e( 'Default value', 'nestform' ); ?></span>
@@ -2434,11 +2462,12 @@ class Nestform_Admin_UI {
 					<?php foreach ( $templates as $tpl_key => $tpl ) : ?>
 						<?php
 						$allowed  = Nestform_Templates::template_allowed( $tpl_key );
+						if ( ! $allowed ) {
+							continue;
+						}
 						$category = isset( $tpl['category'] ) ? sanitize_key( (string) $tpl['category'] ) : 'other';
-						$requires = isset( $tpl['requires'] ) && is_array( $tpl['requires'] ) ? $tpl['requires'] : array();
-						$upsell   = ! empty( $requires[0] ) ? (string) $requires[0] : 'quiz_survey';
 						?>
-						<?php if ( $allowed && $can_apply ) : ?>
+						<?php if ( $can_apply ) : ?>
 							<a
 								class="nestform-templates__card"
 								data-nestform-templates-card
@@ -2452,7 +2481,7 @@ class Nestform_Admin_UI {
 								<?php endif; ?>
 								<span class="nestform-templates__card-meta"><?php echo esc_html( ucfirst( $category ) ); ?></span>
 							</a>
-						<?php elseif ( ! $can_apply ) : ?>
+						<?php else : ?>
 							<button
 								type="button"
 								class="nestform-templates__card nestform-templates__card--disabled"
@@ -2465,20 +2494,6 @@ class Nestform_Admin_UI {
 									<span class="nestform-templates__card-desc"><?php echo esc_html( $tpl['description'] ); ?></span>
 								<?php endif; ?>
 								<span class="nestform-templates__card-meta"><?php esc_html_e( 'Save draft first', 'nestform' ); ?></span>
-							</button>
-						<?php else : ?>
-							<button
-								type="button"
-								class="nestform-templates__card nestform-templates__card--pro"
-								data-nestform-templates-card
-								data-category="<?php echo esc_attr( $category ); ?>"
-								data-nestform-pro-upsell="<?php echo esc_attr( $upsell ); ?>"
-							>
-								<span class="nestform-templates__card-label"><?php echo esc_html( $tpl['label'] ); ?> <?php echo Nestform_Upgrade::pill_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-								<?php if ( ! empty( $tpl['description'] ) ) : ?>
-									<span class="nestform-templates__card-desc"><?php echo esc_html( $tpl['description'] ); ?></span>
-								<?php endif; ?>
-								<span class="nestform-templates__card-meta"><?php echo esc_html( ucfirst( $category ) ); ?></span>
 							</button>
 						<?php endif; ?>
 					<?php endforeach; ?>
@@ -2534,7 +2549,49 @@ class Nestform_Admin_UI {
 					<?php nestform_admin_icon( 'copy' ); ?>
 				</button>
 			</div>
-			<p class="description"><?php esc_html_e( 'Or pick this form in the Gutenberg Nestform block.', 'nestform' ); ?></p>
+			<p class="description"><?php esc_html_e( 'Or pick this form in the Gutenberg Nestform block or an ACF Form field.', 'nestform' ); ?></p>
+
+			<?php
+			$public_url = '';
+			$page_title = '';
+			if ( $id > 0 && 'auto-draft' !== $status ) {
+				$found = self::find_embed_page( $id );
+				if ( $found ) {
+					$public_url = (string) $found['url'];
+					$page_title = (string) $found['title'];
+				}
+			}
+			?>
+			<div class="nestform-embed__share">
+				<span class="nestform-admin__label"><?php esc_html_e( 'Share', 'nestform' ); ?></span>
+				<?php if ( $public_url !== '' ) : ?>
+					<p class="description">
+						<?php
+						printf(
+							/* translators: %s: page title */
+							esc_html__( 'Public page: %s', 'nestform' ),
+							esc_html( $page_title !== '' ? $page_title : $public_url )
+						);
+						?>
+					</p>
+					<div class="nestform-embed__row">
+						<code class="nestform-embed__code" data-nestform-copy-text><?php echo esc_html( $public_url ); ?></code>
+						<button type="button" class="nestform-btn nestform-btn--outline nestform-embed__copy" data-nestform-copy aria-label="<?php esc_attr_e( 'Copy link', 'nestform' ); ?>">
+							<?php nestform_admin_icon( 'copy' ); ?>
+						</button>
+					</div>
+					<?php
+					if ( class_exists( 'Nestform_Qr_Code' ) ) {
+						$qr = Nestform_Qr_Code::svg( $public_url, __( 'QR code for this form', 'nestform' ) );
+						if ( $qr !== '' ) {
+							echo '<div class="nestform-embed__qr">' . $qr . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- generated SVG
+						}
+					}
+					?>
+				<?php else : ?>
+					<p class="description"><?php esc_html_e( 'Add the form to a page to enable a public link and QR code.', 'nestform' ); ?></p>
+				<?php endif; ?>
+			</div>
 
 			<?php
 			$embed_entries_url = '';
@@ -2628,6 +2685,172 @@ class Nestform_Admin_UI {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * First published page/post that embeds this form via shortcode, block, or ACF.
+	 *
+	 * @param int $form_id Form ID.
+	 * @return array{url:string,title:string}|null
+	 */
+	public static function find_embed_page( $form_id ) {
+		$form_id = (int) $form_id;
+		if ( $form_id <= 0 ) {
+			return null;
+		}
+
+		$filtered = apply_filters( 'nestform_find_embed_page', null, $form_id );
+		if ( is_array( $filtered ) && ! empty( $filtered['url'] ) ) {
+			return array(
+				'url'   => (string) $filtered['url'],
+				'title' => isset( $filtered['title'] ) ? (string) $filtered['title'] : '',
+			);
+		}
+
+		$searches = array( 'nestform', (string) $form_id );
+		$seen     = array();
+
+		foreach ( $searches as $search ) {
+			$query = new WP_Query(
+				array(
+					'post_type'              => array( 'page', 'post' ),
+					'post_status'            => 'publish',
+					'posts_per_page'         => 50,
+					'orderby'                => 'date',
+					'order'                  => 'DESC',
+					'no_found_rows'          => true,
+					'update_post_meta_cache' => false,
+					'update_post_term_cache' => false,
+					's'                      => $search,
+				)
+			);
+
+			foreach ( $query->posts as $post ) {
+				if ( isset( $seen[ $post->ID ] ) ) {
+					continue;
+				}
+				$seen[ $post->ID ] = true;
+
+				if ( ! self::content_embeds_form( (string) $post->post_content, $form_id ) ) {
+					continue;
+				}
+
+				$url = get_permalink( $post );
+				if ( $url ) {
+					return array(
+						'url'   => $url,
+						'title' => get_the_title( $post ),
+					);
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Whether post content embeds the given form.
+	 *
+	 * @param string $content Raw post content.
+	 * @param int    $form_id Form ID.
+	 * @return bool
+	 */
+	public static function content_embeds_form( $content, $form_id ) {
+		$form_id = (int) $form_id;
+		if ( $form_id <= 0 || $content === '' ) {
+			return false;
+		}
+
+		$needles = array(
+			'[nestform id="' . $form_id . '"]',
+			"[nestform id='" . $form_id . "']",
+			'[nestform id=' . $form_id . ']',
+		);
+
+		$form = get_post( $form_id );
+		if ( $form && $form->post_name !== '' ) {
+			$slug = $form->post_name;
+			$needles[] = '[nestform slug="' . $slug . '"]';
+			$needles[] = "[nestform slug='" . $slug . "']";
+			$needles[] = '[nestform slug=' . $slug . ']';
+		}
+
+		foreach ( $needles as $needle ) {
+			if ( false !== strpos( $content, $needle ) ) {
+				return true;
+			}
+		}
+
+		if ( false !== strpos( $content, '"formId":' . $form_id )
+			|| false !== strpos( $content, '"formId":"' . $form_id . '"' )
+			|| false !== strpos( $content, '"id":' . $form_id )
+		) {
+			if ( false !== strpos( $content, 'wp:nestform' ) || false !== strpos( $content, 'nestform/form' ) ) {
+				return true;
+			}
+		}
+
+		$form_pattern = '/"form"\s*:\s*"?'. preg_quote( (string) $form_id, '/' ) .'"?/';
+		if ( preg_match( $form_pattern, $content ) && false !== strpos( $content, 'acf/' ) ) {
+			return true;
+		}
+
+		if ( function_exists( 'parse_blocks' ) ) {
+			$blocks = parse_blocks( $content );
+			if ( self::blocks_contain_form( $blocks, $form_id ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param array<int, array<string, mixed>> $blocks  Parsed blocks.
+	 * @param int                               $form_id Form ID.
+	 * @return bool
+	 */
+	private static function blocks_contain_form( array $blocks, $form_id ) {
+		foreach ( $blocks as $block ) {
+			if ( ! is_array( $block ) ) {
+				continue;
+			}
+
+			$name  = isset( $block['blockName'] ) ? (string) $block['blockName'] : '';
+			$attrs = isset( $block['attrs'] ) && is_array( $block['attrs'] ) ? $block['attrs'] : array();
+
+			if ( $name === 'nestform/form' || ( $name !== '' && false !== strpos( $name, 'nestform/' ) ) ) {
+				$block_form_id = 0;
+				if ( isset( $attrs['formId'] ) ) {
+					$block_form_id = (int) $attrs['formId'];
+				} elseif ( isset( $attrs['id'] ) ) {
+					$block_form_id = (int) $attrs['id'];
+				}
+				if ( $block_form_id === $form_id ) {
+					return true;
+				}
+			}
+
+			if ( $name !== '' && false !== strpos( $name, 'acf/' ) ) {
+				$data = isset( $attrs['data'] ) && is_array( $attrs['data'] ) ? $attrs['data'] : array();
+				foreach ( $data as $value ) {
+					if ( is_numeric( $value ) && (int) $value === $form_id ) {
+						return true;
+					}
+					if ( is_array( $value ) && isset( $value['ID'] ) && (int) $value['ID'] === $form_id ) {
+						return true;
+					}
+				}
+			}
+
+			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+				if ( self::blocks_contain_form( $block['innerBlocks'], $form_id ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**

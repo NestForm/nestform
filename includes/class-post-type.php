@@ -24,9 +24,6 @@ class Nestform_Post_Type {
 		add_filter( 'submenu_file', array( __CLASS__, 'submenu_file' ) );
 		add_action( 'admin_post_nestform_duplicate', array( __CLASS__, 'handle_duplicate' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'duplicate_notice' ) );
-		add_action( 'admin_notices', array( __CLASS__, 'form_limit_notice' ) );
-		add_action( 'load-post-new.php', array( __CLASS__, 'block_new_at_limit' ) );
-		add_filter( 'wp_insert_post_empty_content', array( __CLASS__, 'block_insert_at_limit' ), 10, 2 );
 		add_action( 'admin_head', array( __CLASS__, 'menu_icon_css' ) );
 		add_filter( 'post_updated_messages', array( __CLASS__, 'updated_messages' ) );
 		add_filter( 'bulk_post_updated_messages', array( __CLASS__, 'bulk_updated_messages' ), 10, 2 );
@@ -237,7 +234,11 @@ class Nestform_Post_Type {
 	 * @return string
 	 */
 	public static function submenu_file( $submenu_file ) {
+		$page   = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( class_exists( 'Nestform_Importer' ) && Nestform_Importer::PAGE_SLUG === $page ) {
+			return Nestform_Importer::PAGE_SLUG;
+		}
 		if ( ! $screen || self::POST_TYPE !== $screen->post_type ) {
 			return $submenu_file;
 		}
@@ -274,17 +275,17 @@ class Nestform_Post_Type {
 		if ( self::PAGE_SLUG !== $page && 'nestform_page_' . self::PAGE_SLUG !== $hook && false === strpos( (string) $hook, self::PAGE_SLUG ) ) {
 			return;
 		}
-		$ver = (string) filemtime( NESTFORM_PATH . 'assets/admin.css' );
+		$ver = (string) filemtime( nestform_admin_css_path() );
 		wp_enqueue_style(
 			'nestform-admin',
-			NESTFORM_URL . 'assets/admin.css',
+			nestform_admin_css_url(),
 			nestform_admin_style_deps(),
 			$ver ? $ver : NESTFORM_VERSION
 		);
-		$ver_js = (string) filemtime( NESTFORM_PATH . 'assets/hub-list.js' );
+		$ver_js = (string) filemtime( nestform_admin_js_path( 'hub-list.js' ) );
 		wp_enqueue_script(
 			'nestform-hub-list',
-			NESTFORM_URL . 'assets/hub-list.js',
+			nestform_admin_js_url( 'hub-list.js' ),
 			array(),
 			$ver_js ? $ver_js : NESTFORM_VERSION,
 			true
@@ -381,7 +382,7 @@ class Nestform_Post_Type {
 		$new_url = admin_url( 'post-new.php?post_type=' . self::POST_TYPE );
 		$add_btn = '<a class="nestform-btn nestform-btn--primary" href="' . esc_url( $new_url ) . '">' . nestform_admin_icon_html( 'plus' ) . ' ' . esc_html__( 'Add New', 'nestform' ) . '</a>';
 		if ( class_exists( 'Nestform_Form_IO' ) ) {
-			$add_btn = Nestform_Form_IO::hub_import_html() . $add_btn;
+			$add_btn = Nestform_Form_IO::hub_import_html() . ( class_exists( 'Nestform_Importer' ) ? Nestform_Importer::hub_link_html() : '' ) . $add_btn;
 		}
 		?>
 		<div class="wrap nestform-hub" data-nestform-hub>
@@ -688,19 +689,6 @@ class Nestform_Post_Type {
 			wp_die( esc_html__( 'You do not have permission to duplicate this form.', 'nestform' ), 403 );
 		}
 
-		if ( class_exists( 'Nestform_Features' ) && ! Nestform_Features::can_create_form() ) {
-			wp_safe_redirect(
-				add_query_arg(
-					array(
-						'page'                 => self::PAGE_SLUG,
-						'nestform_limit'       => '1',
-					),
-					admin_url( 'edit.php?post_type=' . self::POST_TYPE )
-				)
-			);
-			exit;
-		}
-
 		$new_id = self::duplicate_form( $form_id );
 		if ( ! $new_id ) {
 			wp_die( esc_html__( 'Could not duplicate form.', 'nestform' ), 500 );
@@ -783,71 +771,5 @@ class Nestform_Post_Type {
 			esc_url( $link ),
 			esc_html__( 'Edit copy', 'nestform' )
 		);
-	}
-
-	/**
-	 * Notice when free form limit blocks create/duplicate.
-	 */
-	public static function form_limit_notice() {
-		if ( empty( $_GET['nestform_limit'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return;
-		}
-		$upgrade = class_exists( 'Nestform_Upgrade' ) ? Nestform_Upgrade::url() : '';
-		$limit   = class_exists( 'Nestform_Features' ) ? Nestform_Features::form_limit() : 5;
-		$message = sprintf(
-			/* translators: %d: free form limit */
-			__( 'Free includes up to %d forms. Upgrade to Nestform Pro for unlimited forms.', 'nestform' ),
-			max( 1, (int) $limit )
-		);
-		echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html( $message );
-		if ( $upgrade ) {
-			echo ' <a href="' . esc_url( $upgrade ) . '">' . esc_html__( 'Upgrade to Pro', 'nestform' ) . '</a>';
-		}
-		echo '</p></div>';
-	}
-
-	/**
-	 * Block post-new.php when at free form limit.
-	 */
-	public static function block_new_at_limit() {
-		$post_type = isset( $_GET['post_type'] ) ? sanitize_key( wp_unslash( $_GET['post_type'] ) ) : 'post'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( self::POST_TYPE !== $post_type ) {
-			return;
-		}
-		if ( ! class_exists( 'Nestform_Features' ) || Nestform_Features::can_create_form() ) {
-			return;
-		}
-		wp_safe_redirect(
-			add_query_arg(
-				array(
-					'page'           => self::PAGE_SLUG,
-					'nestform_limit' => '1',
-				),
-				admin_url( 'edit.php?post_type=' . self::POST_TYPE )
-			)
-		);
-		exit;
-	}
-
-	/**
-	 * Hard block programmatic inserts at the free form limit (new posts only).
-	 *
-	 * @param bool  $maybe_empty Whether content is considered empty.
-	 * @param array $postarr     Post data.
-	 * @return bool
-	 */
-	public static function block_insert_at_limit( $maybe_empty, $postarr ) {
-		$type = isset( $postarr['post_type'] ) ? (string) $postarr['post_type'] : '';
-		if ( self::POST_TYPE !== $type ) {
-			return $maybe_empty;
-		}
-		$post_id = isset( $postarr['ID'] ) ? (int) $postarr['ID'] : 0;
-		if ( $post_id > 0 ) {
-			return $maybe_empty;
-		}
-		if ( class_exists( 'Nestform_Features' ) && ! Nestform_Features::can_create_form() ) {
-			return true;
-		}
-		return $maybe_empty;
 	}
 }

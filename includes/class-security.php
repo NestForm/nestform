@@ -119,6 +119,27 @@ class Nestform_Security {
 	}
 
 	/**
+	 * Sanitize a redirect URL template that may contain {field_name} merge tags.
+	 * Validates URL structure with placeholder values; tokens are preserved as stored.
+	 *
+	 * @param string $url Raw redirect template.
+	 * @return string
+	 */
+	public static function sanitize_redirect_template( $url ) {
+		$url = trim( (string) $url );
+		if ( $url === '' ) {
+			return '';
+		}
+
+		$probe = preg_replace( '/\{[a-zA-Z0-9_]+\}/', 'nestform', $url );
+		if ( ! is_string( $probe ) || self::sanitize_redirect_url( $probe ) === '' ) {
+			return '';
+		}
+
+		return $url;
+	}
+
+	/**
 	 * @param array<string, string> $dirs Upload dirs.
 	 * @return array<string, string>
 	 */

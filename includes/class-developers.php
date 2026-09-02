@@ -63,10 +63,10 @@ class Nestform_Developers {
 		if ( self::PAGE_SLUG !== $page && false === strpos( (string) $hook, self::PAGE_SLUG ) ) {
 			return;
 		}
-		$ver = (string) filemtime( NESTFORM_PATH . 'assets/admin.css' );
+		$ver = (string) filemtime( nestform_admin_css_path() );
 		wp_enqueue_style(
 			'nestform-admin',
-			NESTFORM_URL . 'assets/admin.css',
+			nestform_admin_css_url(),
 			nestform_admin_style_deps(),
 			$ver ? $ver : NESTFORM_VERSION
 		);
@@ -104,6 +104,7 @@ class Nestform_Developers {
 			'nestform_mail_sent'       => __( 'After admin notification mail.', 'nestform' ),
 			'nestform_extra_mail_sent' => __( 'After conditional extra mail (only if sent).', 'nestform' ),
 			'nestform_user_mail_sent'  => __( 'After visitor autoreply (only if sent).', 'nestform' ),
+			'nestform_webhook_sent'    => __( 'After each outbound webhook HTTP request.', 'nestform' ),
 		);
 	}
 
@@ -121,10 +122,14 @@ class Nestform_Developers {
 			'nestform_field_classes'       => __( 'Field wrapper classes.', 'nestform' ),
 			'nestform_success_message'     => __( 'Thank-you message text before JSON response.', 'nestform' ),
 			'nestform_submit_success_data' => __( 'AJAX success payload (message, redirect, entry_id).', 'nestform' ),
+			'nestform_redirect_url'        => __( 'Redirect URL after merge tags (before final sanitize).', 'nestform' ),
+			'nestform_sanitize_redirect_url' => __( 'Sanitized redirect URL (empty = blocked).', 'nestform' ),
 			'nestform_mail_args'           => __( 'Admin wp_mail() args.', 'nestform' ),
 			'nestform_extra_mail_args'     => __( 'Extra notification wp_mail() args.', 'nestform' ),
 			'nestform_user_mail_args'      => __( 'Visitor autoreply wp_mail() args.', 'nestform' ),
 			'nestform_settings'            => __( 'Plugin-wide settings array.', 'nestform' ),
+			'nestform_webhook_payload'     => __( 'Webhook JSON body (per endpoint URL).', 'nestform' ),
+			'nestform_webhook_request_args'=> __( 'Webhook wp_remote_post() args (per endpoint URL).', 'nestform' ),
 		);
 	}
 
@@ -134,9 +139,7 @@ class Nestform_Developers {
 	 * @return array<string, string>
 	 */
 	public static function pro_actions() {
-		return array(
-			'nestform_webhook_sent' => __( 'After webhook HTTP request (Webhooks).', 'nestform' ),
-		);
+		return array();
 	}
 
 	/**
@@ -149,8 +152,6 @@ class Nestform_Developers {
 			'nestform_pre_validate_field'        => __( 'Early per-field validation for advanced field types.', 'nestform' ),
 			'nestform_render_field'              => __( 'Short-circuit single field HTML for advanced widgets.', 'nestform' ),
 			'nestform_mail_attachments'          => __( 'Admin mail attachment paths (e.g. PDF export).', 'nestform' ),
-			'nestform_webhook_payload'           => __( 'Webhook JSON body.', 'nestform' ),
-			'nestform_webhook_request_args'      => __( 'Webhook wp_remote_post() args.', 'nestform' ),
 			'nestform_dashboard_conversion_kpi'  => __( 'Dashboard conversion KPI card HTML.', 'nestform' ),
 			'nestform_dashboard_chart_metrics'   => __( 'Dashboard chart metrics nav HTML.', 'nestform' ),
 			'nestform_dashboard_chart_empty'     => __( 'Whether the activity chart shows empty state.', 'nestform' ),
@@ -237,6 +238,7 @@ class Nestform_Developers {
 				</section>
 			</div>
 
+			<?php if ( class_exists( 'Nestform_Upgrade' ) && Nestform_Upgrade::is_pro() && array() !== self::pro_actions() ) : ?>
 			<div class="nestform-developers__grid">
 				<section class="nestform-admin__surface nestform-developers__card nestform-developers__card--pro">
 					<div class="nestform-admin__panel-head">
@@ -278,6 +280,7 @@ class Nestform_Developers {
 					</ul>
 				</section>
 			</div>
+			<?php endif; ?>
 
 			<div class="nestform-developers__grid">
 				<section class="nestform-admin__surface nestform-developers__card nestform-developers__card--example">

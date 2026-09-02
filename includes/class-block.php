@@ -46,10 +46,10 @@ class Nestform_Block {
 	}
 
 	public static function register() {
-		$block_dir = wp_normalize_path( NESTFORM_PATH . 'blocks/form' );
-		$editor_js = $block_dir . '/editor.js';
+		$block_dir  = wp_normalize_path( NESTFORM_PATH . 'blocks/form' );
+		$editor_js  = nestform_js_path( 'blocks/form/editor.js' );
 		$editor_css = $block_dir . '/editor.css';
-		$render    = $block_dir . '/render.php';
+		$render     = $block_dir . '/render.php';
 
 		if ( ! is_readable( $editor_js ) || ! is_readable( $render ) ) {
 			return;
@@ -60,7 +60,7 @@ class Nestform_Block {
 
 		wp_register_script(
 			self::SCRIPT_HANDLE,
-			NESTFORM_URL . 'blocks/form/editor.js',
+			nestform_js_url( 'blocks/form/editor.js' ),
 			array(
 				'wp-blocks',
 				'wp-element',
@@ -235,7 +235,7 @@ class Nestform_Block {
 			array(
 				'forms' => $list,
 				'i18n'  => array(
-					'selectForm'       => __( 'Select a form…', 'nestform' ),
+					'selectForm'       => __( 'Select a form...', 'nestform' ),
 					'formLabel'        => __( 'Form', 'nestform' ),
 					'panelTitle'       => __( 'Nestform', 'nestform' ),
 					'noForms'          => __( 'No forms yet. Create one under Forms in the admin menu.', 'nestform' ),

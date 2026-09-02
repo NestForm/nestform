@@ -8,6 +8,7 @@
 *.md
 !readme.txt
 CLAUDE.md
+_*.php
 composer.json
 composer.lock
 package.json
@@ -23,7 +24,22 @@ bin
 phpcs.xml*
 webpack.config.js
 vite.config.*
+# CSS source partials (bundled into assets/css/admin.css + front.css before release)
+assets/css/admin/
+assets/css/front/
+assets/css/build.mjs
+# JS sources (minified *.min.js siblings ship in the zip)
+assets/js/admin/admin.js
+assets/js/admin/admin-dashboard-chart.js
+assets/js/admin/admin-export-menu.js
+assets/js/admin/admin-notices.js
+assets/js/admin/admin-pro.js
+assets/js/admin/hub-list.js
+assets/js/admin/integrations-captcha.js
+assets/js/front/front.js
+assets/js/build.mjs
+blocks/form/editor.js
 assets/**/*.map
 **/*.log
-_*.php
-wp-content
+vendor/
+vendor/freemius/

@@ -16,7 +16,7 @@
 	function formOptions() {
 		var opts = [
 			{
-				label: i18n.selectForm || 'Select a form…',
+				label: i18n.selectForm || 'Select a form...',
 				value: '0',
 			},
 		];

@@ -124,14 +124,6 @@ class Nestform_Form_IO {
 			);
 		}
 
-		if ( class_exists( 'Nestform_Features' ) && ! Nestform_Features::can_create_form() ) {
-			return array(
-				'ok'      => false,
-				'form_id' => 0,
-				'message' => __( 'Form limit reached. Upgrade to Pro or remove a form first.', 'nestform' ),
-			);
-		}
-
 		$title = isset( $form['title'] ) ? sanitize_text_field( (string) $form['title'] ) : '';
 		if ( '' === $title ) {
 			$title = __( 'Imported form', 'nestform' );
@@ -216,8 +208,7 @@ class Nestform_Form_IO {
 
 		$result = self::import_payload( $decoded );
 		if ( ! $result['ok'] ) {
-			$key = ( false !== strpos( $result['message'], 'limit' ) ) ? 'limit' : 'invalid';
-			wp_safe_redirect( add_query_arg( 'nestform_import', $key, $hub ) );
+			wp_safe_redirect( add_query_arg( 'nestform_import', 'invalid', $hub ) );
 			exit;
 		}
 
@@ -261,7 +252,6 @@ class Nestform_Form_IO {
 			'empty'   => __( 'The file is empty.', 'nestform' ),
 			'json'    => __( 'Could not parse JSON.', 'nestform' ),
 			'invalid' => __( 'This file is not a valid Nestform export.', 'nestform' ),
-			'limit'   => __( 'Form limit reached. Upgrade to Pro or remove a form first.', 'nestform' ),
 		);
 		$msg = isset( $messages[ $code ] ) ? $messages[ $code ] : __( 'Import failed.', 'nestform' );
 		echo '<div class="notice notice-error is-dismissible"><p>' . esc_html( $msg ) . '</p></div>';

@@ -89,10 +89,10 @@ class Nestform_Dashboard {
 		if ( self::PAGE_SLUG !== $page && false === strpos( (string) $hook, self::PAGE_SLUG ) ) {
 			return;
 		}
-		$ver = (string) filemtime( NESTFORM_PATH . 'assets/admin.css' );
+		$ver = (string) filemtime( nestform_admin_css_path() );
 		wp_enqueue_style(
 			'nestform-admin',
-			NESTFORM_URL . 'assets/admin.css',
+			nestform_admin_css_url(),
 			nestform_admin_style_deps(),
 			$ver ? $ver : NESTFORM_VERSION
 		);
@@ -104,10 +104,10 @@ class Nestform_Dashboard {
 			$ver_chart ? $ver_chart : '4.5.1',
 			true
 		);
-		$ver_js = (string) filemtime( NESTFORM_PATH . 'assets/admin-dashboard-chart.js' );
+		$ver_js = (string) filemtime( nestform_admin_js_path( 'admin-dashboard-chart.js' ) );
 		wp_enqueue_script(
 			'nestform-dashboard-chart',
-			NESTFORM_URL . 'assets/admin-dashboard-chart.js',
+			nestform_admin_js_url( 'admin-dashboard-chart.js' ),
 			array( 'nestform-chartjs' ),
 			$ver_js ? $ver_js : NESTFORM_VERSION,
 			true
@@ -434,14 +434,6 @@ class Nestform_Dashboard {
 				}
 				if ( $conversion_kpi !== '' ) {
 					echo $conversion_kpi; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by trusted Pro addon.
-				} elseif ( class_exists( 'Nestform_Features' ) && ! Nestform_Features::can( Nestform_Features::ADVANCED_ANALYTICS ) ) {
-					?>
-					<a class="nestform-dash__kpi nestform-dash__kpi--pro" href="<?php echo esc_url( Nestform_Upgrade::url() ); ?>">
-						<span class="nestform-dash__kpi-label"><?php esc_html_e( 'Conversion', 'nestform' ); ?> <?php echo Nestform_Upgrade::pill_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
-						<span class="nestform-dash__kpi-value">—</span>
-						<span class="nestform-dash__kpi-meta"><?php esc_html_e( 'Pro', 'nestform' ); ?></span>
-					</a>
-					<?php
 				}
 				?>
 			</section>
@@ -474,8 +466,6 @@ class Nestform_Dashboard {
 						<?php elseif ( class_exists( 'Nestform_Features' ) && ! Nestform_Features::can( Nestform_Features::ADVANCED_ANALYTICS ) ) : ?>
 							<nav class="nestform-dash__metrics" aria-label="<?php esc_attr_e( 'Chart metric', 'nestform' ); ?>">
 								<span class="nestform-dash__metric is-active"><?php esc_html_e( 'Submissions', 'nestform' ); ?></span>
-								<button type="button" class="nestform-dash__metric is-locked" data-nestform-chart-metric="views" aria-disabled="true"><?php esc_html_e( 'Views', 'nestform' ); ?> <?php echo Nestform_Upgrade::pill_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
-								<button type="button" class="nestform-dash__metric is-locked" data-nestform-chart-metric="conversion" aria-disabled="true"><?php esc_html_e( 'Conversion', 'nestform' ); ?> <?php echo Nestform_Upgrade::pill_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
 							</nav>
 						<?php elseif ( 'all' === $range ) : ?>
 							<span class="nestform-dash__panel-hint"><?php esc_html_e( 'Chart shows last 90 days', 'nestform' ); ?></span>
@@ -507,7 +497,15 @@ class Nestform_Dashboard {
 					<?php if ( $chart_empty ) : ?>
 						<div class="nestform-dash__empty">
 							<strong><?php esc_html_e( 'No activity yet', 'nestform' ); ?></strong>
-							<span><?php esc_html_e( 'When forms start receiving views or entries, the trend will appear here.', 'nestform' ); ?></span>
+							<span>
+								<?php
+								echo esc_html(
+									class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::ADVANCED_ANALYTICS )
+										? __( 'When forms start receiving views or entries, the trend will appear here.', 'nestform' )
+										: __( 'When forms start receiving entries, the trend will appear here.', 'nestform' )
+								);
+								?>
+							</span>
 						</div>
 					<?php else : ?>
 						<?php
@@ -700,27 +698,6 @@ class Nestform_Dashboard {
 				}
 				if ( '' !== $responses_html ) {
 					echo $responses_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				} elseif ( ! $can_responses ) {
-					?>
-				<section class="nestform-dash__panel nestform-dash__panel--wide nestform-dash__panel--responses nestform-dash__panel--locked">
-					<div class="nestform-dash__panel-head">
-						<h2 class="nestform-dash__panel-title">
-							<?php esc_html_e( 'Response breakdown', 'nestform' ); ?>
-							<?php echo Nestform_Upgrade::pill_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-						</h2>
-						<span class="nestform-dash__panel-hint"><?php esc_html_e( 'Choice · NPS · rating', 'nestform' ); ?></span>
-					</div>
-					<div class="nestform-dash__empty">
-						<strong><?php esc_html_e( 'See how people answered', 'nestform' ); ?></strong>
-						<span><?php esc_html_e( 'Doughnut and bar charts for radio, select, checkboxes, NPS, rating, scale, and matrix — pick a form to break down answers.', 'nestform' ); ?></span>
-						<p>
-							<button type="button" class="button button-primary" data-nestform-pro-upsell="quiz_survey">
-								<?php esc_html_e( 'Unlock with Pro', 'nestform' ); ?>
-							</button>
-						</p>
-					</div>
-				</section>
-					<?php
 				}
 				?>
 

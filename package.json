@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "scripts": {
+    "build:css": "node assets/css/build.mjs",
+    "build:js": "node assets/js/build.mjs",
+    "build": "npm run build:css && npm run build:js"
+  },
+  "devDependencies": {
+    "clean-css": "^5.3.3",
+    "terser": "^5.39.0"
+  }
+}

@@ -1,0 +1,458 @@
+/* ---- Developers ---- */
+body.nestform-developers-screen .wrap.nestform-developers {
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    background: transparent;
+    color: var(--nestform-ink);
+}
+
+.nestform-developers__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin: 0 0 24px;
+}
+
+@media (max-width: 960px) {
+    .nestform-developers__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.nestform-developers__card {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.nestform-developers__card .nestform-admin__panel-head {
+    padding: var(--nestform-space-4) 12px;
+}
+
+.nestform-developers__card--example {
+    margin: 0;
+}
+
+.nestform-developers__card--js {
+    margin: 0 0 24px;
+}
+
+.nestform-developers__list--js {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 960px) {
+    .nestform-developers__list--js {
+        grid-template-columns: 1fr;
+    }
+}
+
+.nestform-developers__list--js .nestform-developers__item:nth-child(even) {
+    background: var(--nestform-surface);
+}
+
+.nestform-developers__list--js .nestform-developers__item:nth-child(4n + 3),
+.nestform-developers__list--js .nestform-developers__item:nth-child(4n + 4) {
+    background: var(--nestform-soft);
+}
+
+.nestform-developers__hook-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nestform-space-2);
+}
+
+.nestform-developers__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: var(--nestform-warn-soft);
+    border: 1px solid var(--nestform-warn-border);
+    color: var(--nestform-warn);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.nestform-developers__badge--pro {
+    background: color-mix(in srgb, var(--nestform-accent, #2563eb) 12%, #fff);
+    border-color: color-mix(in srgb, var(--nestform-accent, #2563eb) 35%, #fff);
+    color: var(--nestform-accent, #2563eb);
+}
+
+.nestform-developers__card--pro .nestform-admin__panel-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--nestform-space-2);
+}
+
+.nestform-developers__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--nestform-border);
+}
+
+.nestform-developers__item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+    padding: var(--nestform-space-4) 18px;
+    border-bottom: 1px solid var(--nestform-border);
+    background: var(--nestform-surface);
+    margin: 0;
+}
+
+.nestform-developers__item:nth-child(even) {
+    background: var(--nestform-soft);
+}
+
+.nestform-developers__item:last-child {
+    border-bottom: 0;
+}
+
+.nestform-developers__hook {
+    display: inline-block;
+    margin: 0;
+    padding: 2px 8px;
+    width: fit-content;
+    max-width: 100%;
+    font-size: 12px;
+    font-family: Consolas, Monaco, monospace;
+    font-weight: 600;
+    color: var(--nestform-accent);
+    background: var(--nestform-accent-soft);
+    border: 1px solid var(--nestform-accent-line);
+    border-radius: 6px;
+    word-break: break-all;
+}
+
+.nestform-developers__hook--js {
+    color: var(--nestform-ink);
+    background: var(--nestform-canvas);
+    border-color: var(--nestform-border-strong);
+}
+
+.nestform-developers__desc {
+    color: var(--nestform-muted);
+    font-size: 12.5px;
+    line-height: 1.45;
+}
+
+.nestform-developers__code {
+    margin: 0;
+    padding: var(--nestform-space-4) 18px;
+    overflow: auto;
+    background: var(--nestform-soft);
+    border-top: 1px solid var(--nestform-border);
+    color: var(--nestform-ink);
+    font-size: 12.5px;
+    line-height: 1.55;
+}
+
+.nestform-developers__code code {
+    font-family: Consolas, Monaco, monospace;
+    background: transparent;
+    padding: 0;
+    color: inherit;
+}
+
+/* ---- Docs ---- */
+body.nestform-docs-screen .wrap.nestform-docs {
+    margin: 0;
+    padding: 0;
+    max-width: none;
+    background: transparent;
+    color: var(--nestform-ink);
+}
+
+.nestform-docs__layout {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+@media (max-width: 960px) {
+    .nestform-docs__layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.nestform-docs__toc {
+    position: sticky;
+    top: 16px;
+    margin: 0;
+    padding: var(--nestform-space-4) 16px;
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    background: var(--nestform-surface);
+    box-shadow: var(--nestform-shadow);
+}
+
+@media (max-width: 960px) {
+    .nestform-docs__toc {
+        position: static;
+    }
+}
+
+.nestform-docs__toc-title {
+    margin: 0 0 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--nestform-muted);
+}
+
+.nestform-docs__toc-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.nestform-docs__toc-list li + li {
+    margin-top: 2px;
+}
+
+.nestform-docs__toc-link {
+    display: block;
+    padding: 6px 8px;
+    border-radius: 6px;
+    color: var(--nestform-ink);
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 1.35;
+    transition:
+        color var(--nestform-transition),
+        background var(--nestform-transition);
+}
+
+.nestform-docs__toc-link:hover,
+.nestform-docs__toc-link:focus {
+    color: var(--nestform-accent);
+    background: var(--nestform-accent-soft);
+}
+
+.nestform-docs__content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+
+.nestform-docs__section {
+    margin: 0;
+    padding: 20px 22px 22px;
+    scroll-margin-top: 16px;
+}
+
+.nestform-docs__heading {
+    margin: 0 0 12px;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--nestform-ink);
+}
+
+.nestform-docs__section p {
+    margin: 0 0 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--nestform-ink);
+}
+
+.nestform-docs__section p:last-child {
+    margin-bottom: 0;
+}
+
+.nestform-docs__list {
+    margin: 0 0 16px;
+    padding-left: 1.25em;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.nestform-docs__list li + li {
+    margin-top: 6px;
+}
+
+.nestform-docs__steps {
+    margin: 0 0 16px;
+    padding-left: 1.25em;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.nestform-docs__steps li + li {
+    margin-top: 8px;
+}
+
+.nestform-docs__note {
+    margin: 0;
+    padding: var(--nestform-space-2) var(--nestform-space-4);
+    border-radius: var(--nestform-radius-sm);
+    border: 1px solid var(--nestform-accent-line);
+    background: var(--nestform-pro-soft);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--nestform-accent-dark);
+}
+
+.nestform-docs__pro {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--nestform-space-2);
+    margin: 0 0 16px;
+    padding: var(--nestform-space-2) var(--nestform-space-4);
+    border-radius: var(--nestform-radius-sm);
+    border: 1px solid var(--nestform-pro-gold);
+    background: var(--nestform-warn-soft);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--nestform-ink);
+}
+
+.nestform-docs__pro .nestform-app__nav-icon,
+.nestform-docs__pro svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.nestform-docs__figure {
+    margin: 16px 0 0;
+    padding: 0;
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    overflow: hidden;
+    background: var(--nestform-canvas);
+}
+
+.nestform-docs__figure-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    vertical-align: middle;
+}
+
+.nestform-docs__figure-caption {
+    margin: 0;
+    padding: 8px 12px;
+    border-top: 1px solid var(--nestform-border);
+    background: var(--nestform-soft);
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--nestform-muted);
+    text-align: center;
+}
+
+.nestform-docs__code {
+    margin: 0 0 12px;
+    padding: var(--nestform-space-4);
+    border-radius: var(--nestform-radius-sm);
+    border: 1px solid var(--nestform-border);
+    background: var(--nestform-soft);
+    overflow-x: auto;
+}
+
+.nestform-docs__code code {
+    font-family: Consolas, Monaco, monospace;
+    font-size: 13px;
+    color: var(--nestform-ink);
+    background: transparent;
+}
+
+.nestform-docs__plans {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--nestform-space-4);
+    margin: 0 0 16px;
+}
+
+@media (max-width: 960px) {
+    .nestform-docs__plans {
+        grid-template-columns: 1fr;
+    }
+}
+
+.nestform-docs__plan {
+    position: relative;
+    padding: var(--nestform-space-4) 16px;
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    background: var(--nestform-soft);
+}
+
+.nestform-docs__plan--popular {
+    border-color: var(--nestform-accent-line);
+    background: var(--nestform-pro-soft);
+    box-shadow: 0 0 0 1px var(--nestform-accent-line);
+}
+
+.nestform-docs__plan-badge {
+    display: inline-block;
+    margin: 0 0 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--nestform-accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.nestform-docs__plan-name {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.nestform-docs__plan-tag {
+    margin: 0 0 8px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--nestform-muted);
+}
+
+.nestform-docs__plan p {
+    margin: 0 0 8px;
+    font-size: 13px;
+}
+
+.nestform-docs__plan-price {
+    margin: 0 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--nestform-accent);
+}
+
+.nestform-docs__plan-foot {
+    margin: 0 0 10px;
+    font-size: 12px;
+    color: var(--nestform-muted);
+}
+
+.nestform-docs__plan-features {
+    margin: 0;
+    padding-left: 1.1em;
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+.nestform-docs__plan-features li + li {
+    margin-top: 4px;
+}
+
+.nestform-docs__subheading {
+    margin: 20px 0 10px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--nestform-ink);
+}

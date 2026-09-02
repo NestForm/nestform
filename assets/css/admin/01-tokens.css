@@ -1,0 +1,106 @@
+/**
+ * Nestform admin — light Make reference.
+ * Layers: bg #f5f5f7 → surface #fff → raised #fafafa
+ * Accent #2563eb = Save + selection only
+ *
+ * Spacing: 8-point grid — use --nestform-space-* for margin, padding, gap.
+ * Scale: 4 · 8 · 16 · 24 · 32 · 40 · 48 · 64 (avoid 10, 12, 14, 18, 20 in new layout).
+ *
+ * Shared: .nestform-btn (+ color mods), .nestform-admin__input/__textarea,
+ * .nestform-badge / .nestform-entry-status. Screens may change size/icons.
+ */
+
+:root {
+    --nestform-accent: #2563eb;
+    --nestform-accent-dark: #1d4ed8;
+    --nestform-accent-soft: rgba(37, 99, 235, 0.08);
+    --nestform-accent-line: #bfdbfe;
+    --nestform-accent-mid: #3b82f6;
+    --nestform-primary: #2563eb;
+    --nestform-primary-hover: #1d4ed8;
+    --nestform-surface: #ffffff;
+    --nestform-canvas: #f6f8fc;
+    --nestform-shell: #f6f8fc;
+    --nestform-paper: #ffffff;
+    --nestform-soft: #fafafa;
+    --nestform-raised: #fafafa;
+    --nestform-border: #e8e8ec;
+    --nestform-border-strong: #d4d4dc;
+    --nestform-muted: #6b6b80;
+    --nestform-faint: #a0a0b4;
+    --nestform-pro: #1e3a8a;
+    --nestform-pro-mid: #2563eb;
+    --nestform-pro-soft: #eff6ff;
+    --nestform-pro-glow: rgba(29, 78, 216, 0.2);
+    --nestform-pro-gold: #f0c14b;
+    --nestform-pro-bg: #132a5c;
+    --nestform-pro-image:
+        radial-gradient(
+            90% 70% at 100% 0%,
+            rgba(96, 165, 250, 0.38),
+            transparent 58%
+        ),
+        radial-gradient(
+            70% 55% at 0% 100%,
+            rgba(240, 193, 75, 0.14),
+            transparent 52%
+        ),
+        linear-gradient(155deg, #1d4ed8 0%, #1e3a8a 46%, #132a5c 100%);
+    --nestform-navy: #01123e;
+    --nestform-navy-alt: #02194c;
+    --nestform-ink: var(--nestform-navy);
+    --nestform-ink-alt: var(--nestform-navy-alt);
+    --nestform-ok: #16a34a;
+    --nestform-ok-soft: rgba(22, 163, 74, 0.1);
+    --nestform-ok-border: #86efac;
+    --nestform-warn: #f59e0b;
+    --nestform-warn-soft: #fffbeb;
+    --nestform-warn-border: #fcd34d;
+    --nestform-danger: #ef4444;
+    --nestform-danger-border: #fca5a5;
+    --nestform-danger-soft: rgba(220, 38, 38, 0.08);
+    --nestform-radius: 8px;
+    --nestform-radius-sm: 8px;
+    --nestform-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    --nestform-shadow-md:
+        0 4px 24px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
+    --nestform-transition: 0.25s ease-in-out;
+    /* 8-point spacing (4px micro steps only where tight label gaps need it) */
+    --nestform-space-1: 4px;
+    --nestform-space-2: 8px;
+    --nestform-space-4: 16px;
+    --nestform-space-6: 24px;
+    --nestform-space-8: 32px;
+    --nestform-space-10: 40px;
+    --nestform-space-12: 48px;
+    --nestform-space-16: 64px;
+    /* Shared chevrons — stroke style (right / down / up) */
+    --nestform-chevron-right: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 12L10 8L6 4' stroke='%239AA3AD' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --nestform-chevron-down: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%239AA3AD' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --nestform-chevron-up: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 10L8 6L12 10' stroke='%239AA3AD' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --nestform-chevron-down-accent: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%232563eb' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --nestform-chevron-up-accent: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 10L8 6L12 10' stroke='%232563eb' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --nestform-chevron-mask-right: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 12L10 8L6 4' stroke='%23000' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --nestform-chevron-mask-down: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%23000' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --nestform-chevron-mask-up: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 10L8 6L12 10' stroke='%23000' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --nestform-font:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans,
+        Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+body.nestform-admin-screen {
+    font-family: var(--nestform-font);
+}
+
+body.nestform-admin-screen #wpcontent,
+body.nestform-settings-screen #wpcontent {
+    background: var(--nestform-canvas);
+}
+
+body.nestform-app-screen #wpbody-content > .wrap.nestform-hub,
+body.nestform-app-screen #wpbody-content > .wrap.nestform-dash,
+body.nestform-app-screen #wpbody-content > .wrap.nestform-settings,
+body.nestform-app-screen #wpbody-content > .wrap.nestform-integrations,
+body.nestform-app-screen #wpbody-content > .wrap.nestform-developers,
+body.nestform-app-screen #wpbody-content > .wrap.nestform-upgrade,
+body.nestform-app-screen #wpbody-content > .wrap.nestform-license,

@@ -11,65 +11,64 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Nestform_Upgrade {
 
-	const PAGE_SLUG = 'nestform-upgrade';
-
-	/**
-	 * Free-plan form cap (hard-enforced via Nestform_Features / Post_Type).
-	 */
-	const FREE_FORM_LIMIT = 5;
+	const LEGACY_PAGE_SLUG = 'nestform-upgrade';
 
 	public static function init() {
-		add_action( 'admin_menu', array( __CLASS__, 'menu' ), 60 );
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'assets' ) );
-		add_filter( 'admin_body_class', array( __CLASS__, 'admin_body_class' ) );
+		add_action( 'admin_init', array( __CLASS__, 'redirect_legacy_pages' ) );
 	}
 
 	/**
-	 * Whether this site is treated as Pro (set by Nestform Pro after license check).
+	 * Old Upgrade / Account slugs → current Pro / License screens.
+	 */
+	public static function redirect_legacy_pages() {
+		if ( ! is_admin() ) {
+			return;
+		}
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( self::LEGACY_PAGE_SLUG === $page && class_exists( 'Nestform_Promotion' ) ) {
+			wp_safe_redirect( Nestform_Promotion::url() );
+			exit;
+		}
+		if ( in_array( $page, array( 'nestform-account', 'nestform-forms-account' ), true ) && class_exists( 'Nestform_Pro_License' ) ) {
+			wp_safe_redirect( Nestform_Pro_License::url() );
+			exit;
+		}
+	}
+
+	/**
+	 * Whether this site has an active Pro license.
 	 *
 	 * @return bool
 	 */
 	public static function is_pro() {
-		if ( class_exists( 'Nestform_Freemius' ) && Nestform_Freemius::can_use_premium() ) {
+		if ( class_exists( 'Nestform_Pro_License' ) && Nestform_Pro_License::is_valid() ) {
 			return true;
 		}
 		return (bool) apply_filters( 'nestform_is_pro', false );
 	}
 
 	/**
-	 * @return int
-	 */
-	public static function free_form_limit() {
-		return (int) apply_filters( 'nestform_free_form_limit', self::FREE_FORM_LIMIT );
-	}
-
-	/**
-	 * Plan catalog (Free, Pro, Agency) — shared by Upgrade and Docs.
+	 * Plan catalog (Free, Pro, Agency) — shared by Upgrade and upsells.
 	 *
 	 * @return array<string, array<string, mixed>>
 	 */
 	public static function plan_catalog() {
-		$limit = max( 1, self::free_form_limit() );
-
 		$free_features = array(
-			sprintf(
-				/* translators: %d: free form limit */
-				__( 'Up to %d forms', 'nestform' ),
-				$limit
-			),
+			__( 'Unlimited forms', 'nestform' ),
 			__( 'Lead & contact forms with templates', 'nestform' ),
 			__( 'Conditional logic & file uploads', 'nestform' ),
 			__( 'Entries inbox, CSV export & captcha', 'nestform' ),
 			__( 'Email notifications & spam protection', 'nestform' ),
+			__( 'Outbound webhooks (up to 5 endpoints per form)', 'nestform' ),
 			__( 'Basic analytics', 'nestform' ),
 		);
 
 		$pro_features = array(
-			__( 'Unlimited forms', 'nestform' ),
-			__( 'Quizzes & surveys with scoring and result bands', 'nestform' ),
 			__( 'Multi-step forms & branch rules', 'nestform' ),
+			__( 'Quizzes & surveys with scoring and result bands', 'nestform' ),
 			__( 'HTML email designer & PDF attachments', 'nestform' ),
-			__( 'Webhooks, automations & calculated fields', 'nestform' ),
+			__( 'Automations, calculated fields & repeaters', 'nestform' ),
+			__( 'Native integrations (Telegram, Slack, Sheets)', 'nestform' ),
 			__( 'Advanced fields, analytics & lead insights', 'nestform' ),
 		);
 
@@ -83,7 +82,7 @@ class Nestform_Upgrade {
 		);
 
 		/**
-		 * Filter the Nestform plan catalog (Upgrade, Docs, upsells).
+		 * Filter the Nestform plan catalog (Upgrade, upsells).
 		 *
 		 * @param array<string, array<string, mixed>> $plans Plan definitions.
 		 */
@@ -299,10 +298,8 @@ class Nestform_Upgrade {
 		if ( ! in_array( $billing, array( 'monthly', 'yearly' ), true ) ) {
 			$billing = 'monthly';
 		}
-		if ( class_exists( 'Nestform_Freemius' ) ) {
-			return esc_url_raw( Nestform_Freemius::checkout_url( $plan, $billing ) );
-		}
-		$url = apply_filters( 'nestform_pro_checkout_url', 'https://nestform.app/pro', $plan, $billing );
+		$url = class_exists( 'Nestform_Promotion' ) ? Nestform_Promotion::store_url() : 'https://nestform.app/pro';
+		$url = apply_filters( 'nestform_pro_checkout_url', $url, $plan, $billing );
 		if ( 'agency' === $plan ) {
 			$url = apply_filters( 'nestform_agency_checkout_url', add_query_arg( 'plan', 'agency', (string) $url ), $plan, $billing );
 		}
@@ -317,55 +314,18 @@ class Nestform_Upgrade {
 	 * @return string
 	 */
 	public static function url( $args = array() ) {
+		if ( class_exists( 'Nestform_Promotion' ) ) {
+			return Nestform_Promotion::url( $args );
+		}
 		return add_query_arg(
 			array_merge(
 				array(
 					'post_type' => Nestform_Post_Type::POST_TYPE,
-					'page'      => self::PAGE_SLUG,
+					'page'      => self::LEGACY_PAGE_SLUG,
 				),
 				$args
 			),
 			admin_url( 'edit.php' )
-		);
-	}
-
-	public static function menu() {
-		add_submenu_page(
-			'edit.php?post_type=' . Nestform_Post_Type::POST_TYPE,
-			__( 'Upgrade', 'nestform' ),
-			__( 'Upgrade', 'nestform' ),
-			'edit_posts',
-			self::PAGE_SLUG,
-			array( __CLASS__, 'render' )
-		);
-	}
-
-	/**
-	 * @param string $classes Body classes.
-	 * @return string
-	 */
-	public static function admin_body_class( $classes ) {
-		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( self::PAGE_SLUG === $page ) {
-			$classes .= ' nestform-admin-screen nestform-upgrade-screen';
-		}
-		return $classes;
-	}
-
-	/**
-	 * @param string $hook Hook.
-	 */
-	public static function assets( $hook ) {
-		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( self::PAGE_SLUG !== $page && false === strpos( (string) $hook, self::PAGE_SLUG ) ) {
-			return;
-		}
-		$ver = (string) filemtime( NESTFORM_PATH . 'assets/admin.css' );
-		wp_enqueue_style(
-			'nestform-admin',
-			NESTFORM_URL . 'assets/admin.css',
-			nestform_admin_style_deps(),
-			$ver ? $ver : NESTFORM_VERSION
 		);
 	}
 
@@ -387,89 +347,7 @@ class Nestform_Upgrade {
 	 * @return string
 	 */
 	public static function cta_label_html() {
-		return esc_html__( 'Upgrade to Pro', 'nestform' )
-			. ' <span class="nestform-pro-cta__arrow" aria-hidden="true">&rarr;</span>';
-	}
-
-	/**
-	 * Header chip (empty when already Pro).
-	 *
-	 * @return string
-	 */
-	public static function header_chip_html() {
-		if ( self::is_pro() ) {
-			return '';
-		}
-		$stats   = function_exists( 'nestform_admin_stats' ) ? nestform_admin_stats() : array();
-		$forms_n = isset( $stats['forms'] ) ? (int) $stats['forms'] : 0;
-		$limit   = class_exists( 'Nestform_Features' ) ? Nestform_Features::form_limit() : max( 1, self::free_form_limit() );
-		if ( $limit <= 0 ) {
-			return '';
-		}
-		$html = '';
-		if ( $forms_n >= $limit - 1 ) {
-			$html .= '<span class="nestform-upgrade-usage">'
-				. esc_html(
-					sprintf(
-						/* translators: 1: forms used, 2: free limit */
-						__( '%1$s / %2$s forms used', 'nestform' ),
-						number_format_i18n( $forms_n ),
-						number_format_i18n( $limit )
-					)
-				)
-				. '</span>';
-		}
-		$html .= '<a class="nestform-upgrade-chip" href="' . esc_url( self::url() ) . '">'
-			. nestform_admin_icon_html( 'crown' )
-			. ' ' . esc_html__( 'Upgrade', 'nestform' )
-			. '</a>';
-		return $html;
-	}
-
-	/**
-	 * Shared Pro upsell dialog.
-	 */
-	public static function render_modal() {
-		if ( self::is_pro() ) {
-			return;
-		}
-		?>
-		<div class="nestform-pro-modal" hidden data-nestform-pro-modal>
-			<button type="button" class="nestform-pro-modal__backdrop" data-nestform-pro-dismiss aria-label="<?php esc_attr_e( 'Close', 'nestform' ); ?>"></button>
-			<div class="nestform-pro-modal__card" role="dialog" aria-modal="true" aria-labelledby="nestform-pro-modal-title">
-				<div class="nestform-pro-modal__head">
-					<h3 class="nestform-pro-modal__title" id="nestform-pro-modal-title" data-nestform-pro-modal-title><?php esc_html_e( 'Need more power?', 'nestform' ); ?></h3>
-					<?php echo self::pill_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</div>
-				<p class="nestform-pro-modal__text" data-nestform-pro-modal-text><?php esc_html_e( 'Unlock multi-step forms, webhooks, advanced fields and analytics.', 'nestform' ); ?></p>
-				<div class="nestform-pro-modal__viz" data-nestform-pro-modal-viz hidden>
-					<span>Step 1</span>
-					<span class="nestform-pro-modal__viz-bar" aria-hidden="true"></span>
-					<span>Step 2</span>
-					<span class="nestform-pro-modal__viz-bar" aria-hidden="true"></span>
-					<span>Step 3</span>
-				</div>
-				<ul class="nestform-pro-modal__list" data-nestform-pro-modal-list>
-					<li><?php esc_html_e( 'Multi-step forms', 'nestform' ); ?></li>
-					<li><?php esc_html_e( 'Webhooks & integrations', 'nestform' ); ?></li>
-					<li><?php esc_html_e( 'Rating, signature, NPS, scale, ranking', 'nestform' ); ?></li>
-					<li><?php esc_html_e( 'Views & conversion analytics', 'nestform' ); ?></li>
-					<li><?php esc_html_e( 'Lead insights', 'nestform' ); ?></li>
-					<li><?php esc_html_e( 'Unlimited forms', 'nestform' ); ?></li>
-				</ul>
-				<a
-					class="nestform-pro-cta nestform-pro-modal__cta"
-					href="<?php echo esc_url( self::checkout_url( 'pro', 'monthly' ) ); ?>"
-					data-nestform-checkout="pro"
-					data-nestform-checkout-monthly="<?php echo esc_url( self::checkout_url( 'pro', 'monthly' ) ); ?>"
-					data-nestform-checkout-yearly="<?php echo esc_url( self::checkout_url( 'pro', 'yearly' ) ); ?>"
-				>
-					<?php echo self::cta_label_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</a>
-				<button type="button" class="nestform-pro-modal__dismiss" data-nestform-pro-dismiss><?php esc_html_e( 'Not now', 'nestform' ); ?></button>
-			</div>
-		</div>
-		<?php
+		return esc_html__( 'Upgrade to Pro', 'nestform' );
 	}
 
 	/**
@@ -478,161 +356,110 @@ class Nestform_Upgrade {
 	 * @param int $forms_n Form count.
 	 */
 	public static function render_sidebar( $forms_n ) {
-		$forms_n     = (int) $forms_n;
-		$unlimited   = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::UNLIMITED_FORMS );
-		$limit       = class_exists( 'Nestform_Features' ) ? Nestform_Features::form_limit() : max( 1, self::free_form_limit() );
-		$pct         = ( ! $unlimited && $limit > 0 ) ? min( 100, (int) round( ( $forms_n / $limit ) * 100 ) ) : 0;
-		$at_cap      = ! $unlimited && $limit > 0 && $forms_n >= $limit;
+		$forms_n = (int) $forms_n;
 		?>
 		<div class="nestform-app__usage">
 			<div class="nestform-app__usage-row">
 				<span><?php esc_html_e( 'Forms', 'nestform' ); ?></span>
-				<?php if ( $unlimited ) : ?>
-					<strong><?php echo esc_html( number_format_i18n( $forms_n ) ); ?></strong>
-				<?php else : ?>
-					<strong><?php echo esc_html( number_format_i18n( $forms_n ) . ' / ' . number_format_i18n( $limit ) ); ?></strong>
-				<?php endif; ?>
+				<strong><?php echo esc_html( number_format_i18n( $forms_n ) ); ?></strong>
 			</div>
-			<?php if ( ! $unlimited ) : ?>
-				<span class="nestform-app__usage-bar" aria-hidden="true">
-					<span class="nestform-app__usage-fill<?php echo $at_cap ? ' is-full' : ''; ?>" style="width: <?php echo esc_attr( (string) $pct ); ?>%"></span>
-				</span>
-				<span class="nestform-app__usage-hint">
-					<?php
-					echo $at_cap
-						? esc_html__( 'Form limit reached', 'nestform' )
-						: esc_html(
-							sprintf(
-								/* translators: %d: percent used */
-								__( '%d%% used', 'nestform' ),
-								$pct
-							)
-						);
-					?>
-				</span>
-			<?php endif; ?>
 		</div>
-		<?php if ( ! self::is_pro() ) : ?>
-			<a class="nestform-app__pro" href="<?php echo esc_url( self::url() ); ?>">
+		<?php if ( ! self::is_pro() && class_exists( 'Nestform_Promotion' ) && Nestform_Promotion::should_promote() ) : ?>
+			<a class="nestform-app__pro" href="<?php echo esc_url( Nestform_Promotion::url() ); ?>">
 				<span class="nestform-app__pro-kicker"><?php echo nestform_admin_icon_html( 'crown' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG ?> <?php esc_html_e( 'Nestform Pro', 'nestform' ); ?></span>
-				<span class="nestform-app__pro-copy"><?php esc_html_e( 'Quizzes, multi-step flows, PDF, webhooks, and lead insights that convert.', 'nestform' ); ?></span>
-				<span class="nestform-pro-cta nestform-app__pro-cta"><?php echo self::cta_label_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+				<span class="nestform-app__pro-copy"><?php esc_html_e( 'Quizzes, multi-step flows, PDF, integrations, and lead insights.', 'nestform' ); ?></span>
+				<span class="nestform-pro-cta nestform-app__pro-cta"><?php esc_html_e( 'Learn more', 'nestform' ); ?></span>
 			</a>
 		<?php endif; ?>
 		<?php
 	}
 
-	public static function render() {
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_die( esc_html__( 'You do not have permission to view this page.', 'nestform' ) );
-		}
-
-		$plans      = self::plan_catalog();
-		$save_badge = self::yearly_savings_badge_text();
+	/**
+	 * @param array<string, array<string, mixed>> $plans Plan catalog.
+	 */
+	public static function render_plan_cards( array $plans ) {
 		?>
-		<div class="wrap nestform-upgrade">
-			<div class="nestform-upgrade__shell">
-				<header class="nestform-upgrade__head">
-					<span class="nestform-upgrade__badge">
-						<?php echo nestform_admin_icon_html( 'crown' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG ?>
-						<?php esc_html_e( 'Nestform Pro', 'nestform' ); ?>
-					</span>
-					<h1 class="nestform-upgrade__title"><?php esc_html_e( 'Forms, quizzes & surveys that convert', 'nestform' ); ?></h1>
-					<p class="nestform-upgrade__lead"><?php esc_html_e( 'Turn WordPress forms into interactive lead flows — with results, PDF, webhooks, and insights.', 'nestform' ); ?></p>
-					<div class="nestform-upgrade__billing" data-nestform-billing>
-						<button type="button" class="nestform-upgrade__bill is-active" data-plan="monthly"><?php esc_html_e( 'Monthly', 'nestform' ); ?></button>
-						<button type="button" class="nestform-upgrade__bill" data-plan="yearly"><?php esc_html_e( 'Yearly', 'nestform' ); ?></button>
-						<?php if ( $save_badge ) : ?>
-							<span class="nestform-upgrade__save"><?php echo esc_html( $save_badge ); ?></span>
-						<?php endif; ?>
+		<div class="nestform-upgrade__grid">
+			<?php foreach ( $plans as $plan_key => $plan ) : ?>
+				<?php
+				$article_class = 'nestform-upgrade__plan';
+				if ( 'pro' === $plan_key ) {
+					$article_class .= ' nestform-upgrade__plan--pro';
+				} elseif ( 'agency' === $plan_key ) {
+					$article_class .= ' nestform-upgrade__plan--agency';
+				}
+				$is_paid = ! empty( $plan['checkout_plan'] );
+				?>
+				<article class="<?php echo esc_attr( $article_class ); ?>">
+					<?php if ( ! empty( $plan['popular'] ) ) : ?>
+						<span class="nestform-upgrade__popular"><?php esc_html_e( 'Most popular', 'nestform' ); ?></span>
+					<?php endif; ?>
+					<div class="nestform-upgrade__plan-top">
+						<h2 class="nestform-upgrade__plan-name">
+							<?php echo esc_html( (string) $plan['name'] ); ?>
+							<?php
+							if ( 'pro' === $plan_key ) {
+								echo self::pill_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							}
+							?>
+						</h2>
+						<p class="nestform-upgrade__plan-tag"><?php echo esc_html( (string) $plan['tagline'] ); ?></p>
 					</div>
-				</header>
-
-				<div class="nestform-upgrade__grid">
-					<?php foreach ( $plans as $plan_key => $plan ) : ?>
+					<?php if ( $is_paid ) : ?>
+						<p class="nestform-upgrade__price" data-nestform-price-monthly<?php echo 'agency' === $plan_key ? ' data-nestform-agency-monthly' : ''; ?>>
+							<?php echo esc_html( (string) $plan['price_monthly'] ); ?><span class="nestform-upgrade__price-unit"><?php echo esc_html( (string) $plan['price_unit_monthly'] ); ?></span>
+						</p>
+						<p class="nestform-upgrade__price" data-nestform-price-yearly<?php echo 'agency' === $plan_key ? ' data-nestform-agency-yearly' : ''; ?> hidden>
+							<?php echo esc_html( (string) $plan['price_yearly'] ); ?><span class="nestform-upgrade__price-unit"><?php echo esc_html( (string) $plan['price_unit_yearly'] ); ?></span>
+						</p>
 						<?php
-						$article_class = 'nestform-upgrade__plan';
-						if ( 'pro' === $plan_key ) {
-							$article_class .= ' nestform-upgrade__plan--pro';
-						} elseif ( 'agency' === $plan_key ) {
-							$article_class .= ' nestform-upgrade__plan--agency';
-						}
-						$is_paid = ! empty( $plan['checkout_plan'] );
+						$billed_yearly = self::plan_billed_yearly_label( (string) $plan_key, $plan );
+						if ( $billed_yearly ) :
+							?>
+							<p class="nestform-upgrade__billed" data-nestform-billed-yearly hidden><?php echo esc_html( $billed_yearly ); ?></p>
+						<?php endif; ?>
+					<?php else : ?>
+						<p class="nestform-upgrade__price">
+							<?php echo esc_html( (string) $plan['price_monthly'] ); ?><span class="nestform-upgrade__price-unit"><?php echo esc_html( (string) $plan['price_unit_monthly'] ); ?></span>
+						</p>
+					<?php endif; ?>
+					<ul class="nestform-upgrade__list">
+						<?php foreach ( (array) $plan['features'] as $item ) : ?>
+							<li><?php echo esc_html( (string) $item ); ?></li>
+						<?php endforeach; ?>
+					</ul>
+					<?php if ( $is_paid ) : ?>
+						<?php
+						$checkout_plan = sanitize_key( (string) $plan['checkout_plan'] );
+						$cta_class     = 'pro' === $checkout_plan
+							? 'nestform-pro-cta nestform-upgrade__cta'
+							: 'nestform-btn nestform-btn--outline nestform-upgrade__cta nestform-upgrade__cta--agency';
 						?>
-						<article class="<?php echo esc_attr( $article_class ); ?>">
-							<?php if ( ! empty( $plan['popular'] ) ) : ?>
-								<span class="nestform-upgrade__popular"><?php esc_html_e( 'Most popular', 'nestform' ); ?></span>
-							<?php endif; ?>
-							<div class="nestform-upgrade__plan-top">
-								<h2 class="nestform-upgrade__plan-name">
-									<?php echo esc_html( (string) $plan['name'] ); ?>
-									<?php
-									if ( 'pro' === $plan_key ) {
-										echo self::pill_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-									}
-									?>
-								</h2>
-								<p class="nestform-upgrade__plan-tag"><?php echo esc_html( (string) $plan['tagline'] ); ?></p>
-							</div>
-							<?php if ( $is_paid ) : ?>
-								<p class="nestform-upgrade__price" data-nestform-price-monthly<?php echo 'agency' === $plan_key ? ' data-nestform-agency-monthly' : ''; ?>>
-									<?php echo esc_html( (string) $plan['price_monthly'] ); ?><span class="nestform-upgrade__price-unit"><?php echo esc_html( (string) $plan['price_unit_monthly'] ); ?></span>
-								</p>
-								<p class="nestform-upgrade__price" data-nestform-price-yearly<?php echo 'agency' === $plan_key ? ' data-nestform-agency-yearly' : ''; ?> hidden>
-									<?php echo esc_html( (string) $plan['price_yearly'] ); ?><span class="nestform-upgrade__price-unit"><?php echo esc_html( (string) $plan['price_unit_yearly'] ); ?></span>
-								</p>
-								<?php
-								$billed_yearly = self::plan_billed_yearly_label( (string) $plan_key, $plan );
-								if ( $billed_yearly ) :
-									?>
-									<p class="nestform-upgrade__billed" data-nestform-billed-yearly hidden><?php echo esc_html( $billed_yearly ); ?></p>
-								<?php endif; ?>
-							<?php else : ?>
-								<p class="nestform-upgrade__price">
-									<?php echo esc_html( (string) $plan['price_monthly'] ); ?><span class="nestform-upgrade__price-unit"><?php echo esc_html( (string) $plan['price_unit_monthly'] ); ?></span>
-								</p>
-							<?php endif; ?>
-							<ul class="nestform-upgrade__list">
-								<?php foreach ( (array) $plan['features'] as $item ) : ?>
-									<li><?php echo esc_html( (string) $item ); ?></li>
-								<?php endforeach; ?>
-							</ul>
-							<?php if ( $is_paid ) : ?>
-								<?php
-								$checkout_plan = sanitize_key( (string) $plan['checkout_plan'] );
-								$cta_class     = 'pro' === $checkout_plan
-									? 'nestform-pro-cta nestform-upgrade__cta'
-									: 'nestform-btn nestform-btn--outline nestform-upgrade__cta nestform-upgrade__cta--agency';
-								?>
-								<a
-									class="<?php echo esc_attr( $cta_class ); ?>"
-									href="<?php echo esc_url( self::checkout_url( $checkout_plan, 'monthly' ) ); ?>"
-									data-nestform-checkout="<?php echo esc_attr( $checkout_plan ); ?>"
-									data-nestform-checkout-monthly="<?php echo esc_url( self::checkout_url( $checkout_plan, 'monthly' ) ); ?>"
-									data-nestform-checkout-yearly="<?php echo esc_url( self::checkout_url( $checkout_plan, 'yearly' ) ); ?>"
-								>
-									<?php
-									if ( 'pro' === $checkout_plan ) {
-										echo self::cta_label_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-									} else {
-										esc_html_e( 'Get Agency', 'nestform' );
-									}
-									?>
-								</a>
-							<?php elseif ( ! empty( $plan['foot'] ) ) : ?>
-								<span class="nestform-upgrade__plan-foot"><?php echo esc_html( (string) $plan['foot'] ); ?></span>
-							<?php endif; ?>
-						</article>
-					<?php endforeach; ?>
-				</div>
-
-				<p class="nestform-upgrade__trust">
-					<span class="nestform-upgrade__trust-item"><?php esc_html_e( '30-day money-back guarantee', 'nestform' ); ?></span>
-					<span class="nestform-upgrade__trust-item"><?php esc_html_e( 'Cancel anytime', 'nestform' ); ?></span>
-					<span class="nestform-upgrade__trust-item"><?php esc_html_e( 'Instant unlock after purchase', 'nestform' ); ?></span>
-				</p>
-			</div>
+						<a
+							class="<?php echo esc_attr( $cta_class ); ?>"
+							href="<?php echo esc_url( self::checkout_url( $checkout_plan, 'monthly' ) ); ?>"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<?php
+							if ( 'pro' === $checkout_plan ) {
+								esc_html_e( 'Buy on nestform.app', 'nestform' );
+							} else {
+								esc_html_e( 'Get Agency', 'nestform' );
+							}
+							?>
+						</a>
+					<?php elseif ( ! empty( $plan['foot'] ) ) : ?>
+						<span class="nestform-upgrade__plan-foot"><?php echo esc_html( (string) $plan['foot'] ); ?></span>
+					<?php endif; ?>
+				</article>
+			<?php endforeach; ?>
 		</div>
+		<p class="nestform-upgrade__trust">
+			<span class="nestform-upgrade__trust-item"><?php esc_html_e( '30-day money-back guarantee', 'nestform' ); ?></span>
+			<span class="nestform-upgrade__trust-item"><?php esc_html_e( 'Cancel anytime', 'nestform' ); ?></span>
+			<span class="nestform-upgrade__trust-item"><?php esc_html_e( 'Install nestform-pro after purchase', 'nestform' ); ?></span>
+		</p>
 		<?php
 	}
 }

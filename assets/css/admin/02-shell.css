@@ -1,0 +1,1425 @@
+body.nestform-app-screen.nestform-license-screen #wpbody-content > .wrap,
+body.nestform-app-screen #wpbody-content > .wrap.nestform-admin,
+body.nestform-app-screen.nestform-entries-screen.edit-php
+    #wpbody-content
+    > .wrap,
+body.nestform-app-screen.nestform-entries-screen.post-php
+    #wpbody-content
+    > .wrap {
+    margin: 0;
+    max-width: none;
+}
+
+.nestform-app {
+    display: flex;
+    align-items: stretch;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--nestform-canvas);
+}
+
+.nestform-app__sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 240px;
+    flex-shrink: 0;
+    min-height: 0;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--nestform-muted) 35%, transparent)
+        transparent;
+    background: var(--nestform-surface);
+    border-right: 1px solid var(--nestform-border);
+    transition: width 0.25s ease-in-out;
+}
+
+.nestform-app__sidebar::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+}
+
+.nestform-app__sidebar::-webkit-scrollbar-button,
+.nestform-app__sidebar::-webkit-scrollbar-button:single-button,
+.nestform-app__sidebar::-webkit-scrollbar-button:start,
+.nestform-app__sidebar::-webkit-scrollbar-button:end,
+.nestform-app__sidebar::-webkit-scrollbar-button:vertical:start:decrement,
+.nestform-app__sidebar::-webkit-scrollbar-button:vertical:end:increment,
+.nestform-app__sidebar::-webkit-scrollbar-button:vertical:start:increment,
+.nestform-app__sidebar::-webkit-scrollbar-button:vertical:end:decrement,
+.nestform-app__sidebar::-webkit-scrollbar-button:horizontal:start:decrement,
+.nestform-app__sidebar::-webkit-scrollbar-button:horizontal:end:increment {
+    display: block;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+}
+
+.nestform-app__sidebar::-webkit-scrollbar-track {
+    margin: 0;
+    background: transparent;
+}
+
+.nestform-app__sidebar::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+.nestform-app__sidebar::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--nestform-muted) 40%, transparent);
+}
+
+.nestform-app__sidebar::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--nestform-muted) 58%, transparent);
+}
+
+.nestform-app__brand {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--nestform-space-2);
+    padding: var(--nestform-space-4);
+    border-bottom: 1px solid var(--nestform-border);
+    background: var(--nestform-surface);
+}
+
+.nestform-app__logo {
+    display: block;
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    object-fit: contain;
+}
+
+.nestform-app__brand-copy {
+    min-width: 0;
+}
+
+.nestform-app__name {
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--nestform-ink);
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+}
+
+.nestform-app__name-accent {
+    color: var(--nestform-accent);
+}
+
+.nestform-app__ver {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 4px;
+    border-radius: 999px;
+    background: var(--nestform-accent-soft);
+    color: var(--nestform-accent);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+    margin-top: 2px;
+}
+
+.nestform-app__nav {
+    flex-shrink: 0;
+    padding: var(--nestform-space-4) var(--nestform-space-2);
+}
+
+.nestform-app__nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--nestform-space-2);
+    width: 100%;
+    margin: 0 0 var(--nestform-space-1);
+    padding: var(--nestform-space-2) var(--nestform-space-2) var(--nestform-space-2) var(--nestform-space-4);
+    border-radius: 8px !important;
+    color: var(--nestform-muted);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: var(--nestform-transition);
+}
+
+.nestform-app__nav-item:last-child {
+    margin-bottom: 0;
+}
+
+.nestform-app__nav-item:hover,
+.nestform-app__nav-item:focus {
+    color: var(--nestform-ink);
+    background: var(--nestform-soft);
+    box-shadow: none;
+}
+
+.nestform-app__nav-item--active,
+.nestform-app__nav-item--active:hover,
+.nestform-app__nav-item--active:focus {
+    color: var(--nestform-accent-dark);
+    background: var(--nestform-pro-soft);
+    box-shadow: none;
+}
+
+.nestform-app__nav-item--active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 7px;
+    bottom: 7px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--nestform-accent);
+}
+
+.nestform-app__nav-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+}
+
+.nestform-app__nav-count {
+    margin-left: auto;
+    background: var(--nestform-accent);
+    color: #fff;
+    border-radius: 100%;
+    padding: 2px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.5;
+    animation: nestform-pulse 2.4s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 15px;
+    margin: -2px 0 -4px auto;
+}
+
+.nestform-app__foot {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nestform-space-2);
+    flex-shrink: 0;
+    margin: 0 10px 12px;
+    padding: var(--nestform-space-4) 0 0;
+    border-top: 1px solid var(--nestform-border);
+}
+
+.nestform-app__usage {
+    padding: var(--nestform-space-2);
+    background: var(--nestform-soft);
+    border: 1px solid var(--nestform-border);
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.nestform-app__usage-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--nestform-space-2);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--nestform-faint);
+}
+
+.nestform-app__usage-row strong {
+    color: var(--nestform-ink);
+    font-size: 12px;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.nestform-app__usage-bar {
+    display: block;
+    height: 6px;
+    margin: var(--nestform-space-2) 0 var(--nestform-space-2);
+    border-radius: 999px;
+    background: var(--nestform-border);
+    overflow: hidden;
+}
+
+.nestform-app__usage-fill {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--nestform-accent);
+}
+
+.nestform-app__usage-fill.is-full {
+    background: var(--nestform-warn);
+}
+
+.nestform-app__usage-hint {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--nestform-muted);
+}
+
+.nestform-icon-crown,
+.nestform-app__pro-kicker svg,
+.nestform-pro-pill svg,
+.nestform-page-head__icon--crown svg {
+    color: var(--nestform-pro-gold);
+    fill: currentColor;
+}
+
+.nestform-app__pro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nestform-space-2);
+    padding: var(--nestform-space-4);
+    border-radius: 12px;
+    text-decoration: none;
+    background: var(--nestform-pro-bg);
+    background-image: var(--nestform-pro-image);
+    box-sizing: border-box;
+    transition: var(--nestform-transition);
+}
+
+.nestform-app__pro:hover,
+.nestform-app__pro:focus {
+    outline: none;
+    filter: brightness(1.06);
+    border-radius: 12px;
+    box-shadow: 0 1px 8px var(--nestform-pro-glow);
+}
+
+.nestform-app__pro-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nestform-space-2);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-transform: none;
+}
+
+.nestform-app__pro-kicker svg {
+    width: 14px;
+    height: 14px;
+}
+
+.nestform-app__pro-copy {
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.nestform-pro-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--nestform-space-2);
+    width: 100%;
+    min-height: 40px;
+    margin: 0;
+    padding: 8px 16px;
+    border: 1px solid var(--nestform-primary);
+    border-radius: var(--nestform-radius);
+    background: var(--nestform-primary);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none;
+    box-sizing: border-box;
+    box-shadow: none;
+    transition: var(--nestform-transition);
+}
+
+.nestform-pro-cta:hover,
+.nestform-pro-cta:focus {
+    background: var(--nestform-primary-hover);
+    border-color: var(--nestform-primary-hover);
+    color: #fff;
+    outline: none;
+    box-shadow: 0 1px 8px var(--nestform-accent-mid);
+}
+
+.nestform-app__pro-cta {
+    margin-top: 4px;
+}
+
+.nestform-pro-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 6px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: var(--nestform-pro-bg);
+    background-image: var(--nestform-pro-image);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    vertical-align: middle;
+}
+
+.nestform-app__pro .nestform-pro-pill,
+.nestform-pro-modal__card .nestform-pro-pill,
+.nestform-upgrade__plan--pro .nestform-pro-pill,
+.nestform-dash__kpi--pro .nestform-pro-pill,
+.nestform-entries__stat--pro .nestform-pro-pill {
+    margin-left: 0;
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(147, 197, 253, 0.55);
+    color: #fff;
+}
+
+.nestform-page-head__icon--sparkle,
+.nestform-page-head__icon--crown {
+    background: var(--nestform-pro-bg);
+    background-image: var(--nestform-pro-image);
+    border-color: transparent;
+    color: #fff;
+}
+
+.nestform-app__foot-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--nestform-space-2);
+}
+
+.nestform-app__foot-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nestform-space-2);
+    padding: var(--nestform-space-2);
+    background: var(--nestform-surface);
+    border: 1px solid var(--nestform-border);
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.nestform-app__foot-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--nestform-space-2);
+}
+
+.nestform-app__foot-card-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--nestform-faint);
+}
+
+.nestform-app__foot-card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--nestform-accent);
+    text-decoration: none;
+    line-height: 1;
+    transition: var(--nestform-transition);
+}
+
+.nestform-app__foot-card-link:hover,
+.nestform-app__foot-card-link:focus {
+    color: var(--nestform-accent-dark);
+    outline: none;
+}
+
+.nestform-app__foot-card-link svg {
+    width: 12px;
+    height: 12px;
+}
+
+.nestform-app__foot-alert {
+    display: flex;
+    align-items: center;
+    gap: var(--nestform-space-2);
+    padding: var(--nestform-space-2) var(--nestform-space-4);
+    background: var(--nestform-accent-soft);
+    border: 1px solid var(--nestform-accent-line);
+    border-radius: 4px !important;
+    text-decoration: none;
+    color: var(--nestform-accent-dark);
+    box-sizing: border-box;
+    transition: var(--nestform-transition);
+}
+
+.nestform-app__foot-alert:hover,
+.nestform-app__foot-alert:focus {
+    outline: none;
+    filter: brightness(0.98);
+}
+
+.nestform-app__foot-alert-dot {
+    flex: 0 0 auto;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--nestform-accent);
+    box-shadow: 0 0 0 3px
+        color-mix(in srgb, var(--nestform-accent) 20%, transparent);
+    animation: nestform-pulse 2.4s ease-in-out infinite;
+}
+
+.nestform-app__foot-alert-text {
+    min-width: 0;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.nestform-app__foot-clear {
+    margin: 0;
+    padding: 6px 2px 2px;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--nestform-muted);
+    line-height: 1.3;
+}
+
+.nestform-app__foot-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-width: 0;
+    padding: 8px;
+    background: var(--nestform-soft);
+    border: 1px solid var(--nestform-border);
+    border-radius: 4px !important;
+    text-decoration: none;
+    color: inherit;
+    box-sizing: border-box;
+    transition: var(--nestform-transition);
+}
+
+.nestform-app__foot-cell:hover,
+.nestform-app__foot-cell:focus {
+    border-color: var(--nestform-border-strong);
+    background: var(--nestform-surface);
+    outline: none;
+    color: inherit;
+    text-decoration: none;
+}
+
+.nestform-app__foot-cell--accent {
+    background: var(--nestform-accent-soft);
+    border-color: var(--nestform-accent-line);
+}
+
+.nestform-app__foot-stat {
+    display: none;
+}
+
+.nestform-app__foot-val {
+    display: block;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--nestform-ink);
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+}
+
+.nestform-app__foot-cell--accent .nestform-app__foot-val,
+.nestform-app__foot-stat--new .nestform-app__foot-val {
+    color: var(--nestform-accent);
+}
+
+.nestform-app__foot-label {
+    display: block;
+    font-size: 9px;
+    color: var(--nestform-faint);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.2;
+}
+
+.nestform-app__foot-cell--accent .nestform-app__foot-label,
+.nestform-app__foot-stat--new .nestform-app__foot-label {
+    color: color-mix(
+        in srgb,
+        var(--nestform-accent) 72%,
+        var(--nestform-faint)
+    );
+}
+
+.nestform-app__foot-hint {
+    margin: 0;
+    padding: 0 2px;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--nestform-faint);
+    line-height: 1.3;
+}
+
+.nestform-app__wp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--nestform-space-2);
+    width: calc(100% - 20px);
+    min-height: 40px;
+    margin: 10px 10px 12px;
+    padding: 8px 16px;
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius) !important;
+    background: transparent;
+    box-sizing: border-box;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--nestform-muted);
+    text-decoration: none;
+    box-shadow: none;
+    transition: var(--nestform-transition);
+}
+
+.nestform-app__wp-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    color: var(--nestform-faint);
+    transition: var(--nestform-transition);
+}
+
+.nestform-app__wp:hover,
+.nestform-app__wp:focus {
+    color: var(--nestform-ink-alt);
+    background: var(--nestform-surface);
+    border-color: var(--nestform-border-strong);
+    outline: none;
+    text-decoration: none;
+    box-shadow: none;
+}
+
+.nestform-app__wp:hover .nestform-app__wp-icon,
+.nestform-app__wp:focus .nestform-app__wp-icon {
+    color: var(--nestform-accent);
+}
+
+.nestform-app__sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--nestform-space-2);
+    width: calc(100% - 20px);
+    min-height: 40px;
+    margin: auto 10px 0;
+    padding: 8px 16px;
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    background: transparent;
+    color: var(--nestform-muted);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    cursor: pointer;
+    box-sizing: border-box;
+    box-shadow: none;
+    transition: var(--nestform-transition);
+}
+
+.nestform-app__sidebar-toggle:hover,
+.nestform-app__sidebar-toggle:focus {
+    color: var(--nestform-ink-alt);
+    background: var(--nestform-surface);
+    border-color: var(--nestform-border-strong);
+    outline: none;
+}
+
+.nestform-app__sidebar-toggle-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    transition: transform 0.25s ease-in-out;
+}
+
+.nestform-app__sidebar-toggle-label {
+    white-space: nowrap;
+}
+
+.nestform-app--sidebar-collapsed .nestform-app__sidebar {
+    width: 56px;
+}
+
+.nestform-app--sidebar-collapsed .nestform-app__brand {
+    justify-content: center;
+    padding: 16px 8px;
+    gap: 0;
+}
+
+.nestform-app--sidebar-collapsed .nestform-app__logo {
+    width: 36px;
+    height: 36px;
+}
+
+.nestform-app--sidebar-collapsed .nestform-app__brand-copy,
+.nestform-app--sidebar-collapsed .nestform-app__nav-label,
+.nestform-app--sidebar-collapsed .nestform-app__sidebar-toggle-label,
+.nestform-app--sidebar-collapsed .nestform-app__wp-label,
+.nestform-app--sidebar-collapsed .nestform-app__foot {
+    display: none;
+}
+
+.nestform-app--sidebar-collapsed .nestform-app__nav {
+    padding: var(--nestform-space-4) 8px;
+}
+
+.nestform-app--sidebar-collapsed .nestform-app__nav-item {
+    justify-content: center;
+    gap: 0;
+    padding: var(--nestform-space-2) 0;
+    margin-bottom: 4px;
+}
+
+.nestform-app--sidebar-collapsed .nestform-app__nav-item--active::before {
+    top: 8px;
+    bottom: 8px;
+}
+
+.nestform-app--sidebar-collapsed .nestform-app__nav-count {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    margin: 0;
+    min-width: 16px;
+    min-height: 16px;
+    border-radius: 999px;
+    font-size: 9px;
+    line-height: 1.5;
+    animation: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.nestform-app--sidebar-collapsed .nestform-app__sidebar-toggle {
+    width: calc(100% - 16px);
+    min-height: 40px;
+    margin: auto 8px 0;
+    padding: 8px;
+}
+
+.nestform-app--sidebar-collapsed .nestform-app__sidebar-toggle-icon {
+    transform: rotate(180deg);
+}
+
+.nestform-app--sidebar-collapsed .nestform-app__wp {
+    width: calc(100% - 16px);
+    min-height: 40px;
+    margin: 8px;
+    padding: 8px;
+    gap: 0;
+}
+
+.nestform-app__main {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    overflow: auto;
+    padding: var(--nestform-space-4) var(--nestform-space-6) var(--nestform-space-12);
+    box-sizing: border-box;
+}
+
+.nestform-page-head {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--nestform-space-4);
+    margin: 0 0 var(--nestform-space-6);
+    padding: var(--nestform-space-4);
+    background: var(--nestform-surface);
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    box-sizing: border-box;
+}
+
+.nestform-page-head__lead {
+    display: flex;
+    align-items: center;
+    gap: var(--nestform-space-4);
+    min-width: 0;
+    flex: 1 1 240px;
+}
+
+.nestform-page-head__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: var(--nestform-accent-soft);
+    border: 1px solid var(--nestform-accent-line);
+    color: var(--nestform-accent);
+    box-sizing: border-box;
+}
+
+.nestform-page-head__icon--forms {
+    background: rgba(37, 99, 235, 0.1);
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+}
+
+.nestform-page-head__icon--analytics {
+    background: rgba(13, 148, 136, 0.1);
+    border-color: #99f6e4;
+    color: #0f766e;
+}
+
+.nestform-page-head__icon--entries {
+    background: rgba(234, 88, 12, 0.1);
+    border-color: #fdba74;
+    color: #c2410c;
+}
+
+.nestform-page-head__icon--settings {
+    background: rgba(71, 85, 105, 0.1);
+    border-color: #cbd5e1;
+    color: #475569;
+}
+
+.nestform-page-head__icon--developers {
+    background: rgba(5, 150, 105, 0.1);
+    border-color: #a7f3d0;
+    color: #047857;
+}
+
+.nestform-page-head__icon svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+}
+
+.nestform-page-head__copy {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+h1.nestform-page-head__title {
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--nestform-ink);
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+}
+
+.nestform-page-head__desc {
+    margin: 4px 0 0;
+    max-width: 74ch;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--nestform-muted);
+}
+
+.nestform-page-head__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nestform-space-2);
+    align-items: center;
+    flex: 0 0 auto;
+    overflow: visible;
+}
+
+.nestform-page-head__actions .nestform-export-menu {
+    z-index: 2;
+}
+
+.nestform-page-head__actions .nestform-export-menu__panel {
+    z-index: 40;
+}
+
+.nestform-hub__import {
+    display: inline-flex;
+    margin: 0;
+}
+
+.nestform-hub__import-label {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.nestform-hub__import-file {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    font-size: 0;
+}
+
+body.nestform-admin-screen .wp-header-end {
+    display: none;
+}
+
+body.nestform-admin-screen
+    div.notice:not(.inline):not(.hidden):not(.update-nag),
+body.nestform-admin-screen div.updated:not(.inline):not(.hidden),
+body.nestform-admin-screen div.error:not(.inline):not(.hidden) {
+    position: fixed !important;
+    top: auto !important;
+    right: 0 !important;
+    bottom: 24px !important;
+    left: 200px !important;
+    z-index: 100000 !important;
+    width: min(440px, calc(100vw - 248px)) !important;
+    margin: 0 auto !important;
+    padding: var(--nestform-space-2) 40px 10px 14px;
+    border: 1px solid var(--nestform-accent-line);
+    border-radius: var(--nestform-radius);
+    background: #eff6ff;
+    box-shadow: var(--nestform-shadow-md);
+    color: var(--nestform-accent-dark);
+    font-size: 13px;
+    line-height: 1.45;
+    box-sizing: border-box;
+}
+
+body.nestform-editor-app div.notice:not(.inline):not(.hidden):not(.update-nag),
+body.nestform-editor-app div.updated:not(.inline):not(.hidden),
+body.nestform-editor-app div.error:not(.inline):not(.hidden) {
+    right: 240px !important;
+}
+
+.nestform-toasts {
+    position: fixed;
+    left: 200px;
+    right: 0;
+    bottom: 24px;
+    z-index: 100000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--nestform-space-2);
+    pointer-events: none;
+}
+
+body.nestform-editor-app .nestform-toasts {
+    right: 240px;
+}
+
+@media screen and (max-width: 782px) {
+    body.nestform-admin-screen
+        div.notice:not(.inline):not(.hidden):not(.update-nag),
+    body.nestform-admin-screen div.updated:not(.inline):not(.hidden),
+    body.nestform-admin-screen div.error:not(.inline):not(.hidden),
+    .nestform-toasts,
+    body.nestform-editor-app .nestform-toasts {
+        left: 16px !important;
+        right: 16px !important;
+        bottom: 16px;
+        width: auto !important;
+    }
+}
+
+.nestform-toasts .notice,
+.nestform-toasts div.updated,
+.nestform-toasts div.error {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    top: auto !important;
+    pointer-events: auto;
+    width: min(440px, 100%) !important;
+    max-width: 100%;
+    margin: 0 !important;
+}
+
+.nestform-toasts .notice.is-leaving,
+.nestform-toasts div.updated.is-leaving,
+.nestform-toasts div.error.is-leaving {
+    animation: nestform-toast-out 0.22s ease forwards;
+}
+
+@keyframes nestform-toast-out {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+}
+
+body.nestform-admin-screen .notice p,
+body.nestform-admin-screen div.updated p,
+body.nestform-admin-screen div.error p {
+    margin: 0;
+    padding: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    color: inherit;
+}
+
+body.nestform-admin-screen .notice a,
+body.nestform-admin-screen div.updated a {
+    color: var(--nestform-accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+body.nestform-admin-screen .notice a:hover,
+body.nestform-admin-screen .notice a:focus,
+body.nestform-admin-screen div.updated a:hover,
+body.nestform-admin-screen div.updated a:focus {
+    color: var(--nestform-accent-dark);
+    text-decoration: underline;
+}
+
+body.nestform-admin-screen div.notice.notice-success:not(.inline):not(.hidden),
+body.nestform-admin-screen div.updated:not(.inline):not(.hidden),
+body.nestform-admin-screen div.notice.updated:not(.inline):not(.hidden) {
+    background: #dcfce7 !important;
+    border-color: var(--nestform-ok-border) !important;
+    color: #166534 !important;
+}
+
+body.nestform-admin-screen div.notice.notice-warning:not(.inline):not(.hidden) {
+    background: #ffedd5 !important;
+    border-color: var(--nestform-warn-border) !important;
+    color: #c2410c !important;
+}
+
+body.nestform-admin-screen div.notice.notice-error:not(.inline):not(.hidden),
+body.nestform-admin-screen div.error:not(.inline):not(.hidden) {
+    background: #fee2e2 !important;
+    border-color: var(--nestform-danger-border) !important;
+    color: #b91c1c !important;
+}
+
+body.nestform-admin-screen div.notice.notice-info:not(.inline):not(.hidden) {
+    background: #dbeafe !important;
+    border-color: var(--nestform-accent-line) !important;
+    color: var(--nestform-accent-dark) !important;
+}
+
+body.nestform-admin-screen .postbox div.notice,
+body.nestform-admin-screen .postbox div.updated,
+body.nestform-admin-screen .postbox div.error,
+body.nestform-admin-screen #screen-meta div.notice,
+body.nestform-admin-screen .media-modal div.notice {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    top: auto !important;
+    width: auto !important;
+    margin: 0 0 12px !important;
+}
+
+body.nestform-admin-screen .notice-dismiss {
+    top: 6px;
+    right: 6px;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--nestform-faint);
+    box-shadow: none;
+    transition: var(--nestform-transition);
+}
+
+body.nestform-admin-screen .notice-dismiss:hover,
+body.nestform-admin-screen .notice-dismiss:focus {
+    background: var(--nestform-surface);
+    color: var(--nestform-ink);
+    box-shadow: none;
+}
+
+body.nestform-admin-screen .notice-dismiss::before {
+    color: inherit;
+}
+
+.nestform-badge,
+.nestform-entry-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+}
+
+.nestform-badge--ok,
+.nestform-badge--read,
+.nestform-entry-status--read {
+    background: var(--nestform-ok-soft);
+    color: var(--nestform-ok);
+    border: 1px solid var(--nestform-ok-border);
+}
+
+.nestform-badge--new,
+.nestform-entry-status--new {
+    background: var(--nestform-accent-soft);
+    color: var(--nestform-accent);
+    border: 1px solid var(--nestform-accent-line);
+    animation: nestform-pulse 2.4s ease-in-out infinite;
+    text-decoration: none;
+}
+
+@keyframes nestform-pulse {
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.35);
+    }
+
+    70% {
+        box-shadow: 0 0 0 6px rgba(37, 99, 235, 0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nestform-app__nav-count,
+    .nestform-badge--new,
+    .nestform-entry-status--new,
+    .nestform-entries__filter-count {
+        animation: none;
+    }
+}
+
+.nestform-badge--draft {
+    background: var(--nestform-warn-soft);
+    color: var(--nestform-warn);
+    border: 1px solid var(--nestform-warn);
+}
+
+.nestform-badge--danger,
+.nestform-entry-status--spam {
+    background: var(--nestform-danger-soft);
+    color: var(--nestform-danger);
+    border: 1px solid var(--nestform-danger-border);
+}
+
+.nestform-hub__table {
+    background: var(--nestform-surface);
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+}
+
+.nestform-hub__thead,
+.nestform-hub__row {
+    display: flex;
+    align-items: center;
+    padding: var(--nestform-space-4) var(--nestform-space-6);
+}
+
+.nestform-hub__row[hidden] {
+    display: none !important;
+}
+
+.nestform-hub__thead {
+    padding: 8px 20px;
+    background: var(--nestform-soft);
+    border-bottom: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius) var(--nestform-radius) 0 0;
+}
+
+.nestform-hub__th {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--nestform-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.nestform-hub__th--form,
+.nestform-hub__td--form {
+    flex: 1;
+    min-width: 0;
+}
+
+.nestform-hub__th--fields,
+.nestform-hub__td--fields {
+    width: 80px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.nestform-hub__th--activity,
+.nestform-hub__td--activity {
+    width: 120px;
+    flex-shrink: 0;
+    text-align: left;
+}
+
+.nestform-hub__th--entries,
+.nestform-hub__td--entries {
+    width: 100px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.nestform-hub__th--actions,
+.nestform-hub__td--actions {
+    width: 220px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--nestform-space-2);
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.nestform-hub__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    padding: 6px;
+    border-radius: 8px;
+    color: var(--nestform-accent-dark);
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: var(--nestform-transition);
+}
+
+a.nestform-hub__count:hover,
+a.nestform-hub__count:focus {
+    background: var(--nestform-accent);
+    color: #fff;
+    box-shadow: 0 0 0 2px
+        color-mix(in srgb, var(--nestform-accent) 25%, transparent);
+    outline: none;
+}
+
+.nestform-hub__more {
+    position: relative;
+}
+
+.nestform-hub__more-toggle {
+    min-width: 34px;
+    padding-left: 8px;
+    padding-right: 8px;
+    letter-spacing: 0.12em;
+}
+
+.nestform-hub__more-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 20;
+    min-width: 160px;
+    padding: 6px;
+    background: var(--nestform-surface);
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    box-shadow: var(--nestform-shadow-md);
+}
+
+.nestform-hub__more-menu[hidden] {
+    display: none;
+}
+
+.nestform-hub__more-menu .nestform-btn {
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.nestform-export-menu {
+    position: relative;
+    display: inline-flex;
+}
+
+.nestform-export-menu__toggle {
+    position: relative;
+    padding-right: 32px;
+}
+
+.nestform-export-menu__toggle::after {
+    content: "";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    margin-top: -8px;
+    background-color: currentColor;
+    mask: var(--nestform-chevron-mask-down) center / 16px 16px no-repeat;
+    -webkit-mask: var(--nestform-chevron-mask-down) center / 16px 16px no-repeat;
+    pointer-events: none;
+    transition: transform 0.15s ease;
+}
+
+.nestform-export-menu.is-open .nestform-export-menu__toggle::after {
+    transform: rotate(180deg);
+}
+
+.nestform-export-menu__panel {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 30;
+    min-width: 168px;
+    padding: 6px;
+    background: var(--nestform-surface);
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    box-shadow: var(--nestform-shadow-md);
+}
+
+.nestform-export-menu__panel[hidden] {
+    display: none;
+}
+
+.nestform-export-menu__item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: var(--nestform-space-2) var(--nestform-space-4);
+    border-radius: calc(var(--nestform-radius) - 2px);
+    color: var(--nestform-ink-alt);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    box-sizing: border-box;
+}
+
+.nestform-export-menu__item:hover,
+.nestform-export-menu__item:focus {
+    background: var(--nestform-soft);
+    color: var(--nestform-ink-alt);
+    outline: none;
+}
+
+.nestform-hub__row[data-edit-url] {
+    cursor: pointer;
+}
+
+.nestform-hub__row[data-edit-url]:hover {
+    background: var(--nestform-soft);
+}
+
+.nestform-hub__row[data-edit-url]:focus {
+    outline: none;
+}
+
+.nestform-hub__row[data-edit-url]:focus-visible {
+    background: var(--nestform-soft);
+    box-shadow: inset 0 0 0 2px var(--nestform-accent-line);
+}
+
+.nestform-hub__row {
+    border-bottom: 1px solid var(--nestform-border);
+    transition: var(--nestform-transition);
+}
+
+.nestform-hub__row--has-new {
+    box-shadow: inset 3px 0 0 var(--nestform-accent);
+}
+
+.nestform-hub__row:last-child {
+    border-bottom: none;
+}
+
+.nestform-hub__row:hover {
+    background: var(--nestform-soft);
+}
+
+.nestform-hub__activity {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--nestform-ink);
+}
+
+.nestform-hub__activity--empty {
+    color: var(--nestform-faint);
+}
+
+.nestform-hub__td--fields {
+    font-size: 13.5px;
+    color: var(--nestform-muted);
+    font-weight: 500;
+}
+
+.nestform-hub__td--entries {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--nestform-ink);
+}
+
+.nestform-hub__heading {
+    display: flex;
+    align-items: center;
+    gap: var(--nestform-space-2);
+    margin-bottom: 8px;
+}
+
+.nestform-hub__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--nestform-ink);
+    text-decoration: none;
+    transition: var(--nestform-transition);
+}
+
+.nestform-hub__title:hover,
+.nestform-hub__title:focus {
+    color: var(--nestform-accent);
+}
+
+.nestform-hub__meta {
+    display: flex;
+    gap: var(--nestform-space-2);
+    align-items: center;
+}
+
+.nestform-hub__id {
+    font-size: 10.5px;
+    color: var(--nestform-faint);
+}
+
+.nestform-hub__search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--nestform-faint);
+    display: flex;
+    pointer-events: none;
+}
+
+#nestform_builder .inside,
+#nestform_shortcode .inside {
+    margin: 0;
+    padding: 0;
+}
+
+#nestform_builder,
+#nestform_shortcode {
+    border-color: var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    box-shadow: none;
+}
+
+#nestform_builder > .postbox-header,
+#nestform_shortcode > .postbox-header {
+    border-bottom-color: var(--nestform-border);
+    background: var(--nestform-surface);
+}

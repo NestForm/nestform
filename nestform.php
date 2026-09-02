@@ -3,7 +3,7 @@
  * Plugin Name: Nestform
  * Plugin URI: https://nestform.app
  * Description: Build forms, quizzes and surveys for WordPress that convert — entries inbox, email, spam protection, and analytics.
- * Version: 2.2.0
+ * Version: 2.2.1
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: A.CH
@@ -24,7 +24,7 @@ if ( defined( 'NESTFORM_VERSION' ) ) {
 	return;
 }
 
-define( 'NESTFORM_VERSION', '2.2.0' );
+define( 'NESTFORM_VERSION', '2.2.1' );
 define( 'NESTFORM_PATH', trailingslashit( dirname( __FILE__ ) ) );
 define( 'NESTFORM_URL', trailingslashit( plugin_dir_url( __FILE__ ) ) );
 

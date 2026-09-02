@@ -4,7 +4,7 @@ Tags: forms, contact form, survey, quiz, lead generation
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,32 +14,34 @@ Build forms, quizzes and surveys for WordPress that convert — entries inbox, e
 
 Nestform is a focused form builder for lead capture, feedback, and interactive flows — not a Contact Form 7 clone.
 
-**Free** ($0):
+**Builder**
 
-* Unlimited forms with templates
-* Drag-and-drop builder, conditional field visibility, file uploads
-* Entries inbox, CSV export, plain-text email notifications
-* Outbound webhooks (up to 5 HTTPS endpoints per form)
-* reCAPTCHA, honeypot, rate limiting
-* Gutenberg block, shortcode, basic analytics
+* Unlimited forms, starter templates (open on Add New when the canvas is empty)
+* Drag-and-drop fields, undo, live preview
+* Conditional show/hide, file uploads, layout blocks (heading, image, HTML)
+* Appearance skins and per-form styling
+* Duplicate forms, JSON import/export, import from Contact Form 7 and WPForms
 
-**Pro** ($9.99/mo or $89.99/yr — single site):
+**Inbox & mail**
 
-* Multi-step flows, branch rules
-* Quizzes & surveys with scoring and result bands
-* HTML email designer, PDF attachments, automations
-* Native integrations (Telegram, Slack, Google Sheets — roadmap)
-* Advanced fields (rating, signature, NPS, scale, ranking, matrix)
-* Calculated fields, repeaters, advanced analytics, lead insights
+* Entries with New / Read / Spam, star, CSV export, printable entry view
+* Response summary: totals, fill rate, most chosen / most skipped answers
+* Plain-text notifications, CC/BCC, optional autoreply
+* Outbound webhooks (HTTPS endpoints you configure per form)
 
-**Agency** ($29.99/mo or $269.99/yr — up to 5 client sites):
+**Spam & embed**
 
-* Everything in Pro
-* Priority support & onboarding
-* Agency license for client sites
-* White-label ready workflows and early access to integrations
+* Honeypot, time trap, rate limit, optional Akismet
+* Google reCAPTCHA v2/v3 via **Forms → Integrations**
+* Gutenberg block and shortcode `[nestform id="123"]`
 
-Nestform Pro is a **separate add-on** (`nestform-pro`) sold on [nestform.app](https://nestform.app/pro) and hosted outside the WordPress.org directory. Premium code is not included in this free download. Compare plans in **Forms → Pro** or on [nestform.app/docs](https://nestform.app/docs).
+**Admin**
+
+* Dashboard with submission charts
+* Light / dark admin theme
+* **Developers** screen with hooks and filters
+
+**Optional Nestform Pro** is a **separate add-on** (`nestform-pro`), sold on [nestform.app](https://nestform.app) and hosted outside the WordPress.org directory. Premium code is not included in this download. It unlocks multi-step flows, quizzes and surveys, advanced fields, HTML email, PDF attachments, automations, and richer analytics. Compare features under **Forms → Pro**.
 
 == Installation ==
 
@@ -47,35 +49,45 @@ Nestform Pro is a **separate add-on** (`nestform-pro`) sold on [nestform.app](ht
 2. Activate **Nestform** through the **Plugins** menu.
 3. Open **Forms** in the admin menu to create your first form.
 4. Embed with the Gutenberg block or shortcode `[nestform id="123"]`.
-5. Documentation lives on [nestform.app/docs](https://nestform.app/docs). Use **Forms → Developers** for hooks and filters.
+5. Documentation: [nestform.app/docs](https://nestform.app/docs). Hooks live under **Forms → Developers**.
+6. Source and build tools: [github.com/NestForm/nestform-free](https://github.com/NestForm/nestform-free). From the plugin root run `npm run build`, then `python bin/build-release.py`.
 
-For Pro features, purchase on nestform.app, install the `nestform-pro` add-on, and enter your license key under **Forms → License**.
+For Pro features, install the `nestform-pro` add-on from nestform.app and enter your license key under **Forms → License**.
+
+== Source ==
+
+Human-readable PHP ships in this plugin. CSS and JS are built from sources in the same GitHub repository:
+
+https://github.com/NestForm/nestform-free
+
+```
+npm run build
+python bin/build-release.py
+```
+
+The WordPress.org zip contains compiled `*.min.js` and bundled CSS. Edit the sources in that repo, then rebuild.
 
 == Frequently Asked Questions ==
 
 = Is Nestform Pro included in this download? =
 
-No. This is the free plugin. Nestform Pro is a separate premium add-on purchased on nestform.app and installed as its own plugin.
+No. This is the free plugin. Nestform Pro is a separate add-on purchased on nestform.app and installed as its own plugin.
 
 = How do I activate Pro after purchase? =
 
 Install **Nestform Pro**, open **Forms → License**, and paste the license key from your purchase email.
 
-= How many forms can I create on the free plan? =
+= How many forms can I create? =
 
-Unlimited. Pro adds advanced builder features (multi-step, quizzes, native integrations, and more), not more form slots.
-
-= What is the difference between Pro and Agency? =
-
-Pro unlocks all premium features on one WordPress site. Agency includes everything in Pro plus a multi-site license (up to 5 client sites), priority support, and team-oriented perks. See **Forms → Pro** or [nestform.app/docs](https://nestform.app/docs) for the full comparison.
+Unlimited on the free plugin. Pro adds builder features (multi-step, quizzes, advanced fields, and more), not extra form slots.
 
 = Does Nestform store submissions? =
 
-Yes. Submissions appear under **Forms → Entries** with export to CSV.
+Yes. Submissions appear under **Forms → Entries**. You can export CSV and print a single entry.
 
 = Does Nestform add branding to my public site? =
 
-No. Nestform does not inject “powered by” links or credits on your front-end forms unless you add them yourself.
+No. Nestform does not inject “powered by” links or credits on front-end forms unless you add them yourself.
 
 == External services ==
 
@@ -96,7 +108,7 @@ This plugin can connect to optional third-party services configured by the site 
 
 **nestform.app** (optional — Pro purchase only)
 
-* Used for: purchasing Nestform Pro and managing your subscription.
+* Used for: purchasing Nestform Pro and managing your license.
 * When: only if you choose to buy Pro from our website.
 * The free plugin does not require a nestform.app account.
 
@@ -104,7 +116,18 @@ This plugin can connect to optional third-party services configured by the site 
 
 Admin UI uses self-hosted **Plus Jakarta Sans** and **Sora** (SIL Open Font License 1.1). Font files ship under `assets/fonts/` with `assets/fonts/OFL.txt`. No Google Fonts CDN is used.
 
+== Bundled flags ==
+
+The phone country picker uses self-hosted SVG flags from [flag-icons](https://github.com/lipis/flag-icons) (MIT). Files ship under `assets/flags/` with `assets/flags/LICENSE.txt`. No flag CDN is used.
+
 == Changelog ==
+
+= 2.2.1 =
+* Printable entries: two-column label/value layout so answers line up.
+* Empty Add New forms open the templates gallery; starter cards stay on the canvas.
+* Response summary: KPIs, most chosen / most skipped, richer field cards.
+* Unread counts use a ripple; New status uses a quiet border pulse.
+* Phone country flags are bundled as local SVGs (no flagcdn.com).
 
 = 2.2.0 =
 * Free plugin: unlimited forms, no Freemius SDK; Pro sold on nestform.app.
@@ -114,6 +137,9 @@ Admin UI uses self-hosted **Plus Jakarta Sans** and **Sora** (SIL Open Font Lice
 * WordPress.org compliance: premium runtime ships in Nestform Pro add-on only.
 
 == Upgrade Notice ==
+
+= 2.2.1 =
+Print layout, templates on empty forms, and a clearer response summary.
 
 = 2.2.0 =
 Free plugin with unlimited forms. Nestform Pro is a separate add-on purchased on nestform.app.

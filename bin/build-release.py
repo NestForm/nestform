@@ -4,7 +4,7 @@ Build a WordPress.org distribution zip for Nestform.
 
 Usage (from plugin root):
   python bin/build-release.py
-  python bin/build-release.py --out ../nestform-2.2.0.zip
+  python bin/build-release.py --out ../nestform-2.2.1.zip
 """
 
 from __future__ import annotations

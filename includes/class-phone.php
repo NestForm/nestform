@@ -128,7 +128,7 @@ class Nestform_Phone {
 	}
 
 	/**
-	 * PNG flag URL (Windows does not render regional-indicator emoji).
+	 * Local SVG flag URL (emoji flags do not render reliably on Windows).
 	 *
 	 * @param string $iso ISO code.
 	 * @return string
@@ -138,12 +138,15 @@ class Nestform_Phone {
 		if ( 2 !== strlen( $iso ) ) {
 			return '';
 		}
-		$url = 'https://flagcdn.com/w40/' . $iso . '.png';
+
+		$rel  = 'assets/flags/' . $iso . '.svg';
+		$path = NESTFORM_PATH . $rel;
+		$url  = is_readable( $path ) ? NESTFORM_URL . $rel : '';
 
 		/**
 		 * Filter phone flag image URL.
 		 *
-		 * @param string $url Flag URL.
+		 * @param string $url Flag URL (plugin-local SVG, or empty).
 		 * @param string $iso Lowercase ISO.
 		 */
 		return (string) apply_filters( 'nestform_phone_flag_url', $url, $iso );

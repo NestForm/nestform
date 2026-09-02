@@ -4,7 +4,7 @@
  * Accent #2563eb = Save + selection only
  *
  * Spacing: 8-point grid — use --nestform-space-* for margin, padding, gap.
- * Scale: 4 · 8 · 16 · 24 · 32 · 40 · 48 · 64 (avoid 10, 12, 14, 18, 20 in new layout).
+ * Scale: 4 / 8 / 16 / 24 / 32 / 40 / 48 / 64 (avoid 10, 12, 14, 18, 20 in new layout).
  *
  * Shared: .nestform-btn (+ color mods), .nestform-admin__input/__textarea,
  * .nestform-badge / .nestform-entry-status. Screens may change size/icons.
@@ -74,6 +74,8 @@
     --nestform-space-10: 40px;
     --nestform-space-12: 48px;
     --nestform-space-16: 64px;
+    --nestform-line-height: 1.5;
+    --nestform-control-h: var(--nestform-space-10);
     /* Shared chevrons — stroke style (right / down / up) */
     --nestform-chevron-right: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 12L10 8L6 4' stroke='%239AA3AD' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     --nestform-chevron-down: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%239AA3AD' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
@@ -84,12 +86,27 @@
     --nestform-chevron-mask-down: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%23000' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     --nestform-chevron-mask-up: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 10L8 6L12 10' stroke='%23000' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     --nestform-font:
-        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans,
-        Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+        'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+    --nestform-font-display:
+        'Sora', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+        sans-serif;
 }
 
 body.nestform-admin-screen {
     font-family: var(--nestform-font);
+    line-height: var(--nestform-line-height);
+}
+
+body.nestform-admin-screen .nestform-app__brand-title,
+body.nestform-admin-screen .nestform-dash__title,
+body.nestform-admin-screen .nestform-hub__title,
+body.nestform-admin-screen .nestform-settings__title,
+body.nestform-admin-screen .nestform-admin__panel-title,
+body.nestform-admin-screen .nestform-upgrade__title,
+body.nestform-admin-screen h1,
+body.nestform-admin-screen h2 {
+    font-family: var(--nestform-font-display);
 }
 
 body.nestform-admin-screen #wpcontent,

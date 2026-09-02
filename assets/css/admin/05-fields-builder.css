@@ -12,7 +12,7 @@
     flex-wrap: wrap;
     align-items: center;
     gap: var(--nestform-space-2);
-    margin: 0 0 8px;
+    margin: 0 0 var(--nestform-space-2);
     padding: var(--nestform-space-4);
     background: var(--nestform-surface);
     border: 1px solid var(--nestform-border);
@@ -29,7 +29,7 @@
     background: var(--nestform-accent-soft);
     border: 0;
     border-radius: 20px;
-    padding: 3px 8px;
+    padding: 3px var(--nestform-space-2);
 }
 
 .nestform-card {
@@ -206,7 +206,7 @@
     align-items: center;
     flex: 0 0 auto;
     min-height: 0;
-    padding: 2px 7px;
+    padding: 2px var(--nestform-space-2);
     border-radius: 4px;
     background: var(--nestform-accent-soft);
     color: var(--nestform-accent);
@@ -253,7 +253,7 @@
     display: inline-flex;
     align-items: center;
     min-height: 0;
-    padding: 2px 7px;
+    padding: 2px var(--nestform-space-2);
     border-radius: 4px;
     background: var(--nestform-accent-soft);
     border: 0;
@@ -272,8 +272,8 @@
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
-    gap: var(--nestform-space-2) 8px;
-    padding: 4px 6px;
+    gap: var(--nestform-space-2) var(--nestform-space-2);
+    padding: var(--nestform-space-1) var(--nestform-space-1);
     border: 0;
     border-radius: var(--nestform-radius-sm);
     background: transparent;
@@ -290,7 +290,7 @@
     flex: 0 1 auto;
     max-width: 36%;
     min-width: 0;
-    padding: 1px 6px;
+    padding: 1px var(--nestform-space-1);
     border-radius: 4px;
     background: var(--nestform-canvas);
     color: var(--nestform-faint);
@@ -311,7 +311,7 @@
     display: inline-flex;
     flex-wrap: nowrap;
     align-items: center;
-    gap: 4px;
+    gap: var(--nestform-space-1);
     margin: 0;
     min-width: 0;
     max-width: 42%;
@@ -327,14 +327,14 @@
     align-items: center;
     max-width: 100%;
     min-height: 20px;
-    padding: 0 7px;
+    padding: 0 var(--nestform-space-2);
     border-radius: 999px;
     background: var(--nestform-soft);
     border: 1px solid var(--nestform-border);
     color: var(--nestform-muted);
     font-size: 10px;
     font-weight: 500;
-    line-height: 1.2;
+    line-height: var(--nestform-line-height);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -353,7 +353,7 @@
     color: var(--nestform-faint);
     font-size: 11.5px;
     font-weight: 500;
-    line-height: 1;
+    line-height: var(--nestform-line-height);
     cursor: pointer;
     flex: 0 0 auto;
     user-select: none;
@@ -457,7 +457,7 @@
     bottom: 0;
     z-index: 2;
     margin: 0;
-    padding: var(--nestform-space-4) 14px;
+    padding: var(--nestform-space-4) var(--nestform-space-4);
     border-top: 1px solid var(--nestform-border);
     background: linear-gradient(
         180deg,
@@ -471,8 +471,8 @@
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
-    gap: var(--nestform-space-2) 10px;
-    margin: 0 0 10px;
+    gap: var(--nestform-space-2) var(--nestform-space-2);
+    margin: 0 0 var(--nestform-space-2);
 }
 
 .nestform-card__preview-title {
@@ -543,13 +543,13 @@
 .nestform-card__preview-stars {
     display: inline-flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: var(--nestform-space-1);
     align-items: center;
 }
 
 .nestform-card__preview-star {
     font-size: 20px;
-    line-height: 1;
+    line-height: var(--nestform-line-height);
     color: var(--nestform-border-strong);
 }
 
@@ -567,7 +567,7 @@
 .nestform-card__preview-scale-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: var(--nestform-space-1);
 }
 
 .nestform-card__preview-scale-btn {
@@ -576,7 +576,7 @@
     justify-content: center;
     min-width: 28px;
     height: 28px;
-    padding: 0 6px;
+    padding: 0 var(--nestform-space-1);
     border: 1px solid var(--nestform-border-strong);
     border-radius: 6px;
     background: var(--nestform-surface);
@@ -627,7 +627,7 @@
     top: 50%;
     width: 14px;
     height: 14px;
-    margin-left: -7px;
+    margin-left: var(--nestform-space-2);
     border-radius: 50%;
     border: 2px solid var(--nestform-accent);
     background: #fff;
@@ -740,7 +740,7 @@
     margin: 0;
     font-size: 1.15rem;
     font-weight: 700;
-    line-height: 1.3;
+    line-height: var(--nestform-line-height);
     color: var(--nest-form-text, var(--nestform-ink));
 }
 
@@ -755,7 +755,7 @@
 .nestform-card__preview-paragraph {
     margin: 0;
     font-size: 13px;
-    line-height: 1.5;
+    line-height: var(--nestform-line-height);
     color: var(--nest-form-muted, var(--nestform-muted));
     white-space: pre-wrap;
 }
@@ -786,7 +786,7 @@
     display: block;
     width: 100%;
     height: 0;
-    margin: 8px 0;
+    margin: var(--nestform-space-2) 0;
     border: 0;
     border-top: 1px solid var(--nestform-border);
 }
@@ -814,7 +814,7 @@
     display: flex;
     flex-direction: column;
     gap: 0;
-    padding: 0 0 8px;
+    padding: 0 0 var(--nestform-space-2);
 }
 
 .nestform-card__section {
@@ -831,29 +831,29 @@
 }
 
 .nestform-card__section-title {
-    margin: 0 0 8px;
+    margin: 0 0 var(--nestform-space-2);
     padding: 0;
     border: 0;
     font-size: 10.5px;
     font-weight: 600;
-    line-height: 1.3;
+    line-height: var(--nestform-line-height);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--nestform-muted);
 }
 
 .nestform-card__section--primary {
-    padding-bottom: 4px;
+    padding-bottom: var(--nestform-space-1);
 }
 
 .nestform-card__section--primary > .nestform-card__section-grid {
     border-bottom: 0;
-    padding-bottom: 8px;
+    padding-bottom: var(--nestform-space-2);
 }
 
 .nestform-card__primary-type {
-    margin: 4px 0 12px;
-    padding: var(--nestform-space-4) 12px 8px;
+    margin: var(--nestform-space-1) 0 var(--nestform-space-2);
+    padding: var(--nestform-space-4) var(--nestform-space-2) var(--nestform-space-2);
     border: 1px solid var(--nestform-border);
     border-radius: var(--nestform-radius);
     background: var(--nestform-surface);
@@ -865,11 +865,11 @@
 }
 
 .nestform-card__primary-type-title {
-    margin: 0 0 8px;
+    margin: 0 0 var(--nestform-space-2);
     padding: 0;
     font-size: 12px;
     font-weight: 650;
-    line-height: 1.3;
+    line-height: var(--nestform-line-height);
     letter-spacing: -0.01em;
     text-transform: none;
     color: var(--nestform-ink);
@@ -877,11 +877,11 @@
 
 .nestform-card__primary-type .nestform-card__section-grid {
     border-bottom: 0;
-    padding-bottom: 4px;
+    padding-bottom: var(--nestform-space-1);
 }
 
 .nestform-card__primary-type .nestform-card__type-intro {
-    margin-bottom: 8px;
+    margin-bottom: var(--nestform-space-2);
 }
 
 .nestform-card__details-body {
@@ -891,7 +891,7 @@
 
 .nestform-card__details-body .nestform-card__section-grid {
     border-bottom: 0;
-    padding-bottom: 4px;
+    padding-bottom: var(--nestform-space-1);
 }
 
 .nestform-card__section-grid {
@@ -899,7 +899,7 @@
     grid-template-columns: 1fr;
     gap: var(--nestform-space-2);
     align-items: end;
-    padding-bottom: 16px;
+    padding-bottom: var(--nestform-space-4);
     border-bottom: 1px solid var(--nestform-border);
 }
 
@@ -919,7 +919,7 @@
 }
 
 .nestform-card__section-grid .nestform-admin__field-control {
-    gap: 5px;
+    gap: var(--nestform-space-1);
 }
 
 .nestform-admin__other-row {
@@ -1096,7 +1096,7 @@
     justify-content: center;
     height: 80px;
     min-height: 80px;
-    padding: 4px;
+    padding: var(--nestform-space-1);
     background: var(--nestform-paper);
     border: 1px dashed var(--nestform-border);
     border-radius: var(--nestform-radius-sm);
@@ -1124,10 +1124,10 @@
 
 .nestform-image-picker__empty {
     display: block;
-    padding: 4px;
+    padding: var(--nestform-space-1);
     color: var(--nestform-muted);
     font-size: 11px;
-    line-height: 1.3;
+    line-height: var(--nestform-line-height);
     text-align: center;
 }
 
@@ -1151,7 +1151,7 @@
     margin: 0;
     min-height: 0;
     height: auto;
-    line-height: 1.2;
+    line-height: var(--nestform-line-height);
     box-sizing: border-box;
     border-radius: var(--nestform-radius-sm);
 }
@@ -1162,7 +1162,7 @@
 
 /* Side boxes — Make Publish & embed */
 .nestform-embed {
-    padding: 16px;
+    padding: var(--nestform-space-4);
     color: var(--nestform-ink);
 }
 
@@ -1179,7 +1179,7 @@
 .nestform-embed__status {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: var(--nestform-space-2);
     margin: 0 0 var(--nestform-space-4);
     padding: 0;
     border: 0;
@@ -1212,7 +1212,7 @@
 
 .nestform-embed__status-id {
     margin-left: auto;
-    padding: 2px 8px;
+    padding: 2px var(--nestform-space-2);
     border: 1px solid var(--nestform-border);
     border-radius: 6px;
     background: var(--nestform-raised);
@@ -1226,13 +1226,13 @@
     display: flex;
     gap: var(--nestform-space-2);
     align-items: center;
-    margin: 6px 0 14px;
+    margin: var(--nestform-space-1) 0 var(--nestform-space-4);
 }
 
 .nestform-embed__code {
     flex: 1;
     display: block;
-    padding: 6px 10px;
+    padding: var(--nestform-space-1) var(--nestform-space-2);
     overflow: hidden;
     text-overflow: ellipsis;
     background: var(--nestform-raised);
@@ -1248,7 +1248,7 @@
     margin: 0 0 var(--nestform-space-4);
     color: var(--nestform-faint);
     font-size: 12px;
-    line-height: 1.6;
+    line-height: var(--nestform-line-height);
 }
 
 .nestform-embed__actions {
@@ -1256,8 +1256,8 @@
     flex-direction: column;
     flex-wrap: nowrap;
     gap: var(--nestform-space-2);
-    margin: 16px 0 0;
-    padding: 16px 0 0;
+    margin: var(--nestform-space-4) 0 0;
+    padding: var(--nestform-space-4) 0 0;
     border-top: 1px solid var(--nestform-border);
 }
 
@@ -1288,13 +1288,13 @@
     display: flex;
     flex-direction: column;
     gap: var(--nestform-space-2);
-    margin: 16px 0 0;
-    padding: 16px 0 0;
+    margin: var(--nestform-space-4) 0 0;
+    padding: var(--nestform-space-4) 0 0;
     border-top: 1px solid var(--nestform-border);
 }
 
 .nestform-embed__tools + .nestform-embed__tools {
-    margin-top: 12px;
+    margin-top: var(--nestform-space-2);
 }
 
 .nestform-embed__tools .nestform-admin__label {
@@ -1318,18 +1318,18 @@
     justify-content: center;
     min-width: 1.5em;
     height: 1.5em;
-    margin-left: 4px;
+    margin-left: var(--nestform-space-1);
     padding: 2px;
     border-radius: 999px;
     background: var(--nestform-accent);
     color: #fff;
     font-size: 10px;
     font-weight: 700;
-    line-height: 1.5;
+    line-height: var(--nestform-line-height);
 }
 
 .nestform-entry-meta__inbox {
-    margin-top: 4px;
+    margin-top: var(--nestform-space-1);
 }
 
 .nestform-entry-meta__inbox .nestform-btn {
@@ -1338,7 +1338,7 @@
 }
 
 .nestform-embed__templates {
-    margin: 10px 0 0;
+    margin: var(--nestform-space-2) 0 0;
     padding: 0;
     border: 1px solid var(--nestform-border);
     border-radius: var(--nestform-radius);
@@ -1351,7 +1351,7 @@
     display: flex;
     align-items: center;
     gap: var(--nestform-space-2);
-    padding: 11px 12px;
+    padding: var(--nestform-space-2) var(--nestform-space-2);
     font-size: 13px;
     font-weight: 600;
     color: var(--nestform-ink);
@@ -1391,7 +1391,7 @@
     padding: var(--nestform-space-2) var(--nestform-space-4) 0;
     color: var(--nestform-muted);
     font-size: 12px;
-    line-height: 1.45;
+    line-height: var(--nestform-line-height);
 }
 
 .nestform-embed__template-list {
@@ -1399,7 +1399,7 @@
     flex-direction: column;
     gap: var(--nestform-space-2);
     margin: 0;
-    padding: var(--nestform-space-2) var(--nestform-space-4) 12px;
+    padding: var(--nestform-space-2) var(--nestform-space-4) var(--nestform-space-2);
 }
 
 .nestform-embed__template {
@@ -1434,14 +1434,14 @@
 .nestform-embed__template-label {
     font-size: 13px;
     font-weight: 600;
-    line-height: 1.3;
+    line-height: var(--nestform-line-height);
     color: var(--nestform-ink);
 }
 
 .nestform-embed__template-desc {
     font-size: 11.5px;
     font-weight: 400;
-    line-height: 1.4;
+    line-height: var(--nestform-line-height);
     color: var(--nestform-muted);
 }
 
@@ -1503,14 +1503,14 @@
     font-weight: 600;
     color: var(--nestform-ink);
     letter-spacing: -0.01em;
-    line-height: 1.3;
+    line-height: var(--nestform-line-height);
 }
 
 .nestform-steps-setup__toggle-desc {
     font-size: 11.5px;
     font-weight: 400;
     color: var(--nestform-muted);
-    line-height: 1.35;
+    line-height: var(--nestform-line-height);
 }
 
 .nestform-steps-setup--locked .nestform-steps-setup__toggle {
@@ -1577,13 +1577,13 @@
 .nestform-steps-setup__input.nestform-admin__input {
     width: 96px;
     min-height: 32px;
-    padding: 5px 8px;
+    padding: var(--nestform-space-1) var(--nestform-space-2);
     font-size: 12.5px;
 }
 
 .nestform-steps-setup__add-step {
     align-self: end;
-    min-height: 32px;
+    min-height: var(--nestform-control-h);
     padding: var(--nestform-space-2) var(--nestform-space-4);
     background: var(--nestform-surface);
     border-color: var(--nestform-accent-line);
@@ -1606,7 +1606,7 @@
 }
 
 .nestform-steps-setup__branch {
-    margin: 10px 0 0;
+    margin: var(--nestform-space-2) 0 0;
     padding: 0;
     border: 1px solid var(--nestform-border);
     border-radius: var(--nestform-radius);
@@ -1618,9 +1618,9 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--nestform-space-2) 10px;
+    gap: var(--nestform-space-2) var(--nestform-space-2);
     margin: 0;
-    padding: 8px 12px;
+    padding: var(--nestform-space-2) var(--nestform-space-2);
     list-style: none;
     cursor: pointer;
     user-select: none;
@@ -1657,7 +1657,7 @@
 }
 
 .nestform-steps-setup__branch .nestform-branch {
-    padding: var(--nestform-space-4) 12px;
+    padding: var(--nestform-space-4) var(--nestform-space-2);
     border-top: 1px solid var(--nestform-border);
 }
 
@@ -1666,7 +1666,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--nestform-space-4);
-    padding: 18px 20px;
+    padding: var(--nestform-space-4) var(--nestform-space-4);
     background: var(--nestform-surface);
 }
 
@@ -1677,7 +1677,7 @@
 .nestform-steps-setup__section-head {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--nestform-space-1);
     max-width: 48em;
 }
 
@@ -1687,14 +1687,14 @@
     font-weight: 600;
     color: var(--nestform-ink);
     letter-spacing: -0.01em;
-    line-height: 1.3;
+    line-height: var(--nestform-line-height);
 }
 
 .nestform-steps-setup__section-desc {
     margin: 0;
     font-size: 12px;
     color: var(--nestform-muted);
-    line-height: 1.45;
+    line-height: var(--nestform-line-height);
 }
 
 .nestform-steps-setup__nav {
@@ -1712,7 +1712,7 @@
 .nestform-steps-setup__nav-action {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--nestform-space-1);
     min-width: 0;
 }
 
@@ -1725,7 +1725,7 @@
     flex-wrap: wrap;
     gap: var(--nestform-space-2);
     margin: 0 0 var(--nestform-space-4);
-    padding: 6px;
+    padding: var(--nestform-space-1);
     border: 1px solid var(--nestform-border);
     border-radius: var(--nestform-radius);
     background: var(--nestform-soft);
@@ -1738,7 +1738,7 @@
     align-items: center;
     gap: var(--nestform-space-2);
     margin: 0;
-    padding: 8px 12px 8px 8px;
+    padding: var(--nestform-space-2) var(--nestform-space-2) var(--nestform-space-2) var(--nestform-space-2);
     border: 1px solid transparent;
     border-radius: var(--nestform-radius-sm);
     background: transparent;
@@ -1782,7 +1782,7 @@
     color: var(--nestform-muted);
     font-size: 11px;
     font-weight: 600;
-    line-height: 1.5;
+    line-height: var(--nestform-line-height);
     text-align: center;
     box-sizing: border-box;
 }
@@ -1801,14 +1801,14 @@
 
 .nestform-step-nav__count {
     min-width: 18px;
-    padding: 0 6px;
+    padding: 0 var(--nestform-space-1);
     border-radius: 999px;
     background: var(--nestform-surface);
     border: 1px solid var(--nestform-border);
     color: var(--nestform-faint);
     font-size: 10px;
     font-weight: 600;
-    line-height: 16px;
+    line-height: var(--nestform-line-height);
     text-align: center;
 }
 
@@ -1830,7 +1830,7 @@
 .nestform-step-group__remove.nestform-btn {
     flex: 0 0 auto;
     min-height: 30px;
-    padding: 4px 10px;
+    padding: var(--nestform-space-1) var(--nestform-space-2);
 }
 
 /* Shared page shell */
@@ -1845,7 +1845,7 @@ body.nestform-entries-screen {
 .wrap.nestform-developers {
     width: auto;
     max-width: none;
-    margin: 0 0 0 -20px;
+    margin: 0 0 0 var(--nestform-space-4);
     padding: 0;
     box-sizing: border-box;
 }
@@ -1864,7 +1864,7 @@ body.nestform-entries-screen {
 
 .wrap.nestform-hub .page-title-action {
     top: 0;
-    margin-left: 10px;
+    margin-left: var(--nestform-space-2);
 }
 
 .nestform-hub__toolbar {
@@ -1872,7 +1872,7 @@ body.nestform-entries-screen {
     flex-wrap: wrap;
     align-items: center;
     gap: var(--nestform-space-2);
-    margin: 0 0 20px;
+    margin: 0 0 var(--nestform-space-4);
     padding: 0;
     max-width: none;
     width: 100%;
@@ -1912,8 +1912,8 @@ body.nestform-entries-screen {
     display: inline-flex;
     align-items: center;
     gap: var(--nestform-space-2);
-    height: 40px;
-    padding: 0 12px;
+    min-height: var(--nestform-control-h);
+    padding: 0 var(--nestform-space-2);
     background: var(--nestform-surface);
     border: 1px solid var(--nestform-border);
     border-radius: var(--nestform-radius);
@@ -1934,8 +1934,8 @@ body.nestform-entries-screen {
 }
 
 .nestform-hub__empty {
-    margin-top: 12px;
-    padding: 28px 8px;
+    margin-top: var(--nestform-space-2);
+    padding: var(--nestform-space-6) var(--nestform-space-2);
     color: var(--nestform-muted);
     text-align: left;
     border: 0;
@@ -1943,8 +1943,8 @@ body.nestform-entries-screen {
 }
 
 .nestform-hub__empty-state {
-    margin: 8px 0 0;
-    padding: 36px 28px;
+    margin: var(--nestform-space-2) 0 0;
+    padding: var(--nestform-space-8) var(--nestform-space-6);
     background: var(--nestform-surface);
     border: 1px dashed var(--nestform-accent-line);
     border-radius: var(--nestform-radius);
@@ -1955,17 +1955,17 @@ body.nestform-entries-screen {
     display: flex;
     flex-wrap: wrap;
     gap: var(--nestform-space-2);
-    margin: 0 0 4px;
+    margin: 0 0 var(--nestform-space-1);
 }
 
 .nestform-hub__tpl-preview {
     margin-top: var(--nestform-space-4);
-    padding-top: 16px;
+    padding-top: var(--nestform-space-4);
     border-top: 1px solid var(--nestform-border);
 }
 
 .nestform-hub__tpl-label {
-    margin: 0 0 10px;
+    margin: 0 0 var(--nestform-space-2);
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.05em;
@@ -1977,7 +1977,7 @@ body.nestform-entries-screen {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: var(--nestform-space-2);
-    margin: 0 0 10px;
+    margin: 0 0 var(--nestform-space-2);
     padding: 0;
     list-style: none;
 }
@@ -2001,7 +2001,7 @@ body.nestform-entries-screen {
 .nestform-hub__tpl-item span {
     font-size: 12px;
     color: var(--nestform-muted);
-    line-height: 1.35;
+    line-height: var(--nestform-line-height);
 }
 
 .nestform-hub__tpl-note {
@@ -2067,7 +2067,7 @@ a.nestform-hub__stat:focus {
 }
 
 .nestform-hub__empty-state-title {
-    margin: 0 0 6px;
+    margin: 0 0 var(--nestform-space-1);
     font-size: 16px;
     font-weight: 600;
     color: var(--nestform-ink);
@@ -2075,11 +2075,11 @@ a.nestform-hub__stat:focus {
 }
 
 .nestform-hub__empty-state-text {
-    margin: 0 0 16px;
+    margin: 0 0 var(--nestform-space-4);
     max-width: 36em;
     color: var(--nestform-muted);
     font-size: 13px;
-    line-height: 1.5;
+    line-height: var(--nestform-line-height);
 }
 
 @media (max-width: 782px) {

@@ -2,6 +2,8 @@
   "private": true,
   "scripts": {
     "build:css": "node assets/css/build.mjs",
+    "normalize:spacing": "node assets/css/normalize-spacing.mjs",
+    "normalize:line-height": "node assets/css/normalize-line-height.mjs",
     "build:js": "node assets/js/build.mjs",
     "build": "npm run build:css && npm run build:js"
   },

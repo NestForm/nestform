@@ -60,7 +60,7 @@ register_activation_hook( __FILE__, 'nestform_activate' );
  * @return string
  */
 function nestform_logo_url() {
-	return nestform_assets_url( 'images/logo.png' );
+	return nestform_assets_url( 'images/logo.webp' );
 }
 
 /**

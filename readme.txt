@@ -100,6 +100,10 @@ This plugin can connect to optional third-party services configured by the site 
 * When: only if you choose to buy Pro from our website.
 * The free plugin does not require a nestform.app account.
 
+== Bundled fonts ==
+
+Admin UI uses self-hosted **Plus Jakarta Sans** and **Sora** (SIL Open Font License 1.1). Font files ship under `assets/fonts/` with `assets/fonts/OFL.txt`. No Google Fonts CDN is used.
+
 == Changelog ==
 
 = 2.2.0 =

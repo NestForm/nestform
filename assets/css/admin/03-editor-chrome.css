@@ -28,13 +28,13 @@ body.nestform-admin-screen.post-type-nestform #poststuff {
 }
 
 body.nestform-admin-screen.post-type-nestform #post-body.columns-2 {
-    margin-right: 320px;
+    margin-right: var(--nestform-space-16);
 }
 
 body.nestform-admin-screen.post-type-nestform
     #post-body.columns-2
     #postbox-container-1 {
-    margin-right: -320px;
+    margin-right: var(--nestform-space-16);
     width: 300px;
 }
 
@@ -52,7 +52,7 @@ body.nestform-admin-screen.post-type-nestform #titlediv::before {
     grid-column: 1;
     grid-row: 1;
     width: 34px;
-    height: 34px;
+    height: var(--nestform-control-h);
     border-radius: 8px;
     background-color: var(--nestform-accent);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3Cline x1='9' y1='13' x2='15' y2='13'/%3E%3Cline x1='9' y1='17' x2='13' y2='17'/%3E%3C/svg%3E");
@@ -88,7 +88,7 @@ body.nestform-admin-screen.post-type-nestform #titlediv #title {
     box-shadow: none !important;
     font-size: 20px;
     font-weight: 700;
-    line-height: 1.3;
+    line-height: var(--nestform-line-height);
     letter-spacing: -0.01em;
     color: var(--nestform-ink);
 }
@@ -109,7 +109,7 @@ body.nestform-admin-screen.post-type-nestform #title-prompt-text {
     padding: 0;
     font-size: 20px;
     font-weight: 700;
-    line-height: 1.3;
+    line-height: var(--nestform-line-height);
     color: var(--nestform-faint);
     pointer-events: none;
 }
@@ -117,7 +117,7 @@ body.nestform-admin-screen.post-type-nestform #title-prompt-text {
 body.nestform-admin-screen.post-type-nestform #edit-slug-box {
     grid-column: 2;
     grid-row: 2;
-    margin: 4px 0 0;
+    margin: var(--nestform-space-1) 0 0;
     padding: 0;
     color: var(--nestform-faint);
     font-size: 12px;

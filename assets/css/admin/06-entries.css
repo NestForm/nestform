@@ -37,7 +37,7 @@ body.nestform-entries-screen.edit-php .wrap > hr.wp-header-end {
 .nestform-entries-screen.edit-php .subsubsub a {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--nestform-space-1);
     margin: 0;
     padding: var(--nestform-space-2) var(--nestform-space-4);
     border: 1px solid var(--nestform-border);
@@ -46,7 +46,7 @@ body.nestform-entries-screen.edit-php .wrap > hr.wp-header-end {
     color: var(--nestform-muted);
     font-size: 12.5px;
     font-weight: 500;
-    line-height: 1.2;
+    line-height: var(--nestform-line-height);
     text-decoration: none;
     box-shadow: none;
     transition: var(--nestform-transition);
@@ -79,7 +79,7 @@ body.nestform-entries-screen.edit-php .wrap > hr.wp-header-end {
     flex-wrap: wrap;
     align-items: center;
     gap: var(--nestform-space-2);
-    margin: 0 0 12px;
+    margin: 0 0 var(--nestform-space-2);
     padding: var(--nestform-space-2) var(--nestform-space-4);
     background: var(--nestform-surface);
     border: 1px solid var(--nestform-border);
@@ -97,9 +97,9 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     input[name="s"] {
     float: none;
     width: min(280px, 100%);
-    min-height: 34px;
+    min-height: var(--nestform-control-h);
     margin: 0;
-    padding: 7px 10px;
+    padding: var(--nestform-space-2) var(--nestform-space-2);
     border: 1px solid var(--nestform-border);
     border-radius: var(--nestform-radius);
     background: var(--nestform-surface);
@@ -116,9 +116,9 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 34px;
+    min-height: var(--nestform-control-h);
     margin: 0;
-    padding: 0 12px;
+    padding: 0 var(--nestform-space-2);
     border: 1px solid var(--nestform-border);
     border-radius: var(--nestform-radius);
     background: var(--nestform-surface);
@@ -147,10 +147,10 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--nestform-space-2) 12px;
+    gap: var(--nestform-space-2) var(--nestform-space-2);
     height: auto;
     min-height: 0;
-    margin: 16px 0 16px;
+    margin: var(--nestform-space-4) 0 var(--nestform-space-4);
     padding: var(--nestform-space-2) var(--nestform-space-4);
     clear: both;
     background: var(--nestform-surface);
@@ -164,7 +164,7 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     display: inline-flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--nestform-space-2) 8px;
+    gap: var(--nestform-space-2) var(--nestform-space-2);
     margin: 0;
     padding: 0;
 }
@@ -194,18 +194,18 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
-    height: 34px;
-    min-height: 34px;
+    gap: var(--nestform-space-1);
+    height: var(--nestform-control-h);
+    min-height: var(--nestform-control-h);
     margin: 0;
-    padding: 0 12px;
+    padding: 0 var(--nestform-space-2);
     border: 1px solid var(--nestform-border);
     border-radius: 8px;
     background: var(--nestform-surface);
     color: var(--nestform-muted);
     font-size: 13px;
     font-weight: 500;
-    line-height: 1.2;
+    line-height: var(--nestform-line-height);
     box-shadow: none !important;
     text-shadow: none;
     vertical-align: middle;
@@ -242,7 +242,7 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     display: inline-flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--nestform-space-2) 10px;
+    gap: var(--nestform-space-2) var(--nestform-space-2);
     margin: 0 0 0 auto;
     height: auto;
 }
@@ -255,7 +255,7 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     color: var(--nestform-muted);
     font-size: 13px;
     font-weight: 500;
-    line-height: 1.2;
+    line-height: var(--nestform-line-height);
     white-space: nowrap;
 }
 
@@ -263,7 +263,7 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     float: none;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--nestform-space-1);
     margin: 0;
     vertical-align: middle;
 }
@@ -271,7 +271,7 @@ body.wp-core-ui.nestform-entries-screen.edit-php
 .nestform-entries-screen.edit-php .tablenav .tablenav-pages .paging-input {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--nestform-space-1);
     margin: 0;
 }
 
@@ -289,8 +289,8 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     float: none;
     width: 34px;
     min-width: 34px;
-    height: 34px;
-    min-height: 34px;
+    height: var(--nestform-control-h);
+    min-height: var(--nestform-control-h);
     margin: 0;
     padding: 0 !important;
     border: 1px solid var(--nestform-border);
@@ -298,7 +298,7 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     background: var(--nestform-surface);
     color: var(--nestform-muted);
     font-size: 16px;
-    line-height: 1;
+    line-height: var(--nestform-line-height);
     text-align: center;
     box-shadow: none !important;
     text-shadow: none;
@@ -338,7 +338,7 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     min-width: 44px;
     max-width: 44px;
     margin: 0;
-    padding: 0 6px;
+    padding: 0 var(--nestform-space-1);
     font-weight: 600;
     text-align: center;
 }
@@ -347,7 +347,7 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     margin: 0;
     color: var(--nestform-muted);
     font-size: 13px;
-    line-height: 1.2;
+    line-height: var(--nestform-line-height);
     white-space: nowrap;
 }
 
@@ -361,7 +361,7 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     display: inline-flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--nestform-space-2) 10px;
+    gap: var(--nestform-space-2) var(--nestform-space-2);
     margin: 0;
     padding: 0;
     vertical-align: middle;
@@ -389,10 +389,10 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     display: inline-flex;
     align-items: center;
     margin: 0;
-    padding: 0 4px;
+    padding: 0 var(--nestform-space-1);
     color: var(--nestform-muted);
     font-size: 13px;
-    line-height: 1.4;
+    line-height: var(--nestform-line-height);
     white-space: nowrap;
 }
 
@@ -432,7 +432,7 @@ body.wp-core-ui.nestform-entries-screen.edit-php .wp-list-table tfoot td,
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    line-height: 1.35;
+    line-height: var(--nestform-line-height);
     vertical-align: middle;
 }
 
@@ -479,7 +479,7 @@ body.nestform-entries-screen .wp-list-table .sorting-indicator {
     width: 14px;
     height: 14px;
     margin-top: 1px;
-    margin-left: 6px;
+    margin-left: var(--nestform-space-1);
 }
 
 body.nestform-admin-screen .wp-list-table .sorting-indicator:before,
@@ -600,13 +600,13 @@ body.wp-core-ui.nestform-entries-screen.edit-php .wp-list-table tbody td,
 body.wp-core-ui.nestform-entries-screen.edit-php .wp-list-table tbody th,
 .nestform-entries-screen.edit-php .wp-list-table tbody td,
 .nestform-entries-screen.edit-php .wp-list-table tbody th {
-    padding: 8px !important;
+    padding: var(--nestform-space-2) !important;
     border: 0 !important;
     border-bottom: 1px solid var(--nestform-border) !important;
     background: var(--nestform-surface) !important;
     color: var(--nestform-ink);
     font-size: 13px;
-    line-height: 1.45;
+    line-height: var(--nestform-line-height);
     vertical-align: middle;
 }
 
@@ -798,7 +798,7 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     .wp-list-table
     .column-nestform_status
     .nestform-entry-status {
-    padding: 4px 9px;
+    padding: var(--nestform-space-1) var(--nestform-space-2);
     border-radius: 6px;
     font-size: 12px;
 }
@@ -818,12 +818,12 @@ body.wp-core-ui.nestform-entries-screen.edit-php
 body.wp-core-ui.nestform-entries-screen.edit-php .wp-list-table .check-column,
 .nestform-entries-screen.edit-php .wp-list-table .check-column {
     width: 40px;
-    padding-left: 14px !important;
+    padding-left: var(--nestform-space-4) !important;
     padding-right: 0 !important;
 }
 
 .nestform-entries-screen .tablenav {
-    margin: 0 0 12px;
+    margin: 0 0 var(--nestform-space-2);
 }
 
 /* Single entry view (post.php) */
@@ -853,7 +853,7 @@ body.nestform-entries-screen.post-php #poststuff {
 body.nestform-entries-screen.post-php #poststuff #post-body.columns-2 {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 280px;
-    gap: 20px;
+    gap: var(--nestform-space-4);
     margin-right: 0 !important;
 }
 
@@ -908,7 +908,7 @@ body.nestform-entries-screen.post-php
     display: flex;
     align-items: center;
     min-height: 36px;
-    padding: var(--nestform-space-2) 18px;
+    padding: var(--nestform-space-2) var(--nestform-space-4);
     border-bottom: 1px solid var(--nestform-border);
     box-sizing: border-box;
 }
@@ -920,7 +920,7 @@ body.nestform-entries-screen.post-php
     font-weight: 700;
     color: var(--nestform-ink);
     letter-spacing: -0.01em;
-    line-height: 1.3;
+    line-height: var(--nestform-line-height);
 }
 
 .nestform-entry-main__body {
@@ -967,7 +967,7 @@ body.nestform-entries-screen.post-php
     box-shadow: none;
     color: var(--nestform-ink);
     font-size: 13px;
-    line-height: 1.45;
+    line-height: var(--nestform-line-height);
 }
 
 .nestform-entry-payload thead th {
@@ -989,7 +989,7 @@ body.nestform-entries-screen.post-php
 
 .nestform-entry-payload tbody th,
 .nestform-entry-payload tbody td {
-    padding: 11px 14px;
+    padding: var(--nestform-space-2) var(--nestform-space-4);
     vertical-align: middle;
     border-bottom: 1px solid var(--nestform-border);
     background: var(--nestform-surface);
@@ -1040,8 +1040,8 @@ body.nestform-entries-screen.post-php
 
 .nestform-entry-payload__name {
     display: inline-block;
-    margin: 0 0 0 8px;
-    padding: 1px 6px;
+    margin: 0 0 0 var(--nestform-space-2);
+    padding: 1px var(--nestform-space-1);
     vertical-align: middle;
     font-size: 11px;
     font-family: Consolas, Monaco, monospace;
@@ -1075,8 +1075,8 @@ body.nestform-entries-screen.post-php
 }
 
 .nestform-entry-meta p {
-    margin: 0 0 12px;
-    padding: 0 0 12px;
+    margin: 0 0 var(--nestform-space-2);
+    padding: 0 0 var(--nestform-space-2);
     border-bottom: 1px solid var(--nestform-border);
 }
 
@@ -1088,7 +1088,7 @@ body.nestform-entries-screen.post-php
 
 .nestform-entry-meta strong {
     display: block;
-    margin-bottom: 4px;
+    margin-bottom: var(--nestform-space-1);
     font-size: 10px;
     font-weight: 500;
     letter-spacing: 0.08em;
@@ -1107,7 +1107,7 @@ body.nestform-entries-screen.post-php
 
 .nestform-entry-meta code {
     display: inline-block;
-    padding: 2px 6px;
+    padding: 2px var(--nestform-space-1);
     background: transparent;
     border: 1px solid var(--nestform-border);
     border-radius: 999px;

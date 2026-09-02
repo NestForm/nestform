@@ -791,6 +791,7 @@ require_once NESTFORM_PATH . 'includes/class-review-request.php';
 require_once NESTFORM_PATH . 'includes/class-privacy.php';
 require_once NESTFORM_PATH . 'includes/class-onboarding.php';
 require_once NESTFORM_PATH . 'includes/class-admin-ui.php';
+require_once NESTFORM_PATH . 'includes/class-admin-theme.php';
 require_once NESTFORM_PATH . 'includes/class-renderer.php';
 require_once NESTFORM_PATH . 'includes/class-submit.php';
 require_once NESTFORM_PATH . 'includes/class-captcha.php';
@@ -833,6 +834,7 @@ add_action(
 		Nestform_Privacy::init();
 		Nestform_Onboarding::init();
 		Nestform_Admin_UI::init();
+		Nestform_Admin_Theme::init();
 		Nestform_Renderer::init();
 		Nestform_Submit::init();
 		Nestform_Captcha::init();

@@ -81,7 +81,7 @@ body.nestform-developers-screen .wrap.nestform-developers {
 }
 
 .nestform-developers__badge--pro {
-    background: color-mix(in srgb, var(--nestform-accent, #2563eb) 12%, #fff);
+    background: color-mix(in srgb, var(--nestform-accent, #2563eb 12%, var(--nestform-surface));
     border-color: color-mix(in srgb, var(--nestform-accent, #2563eb) 35%, #fff);
     color: var(--nestform-accent, #2563eb);
 }
@@ -403,7 +403,7 @@ body.nestform-docs-screen .wrap.nestform-docs {
     padding: 2px var(--nestform-space-2);
     border-radius: 999px;
     background: var(--nestform-accent);
-    color: #fff;
+    color: var(--nestform-on-accent);
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.02em;

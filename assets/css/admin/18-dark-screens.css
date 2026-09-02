@@ -1,0 +1,92 @@
+/**
+ * Nestform admin — dark theme screen-specific fixes.
+ */
+
+@media (prefers-color-scheme: dark) {
+    body.nestform-admin-screen:not(.nestform-theme-light) .widefat,
+    body.nestform-admin-screen.nestform-theme-dark .widefat {
+        background: var(--nestform-surface);
+        border-color: var(--nestform-border);
+        color: var(--nestform-ink);
+    }
+
+    body.nestform-admin-screen:not(.nestform-theme-light) .widefat thead th,
+    body.nestform-admin-screen:not(.nestform-theme-light) .widefat tfoot th,
+    body.nestform-admin-screen.nestform-theme-dark .widefat thead th,
+    body.nestform-admin-screen.nestform-theme-dark .widefat tfoot th {
+        background: var(--nestform-soft);
+        color: var(--nestform-muted);
+        border-color: var(--nestform-border);
+    }
+
+    body.nestform-admin-screen:not(.nestform-theme-light) .widefat td,
+    body.nestform-admin-screen:not(.nestform-theme-light) .widefat th,
+    body.nestform-admin-screen.nestform-theme-dark .widefat td,
+    body.nestform-admin-screen.nestform-theme-dark .widefat th {
+        border-color: var(--nestform-border);
+        color: var(--nestform-ink);
+    }
+
+    body.nestform-admin-screen:not(.nestform-theme-light) .tablenav,
+    body.nestform-admin-screen.nestform-theme-dark .tablenav {
+        color: var(--nestform-muted);
+    }
+
+    body.nestform-admin-screen:not(.nestform-theme-light) .postbox,
+    body.nestform-admin-screen.nestform-theme-dark .postbox {
+        background: var(--nestform-surface);
+        border-color: var(--nestform-border);
+        color: var(--nestform-ink);
+    }
+
+    body.nestform-admin-screen:not(.nestform-theme-light) .postbox .hndle,
+    body.nestform-admin-screen:not(.nestform-theme-light) .postbox .handlediv,
+    body.nestform-admin-screen.nestform-theme-dark .postbox .hndle,
+    body.nestform-admin-screen.nestform-theme-dark .postbox .handlediv {
+        border-color: var(--nestform-border);
+        color: var(--nestform-ink);
+    }
+
+    body.nestform-admin-screen:not(.nestform-theme-light) .nestform-card,
+    body.nestform-admin-screen.nestform-theme-dark .nestform-card {
+        background: var(--nestform-surface);
+        border-color: var(--nestform-border);
+    }
+
+    body.nestform-admin-screen:not(.nestform-theme-light) .nestform-card__details,
+    body.nestform-admin-screen.nestform-theme-dark .nestform-card__details {
+        background: var(--nestform-soft);
+        border-color: var(--nestform-border);
+    }
+
+    body.nestform-admin-screen:not(.nestform-theme-light) .nestform-mail-designer__preview-frame,
+    body.nestform-admin-screen.nestform-theme-dark .nestform-mail-designer__preview-frame {
+        background: var(--nestform-soft);
+        border-color: var(--nestform-border);
+    }
+
+    body.nestform-admin-screen:not(.nestform-theme-light) .nestform-hub__row:hover,
+    body.nestform-admin-screen.nestform-theme-dark .nestform-hub__row:hover {
+        background: var(--nestform-soft);
+    }
+
+    body.nestform-admin-screen:not(.nestform-theme-light) .nestform-dash__kpi,
+    body.nestform-admin-screen.nestform-theme-dark .nestform-dash__kpi {
+        background: var(--nestform-surface);
+        border-color: var(--nestform-border);
+    }
+
+    body.nestform-admin-screen:not(.nestform-theme-light) .nestform-dash__chart-wrap,
+    body.nestform-admin-screen.nestform-theme-dark .nestform-dash__chart-wrap {
+        background: var(--nestform-surface);
+        border-color: var(--nestform-border);
+    }
+}
+
+body.nestform-admin-screen.nestform-theme-dark .widefat,
+body.nestform-admin-screen.nestform-theme-dark .postbox,
+body.nestform-admin-screen.nestform-theme-dark .nestform-card {
+    background: var(--nestform-surface);
+    border-color: var(--nestform-border);
+    color: var(--nestform-ink);
+}

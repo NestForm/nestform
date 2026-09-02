@@ -40,7 +40,7 @@
 }
 
 .nestform-pro-compare thead th {
-    background: var(--nestform-soft, #fafafa);
+    background: var(--nestform-soft);
     color: var(--nestform-ink);
     font-weight: 700;
     text-align: left;
@@ -50,7 +50,7 @@
     width: 18%;
     color: var(--nestform-ink);
     font-weight: 650;
-    background: var(--nestform-surface, #fff);
+    background: var(--nestform-surface);
 }
 
 .nestform-pro-faq {
@@ -101,7 +101,7 @@
     background: linear-gradient(
         180deg,
         var(--nestform-pro-soft) 0%,
-        var(--nestform-surface, #fff) 100%
+        var(--nestform-surface) 100%
     );
 }
 
@@ -184,12 +184,12 @@
 
 .nestform-settings__nav-item:hover,
 .nestform-settings__nav-item:focus {
-    background: var(--nestform-soft, #fafafa);
+    background: var(--nestform-soft);
     color: var(--nestform-ink);
 }
 
 .nestform-settings__nav-item--active {
-    background: var(--nestform-accent-soft, #eff6ff);
+    background: var(--nestform-accent-soft, var(--nestform-pro-soft));
     color: var(--nestform-accent, #2563eb);
 }
 

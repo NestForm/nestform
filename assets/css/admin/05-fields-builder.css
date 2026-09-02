@@ -1271,7 +1271,7 @@
 .nestform-embed__actions .nestform-btn--danger {
     background: var(--nestform-danger);
     border-color: var(--nestform-danger);
-    color: #fff;
+    color: var(--nestform-on-accent);
     font-weight: 600;
 }
 
@@ -1279,7 +1279,7 @@
 .nestform-embed__actions .nestform-btn--danger:focus {
     background: #dc2626;
     border-color: #dc2626;
-    color: #fff;
+    color: var(--nestform-on-accent);
     box-shadow: 0 1px 8px
         color-mix(in srgb, var(--nestform-danger) 35%, transparent);
 }
@@ -1322,7 +1322,7 @@
     padding: 2px;
     border-radius: 999px;
     background: var(--nestform-accent);
-    color: #fff;
+    color: var(--nestform-on-accent);
     font-size: 10px;
     font-weight: 700;
     line-height: var(--nestform-line-height);
@@ -1790,7 +1790,7 @@
 .nestform-step-nav__btn.is-active .nestform-step-nav__index {
     background: var(--nestform-accent);
     border-color: var(--nestform-accent);
-    color: #fff;
+    color: var(--nestform-on-accent);
 }
 
 .nestform-step-nav__title {

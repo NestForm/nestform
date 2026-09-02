@@ -15,11 +15,10 @@
 		if (!body) {
 			return false;
 		}
-		var theme = body.getAttribute('data-nestform-theme');
-		if (theme === 'dark') {
+		if (body.classList.contains('nestform-theme-dark')) {
 			return true;
 		}
-		if (theme === 'light') {
+		if (body.classList.contains('nestform-theme-light')) {
 			return false;
 		}
 		return (

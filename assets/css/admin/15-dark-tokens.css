@@ -1,10 +1,10 @@
 /**
  * Nestform admin — dark theme (semantic tokens).
- * OS: prefers-color-scheme. Manual: body[data-nestform-theme="dark"].
+ * Auto: OS prefers-color-scheme. Manual: .nestform-theme-light / .nestform-theme-dark.
  */
 
 @media (prefers-color-scheme: dark) {
-    body.nestform-admin-screen:not([data-nestform-theme="light"]) {
+    body.nestform-admin-screen:not(.nestform-theme-light):not(.nestform-theme-dark) {
         color-scheme: dark;
         --nestform-accent-soft: rgba(59, 130, 246, 0.16);
         --nestform-accent-line: rgba(96, 165, 250, 0.38);
@@ -41,7 +41,7 @@
     }
 }
 
-body.nestform-admin-screen[data-nestform-theme="dark"] {
+body.nestform-admin-screen.nestform-theme-dark {
     color-scheme: dark;
     --nestform-accent-soft: rgba(59, 130, 246, 0.16);
     --nestform-accent-line: rgba(96, 165, 250, 0.38);
@@ -77,15 +77,19 @@ body.nestform-admin-screen[data-nestform-theme="dark"] {
     --nestform-chevron-up-accent: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 10L8 6L12 10' stroke='%2360a5fa' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
-/* WP chrome bleed — admin menu stays light; soften content edges */
 @media (prefers-color-scheme: dark) {
-    body.nestform-admin-screen:not([data-nestform-theme="light"]) #wpcontent,
-    body.nestform-admin-screen[data-nestform-theme="dark"] #wpcontent {
+    body.nestform-admin-screen:not(.nestform-theme-light) #wpcontent,
+    body.nestform-admin-screen.nestform-theme-dark #wpcontent {
         background: var(--nestform-canvas);
     }
 
-    body.nestform-admin-screen:not([data-nestform-theme="light"]) #wpbody,
-    body.nestform-admin-screen[data-nestform-theme="dark"] #wpbody {
+    body.nestform-admin-screen:not(.nestform-theme-light) #wpbody,
+    body.nestform-admin-screen.nestform-theme-dark #wpbody {
         background: var(--nestform-canvas);
     }
+}
+
+body.nestform-admin-screen.nestform-theme-dark #wpcontent,
+body.nestform-admin-screen.nestform-theme-dark #wpbody {
+    background: var(--nestform-canvas);
 }

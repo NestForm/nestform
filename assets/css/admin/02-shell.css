@@ -186,7 +186,7 @@ body.nestform-app-screen.nestform-entries-screen.post-php
 .nestform-app__nav-count {
     margin-left: auto;
     background: var(--nestform-accent);
-    color: #fff;
+    color: var(--nestform-on-accent);
     border-radius: 100%;
     padding: 2px;
     font-size: 10px;
@@ -297,7 +297,7 @@ body.nestform-app-screen.nestform-entries-screen.post-php
     display: inline-flex;
     align-items: center;
     gap: var(--nestform-space-2);
-    color: #fff;
+    color: var(--nestform-on-accent);
     font-size: 13px;
     font-weight: 700;
     letter-spacing: -0.02em;
@@ -328,7 +328,7 @@ body.nestform-app-screen.nestform-entries-screen.post-php
     border: 1px solid var(--nestform-primary);
     border-radius: var(--nestform-radius);
     background: var(--nestform-primary);
-    color: #fff;
+    color: var(--nestform-on-accent);
     font-size: 14px;
     font-weight: 600;
     line-height: var(--nestform-line-height);
@@ -342,7 +342,7 @@ body.nestform-app-screen.nestform-entries-screen.post-php
 .nestform-pro-cta:focus {
     background: var(--nestform-primary-hover);
     border-color: var(--nestform-primary-hover);
-    color: #fff;
+    color: var(--nestform-on-accent);
     outline: none;
     box-shadow: 0 1px 8px var(--nestform-accent-mid);
 }
@@ -360,7 +360,7 @@ body.nestform-app-screen.nestform-entries-screen.post-php
     border-radius: 999px;
     background: var(--nestform-pro-bg);
     background-image: var(--nestform-pro-image);
-    color: #fff;
+    color: var(--nestform-on-accent);
     font-size: 10px;
     font-weight: 600;
     letter-spacing: 0.06em;
@@ -376,7 +376,7 @@ body.nestform-app-screen.nestform-entries-screen.post-php
     margin-left: 0;
     background: rgba(255, 255, 255, 0.15);
     border-color: rgba(147, 197, 253, 0.55);
-    color: #fff;
+    color: var(--nestform-on-accent);
 }
 
 .nestform-page-head__icon--sparkle,
@@ -384,7 +384,7 @@ body.nestform-app-screen.nestform-entries-screen.post-php
     background: var(--nestform-pro-bg);
     background-image: var(--nestform-pro-image);
     border-color: transparent;
-    color: #fff;
+    color: var(--nestform-on-accent);
 }
 
 .nestform-app__foot-grid {
@@ -990,26 +990,26 @@ body.nestform-admin-screen div.updated a:focus {
 body.nestform-admin-screen div.notice.notice-success:not(.inline):not(.hidden),
 body.nestform-admin-screen div.updated:not(.inline):not(.hidden),
 body.nestform-admin-screen div.notice.updated:not(.inline):not(.hidden) {
-    background: #dcfce7 !important;
+    background: var(--nestform-ok-soft) !important;
     border-color: var(--nestform-ok-border) !important;
     color: #166534 !important;
 }
 
 body.nestform-admin-screen div.notice.notice-warning:not(.inline):not(.hidden) {
-    background: #ffedd5 !important;
+    background: var(--nestform-warn-soft) !important;
     border-color: var(--nestform-warn-border) !important;
     color: #c2410c !important;
 }
 
 body.nestform-admin-screen div.notice.notice-error:not(.inline):not(.hidden),
 body.nestform-admin-screen div.error:not(.inline):not(.hidden) {
-    background: #fee2e2 !important;
+    background: var(--nestform-danger-soft) !important;
     border-color: var(--nestform-danger-border) !important;
     color: #b91c1c !important;
 }
 
 body.nestform-admin-screen div.notice.notice-info:not(.inline):not(.hidden) {
-    background: #dbeafe !important;
+    background: var(--nestform-pro-soft) !important;
     border-color: var(--nestform-accent-line) !important;
     color: var(--nestform-accent-dark) !important;
 }
@@ -1201,7 +1201,7 @@ body.nestform-admin-screen .notice-dismiss::before {
 a.nestform-hub__count:hover,
 a.nestform-hub__count:focus {
     background: var(--nestform-accent);
-    color: #fff;
+    color: var(--nestform-on-accent);
     box-shadow: 0 0 0 2px
         color-mix(in srgb, var(--nestform-accent) 25%, transparent);
     outline: none;

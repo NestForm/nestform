@@ -372,7 +372,7 @@
 .nestform-btn.button-primary {
     background: var(--nestform-primary);
     border-color: var(--nestform-primary);
-    color: #fff;
+    color: var(--nestform-on-accent);
     font-weight: 600;
 }
 
@@ -382,7 +382,7 @@
 .nestform-btn.button-primary:focus {
     background: var(--nestform-primary-hover);
     border-color: var(--nestform-primary-hover);
-    color: #fff;
+    color: var(--nestform-on-accent);
     box-shadow: 0 1px 8px var(--nestform-accent-mid);
 }
 
@@ -397,7 +397,7 @@
 .nestform-btn--danger:focus {
     background: var(--nestform-danger);
     border-color: var(--nestform-danger);
-    color: #fff;
+    color: var(--nestform-on-accent);
     box-shadow: 0 1px 8px
         color-mix(in srgb, var(--nestform-danger) 35%, transparent);
 }
@@ -434,7 +434,7 @@
 
 .nestform-btn--warn:hover,
 .nestform-btn--warn:focus {
-    background: #ffedd5;
+    background: var(--nestform-warn-soft);
     border-color: #fb923c;
     color: #c2410c;
     box-shadow: none;
@@ -476,7 +476,7 @@ body.nestform-admin-screen.post-type-nestform #save-post.nestform-admin__chip {
 body.nestform-admin-screen.post-type-nestform #publish.nestform-btn--primary {
     background: var(--nestform-primary) !important;
     border-color: var(--nestform-primary) !important;
-    color: #fff !important;
+    color: var(--nestform-on-accent) !important;
 }
 
 body.nestform-admin-screen.post-type-nestform
@@ -485,7 +485,7 @@ body.nestform-admin-screen.post-type-nestform
     #publish.nestform-btn--primary:focus {
     background: var(--nestform-primary-hover) !important;
     border-color: var(--nestform-primary-hover) !important;
-    color: #fff !important;
+    color: var(--nestform-on-accent) !important;
 }
 
 /* Leftover WP .button — outline look, never solid primary */

@@ -63,7 +63,7 @@ body.nestform-entries-screen.edit-php .wrap > hr.wp-header-end {
 }
 
 .nestform-entries-screen.edit-php .subsubsub a.current {
-    color: #fff;
+    color: var(--nestform-on-accent);
     background: var(--nestform-primary);
     border-color: var(--nestform-primary);
     font-weight: 600;

@@ -627,6 +627,9 @@ class Nestform_Settings {
 			);
 			settings_errors();
 			self::render_test_email_notice();
+			if ( isset( $_GET['theme-updated'] ) && '1' === (string) wp_unslash( $_GET['theme-updated'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Admin appearance saved.', 'nestform' ) . '</p></div>';
+			}
 			?>
 
 			<div class="nestform-settings__layout">
@@ -682,6 +685,8 @@ class Nestform_Settings {
 								</button>
 							</div>
 						</form>
+
+						<?php Nestform_Admin_Theme::render_settings_card(); ?>
 
 					<?php elseif ( 'email' === $section ) : ?>
 						<?php

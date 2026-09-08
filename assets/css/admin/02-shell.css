@@ -955,6 +955,14 @@ body.nestform-admin-screen .wp-header-end {
     display: none;
 }
 
+/* Core update nags clutter Nestform chrome — keep them on other admin screens. */
+body.nestform-admin-screen .update-nag,
+body.nestform-admin-screen div.notice.update-nag,
+body.nestform-editor-app .update-nag,
+body.nestform-editor-app div.notice.update-nag {
+    display: none !important;
+}
+
 body.nestform-admin-screen
     div.notice:not(.inline):not(.hidden):not(.update-nag),
 body.nestform-admin-screen div.updated:not(.inline):not(.hidden),

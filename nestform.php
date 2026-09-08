@@ -650,12 +650,19 @@ function nestform_admin_current_view() {
 
 /**
  * Pin notices to the bottom before first paint (avoids WP default flash).
+ * Hide core update nags on Nestform screens only.
  */
 function nestform_admin_notice_boot_css() {
 	if ( '' === nestform_admin_current_view() ) {
 		return;
 	}
+	remove_action( 'admin_notices', 'update_nag', 3 );
+	remove_action( 'network_admin_notices', 'update_nag', 3 );
 	echo '<style id="nestform-notice-boot">'
+		. 'body.nestform-admin-screen .update-nag,'
+		. 'body.nestform-admin-screen div.notice.update-nag,'
+		. 'body.nestform-editor-app .update-nag,'
+		. 'body.nestform-editor-app div.notice.update-nag{display:none!important;}'
 		. 'body.nestform-admin-screen div.notice:not(.inline):not(.hidden):not(.update-nag),'
 		. 'body.nestform-admin-screen div.updated:not(.inline):not(.hidden),'
 		. 'body.nestform-admin-screen div.error:not(.inline):not(.hidden){'

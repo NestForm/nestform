@@ -1179,7 +1179,7 @@ body.nestform-admin-screen .notice-dismiss::before {
 
 .nestform-badge--job {
     background: var(--nestform-violet-soft);
-    color: var(--nestform-violet);
+    color: #4f46e5;
     border: 1px solid var(--nestform-violet-line);
     text-decoration: none;
 }

@@ -16,28 +16,28 @@
         --nestform-border: #e8e8ec;
         --nestform-border-strong: #d4d4dc;
         --nestform-muted: #6b6b80;
-        --nestform-faint: #a0a0b4;
+        --nestform-faint: #6b6b80;
         --nestform-pro-soft: #eff6ff;
         --nestform-pro-glow: rgba(29, 78, 216, 0.2);
         --nestform-navy: #01123e;
         --nestform-navy-alt: #02194c;
         --nestform-ink: var(--nestform-navy);
         --nestform-ink-alt: var(--nestform-navy-alt);
-        --nestform-ok: #0d9b87;
+        --nestform-ok: #0a7a6a;
         --nestform-ok-soft: #e8f8f5;
         --nestform-ok-border: #b5e5dc;
-        --nestform-warn: #3b82f6;
+        --nestform-warn: #1d4ed8;
         --nestform-warn-soft: #eff6ff;
         --nestform-warn-border: #bfdbfe;
-        --nestform-danger: #d14b63;
+        --nestform-danger: #b83a52;
         --nestform-danger-soft: #fdf0f3;
         --nestform-danger-border: #f0c5ce;
         --nestform-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
         --nestform-shadow-md:
             0 4px 24px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
-        --nestform-chevron-right: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 12L10 8L6 4' stroke='%239AA3AD' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-        --nestform-chevron-down: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%239AA3AD' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-        --nestform-chevron-up: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 10L8 6L12 10' stroke='%239AA3AD' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        --nestform-chevron-right: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 12L10 8L6 4' stroke='%236b6b80' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        --nestform-chevron-down: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%236b6b80' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        --nestform-chevron-up: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 10L8 6L12 10' stroke='%236b6b80' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
         --nestform-chevron-down-accent: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%232563eb' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
         --nestform-chevron-up-accent: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 10L8 6L12 10' stroke='%232563eb' stroke-width='1.33333' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     }

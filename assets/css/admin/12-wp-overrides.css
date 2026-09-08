@@ -689,7 +689,7 @@ body.nestform-admin-screen .nestform-entries__stat--new .nestform-entries__stat-
 
 .nestform-dash__kpi--pro .nestform-dash__kpi-label,
 .nestform-dash__kpi--pro .nestform-dash__kpi-unlock {
-    color: rgba(255, 255, 255, 0.72);
+    color: var(--nestform-on-accent-muted);
 }
 
 .nestform-dash__kpi--pro .nestform-dash__kpi-value {
@@ -904,7 +904,7 @@ body.nestform-admin-screen .nestform-entries__stat--new .nestform-entries__stat-
 }
 
 .nestform-upgrade__plan--pro .nestform-upgrade__plan-tag {
-    color: rgba(255, 255, 255, 0.72);
+    color: var(--nestform-on-accent-muted);
 }
 
 .nestform-upgrade__price {
@@ -924,14 +924,14 @@ body.nestform-admin-screen .nestform-entries__stat--new .nestform-entries__stat-
 }
 
 .nestform-upgrade__plan--pro .nestform-upgrade__price-unit {
-    color: rgba(255, 255, 255, 0.65);
+    color: var(--nestform-on-accent-muted);
 }
 
 .nestform-upgrade__billed {
     margin: var(--nestform-space-2) 0 0;
     font-size: 12px;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.62);
+    color: var(--nestform-on-accent-muted);
 }
 
 .nestform-upgrade__list {
@@ -1365,7 +1365,7 @@ body.nestform-app-screen .wrap.nestform-license {
 
 .nestform-license__aside-text {
     margin: 0 0 var(--nestform-space-4);
-    color: rgba(255, 255, 255, 0.75);
+    color: var(--nestform-on-accent-muted);
     font-size: 13px;
     line-height: var(--nestform-line-height);
 }
@@ -1389,7 +1389,7 @@ body.nestform-app-screen .wrap.nestform-license {
     display: inline-flex;
     justify-content: center;
     width: 100%;
-    color: rgba(255, 255, 255, 0.78);
+    color: var(--nestform-on-accent-muted);
     font-size: 12px;
     font-weight: 600;
     text-decoration: none;
@@ -1547,7 +1547,7 @@ button.nestform-dash__metric:hover {
 
 .nestform-pro-modal__text {
     margin: 0 0 var(--nestform-space-4);
-    color: rgba(255, 255, 255, 0.75);
+    color: var(--nestform-on-accent-muted);
     font-size: 13px;
 }
 
@@ -1584,7 +1584,7 @@ button.nestform-dash__metric:hover {
     padding: var(--nestform-space-2);
     border: 0;
     background: transparent;
-    color: rgba(255, 255, 255, 0.55);
+    color: var(--nestform-on-accent-muted);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;

@@ -92,19 +92,27 @@ class Nestform_Importer {
 	}
 
 	/**
-	 * Compact hub link next to Nestform JSON import.
+	 * Compact hub link for CF7 / WPForms import.
 	 *
+	 * @param bool $menu_item When true, styles as a dropdown item.
 	 * @return string
 	 */
-	public static function hub_link_html() {
+	public static function hub_link_html( $menu_item = false ) {
 		if ( ! self::user_can_import() ) {
 			return '';
 		}
+		$class = $menu_item
+			? 'nestform-btn nestform-btn--ghost nestform-hub__import-item'
+			: 'nestform-btn nestform-btn--outline';
+		$label = $menu_item
+			? __( 'From CF7 / WPForms', 'nestform' )
+			: __( 'Import forms', 'nestform' );
 		return sprintf(
-			'<a class="nestform-btn nestform-btn--outline" href="%1$s">%2$s%3$s</a>',
+			'<a class="%1$s" href="%2$s">%3$s%4$s</a>',
+			esc_attr( $class ),
 			esc_url( self::url() ),
 			nestform_admin_icon_html( 'download' ),
-			esc_html__( 'Import forms', 'nestform' )
+			esc_html( $label )
 		);
 	}
 
@@ -613,6 +621,10 @@ class Nestform_Importer {
 			'name'          => 'text',
 			'address'       => 'textarea',
 		);
+		if ( class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::PAYMENTS ) ) {
+			$map['credit-card']        = 'payment';
+			$map['stripe-credit-card'] = 'payment';
+		}
 		$ignored = array( 'captcha', 'entry-preview', 'internal-information', 'pagebreak' );
 		$unsupported = array(
 			'signature'          => __( 'signature', 'nestform' ),
@@ -621,12 +633,14 @@ class Nestform_Importer {
 			'payment-checkbox'   => __( 'payment', 'nestform' ),
 			'payment-select'     => __( 'payment', 'nestform' ),
 			'payment-total'      => __( 'payment total', 'nestform' ),
-			'credit-card'        => __( 'card payment', 'nestform' ),
-			'stripe-credit-card' => __( 'card payment', 'nestform' ),
 			'rating'             => __( 'rating (Pro)', 'nestform' ),
 			'likert_scale'       => __( 'likert (Pro)', 'nestform' ),
 			'net_promoter_score' => __( 'NPS (Pro)', 'nestform' ),
 		);
+		if ( empty( $map['credit-card'] ) ) {
+			$unsupported['credit-card']        = __( 'card payment', 'nestform' );
+			$unsupported['stripe-credit-card'] = __( 'card payment', 'nestform' );
+		}
 
 		$converted = array();
 		foreach ( $fields as $field ) {

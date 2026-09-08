@@ -406,6 +406,10 @@ class Nestform_Submit {
 				continue;
 			}
 
+			if ( ! Nestform_Form_Config::is_field_enabled( $field ) ) {
+				continue;
+			}
+
 			// Hidden values come from form config only (never from POST).
 			if ( 'hidden' === $type ) {
 				$data[ $name ] = sanitize_text_field( (string) ( $field['default'] ?? '' ) );
@@ -450,7 +454,11 @@ class Nestform_Submit {
 			 */
 			$early = null;
 			if ( class_exists( 'Nestform_Features' ) ) {
-				if ( Nestform_Features::can( Nestform_Features::ADVANCED_FIELDS ) || Nestform_Features::can( Nestform_Features::REPEATERS ) ) {
+				if (
+					Nestform_Features::can( Nestform_Features::ADVANCED_FIELDS )
+					|| Nestform_Features::can( Nestform_Features::REPEATERS )
+					|| Nestform_Features::can( Nestform_Features::PAYMENTS )
+				) {
 					$early = apply_filters( 'nestform_pre_validate_field', null, $field, $raw, $messages, $req );
 				}
 			}
@@ -1115,6 +1123,21 @@ class Nestform_Submit {
 		if ( is_array( $value ) && ! empty( $value['url'] ) ) {
 			$name = ! empty( $value['name'] ) ? (string) $value['name'] : 'file';
 			return $name . ' (' . (string) $value['url'] . ')';
+		}
+		if ( is_array( $value ) && isset( $value['intent_id'], $value['amount'], $value['currency'] ) ) {
+			$line = sprintf(
+				/* translators: 1: amount, 2: currency */
+				__( 'Paid %1$s %2$s', 'nestform' ),
+				(string) $value['amount'],
+				(string) $value['currency']
+			);
+			if ( ! empty( $value['mode'] ) && 'test' === (string) $value['mode'] ) {
+				$line .= ' · ' . __( 'test', 'nestform' );
+			}
+			if ( ! empty( $value['intent_id'] ) ) {
+				$line .= ' (' . (string) $value['intent_id'] . ')';
+			}
+			return $line;
 		}
 		if ( is_array( $value ) ) {
 			$flat = array();

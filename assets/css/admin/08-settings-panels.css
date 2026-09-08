@@ -5,6 +5,50 @@
     gap: var(--nestform-space-6);
 }
 
+.nestform-admin__subtabs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nestform-space-4); /* 8+8 between nav and content */
+}
+
+.nestform-admin__subtabs-nav {
+    margin: 0; /* flex gap owns the rhythm; cancel .nestform-settings__subnav bottom margin */
+}
+
+.nestform-admin__subtabs-nav button.nestform-settings__subnav-item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--nestform-space-2);
+    margin: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    font: inherit;
+}
+
+.nestform-admin__subpanel[hidden] {
+    display: none !important;
+}
+
+/* 8+8 rhythm helpers (replace off-grid inline 12px) */
+.nestform-admin__mt-2 {
+    margin-top: var(--nestform-space-2);
+}
+
+.nestform-admin__mt-4 {
+    margin-top: var(--nestform-space-4);
+}
+
+.nestform-admin__mb-4 {
+    margin-bottom: var(--nestform-space-4);
+}
+
+.nestform-admin__mt-0 {
+    margin-top: 0;
+}
+
 .nestform-admin__block {
     margin: 0;
     padding: var(--nestform-space-4);
@@ -35,6 +79,7 @@
     color: var(--nestform-muted);
 }
 
+.nestform-admin__block > .nestform-admin__subsection-title:first-child,
 .nestform-admin__fold-body > .nestform-admin__subsection-title:first-child {
     margin-top: 0;
 }
@@ -152,7 +197,7 @@
 }
 
 .nestform-admin__note {
-    margin: 0;
+    margin: var(--nestform-space-4) 0 0;
     padding: var(--nestform-space-4);
     border: 1px solid var(--nestform-border);
     border-radius: var(--nestform-radius);
@@ -160,8 +205,8 @@
     box-sizing: border-box;
 }
 
-.nestform-admin__fold-body .nestform-admin__note {
-    margin-top: var(--nestform-space-4);
+.nestform-admin__note:first-child {
+    margin-top: 0;
 }
 
 .nestform-auto {
@@ -222,7 +267,7 @@
     align-items: end;
     padding: var(--nestform-space-2);
     border: 1px solid var(--nestform-border);
-    border-radius: 8px;
+    border-radius: var(--nestform-radius);
     background: var(--nestform-soft);
 }
 
@@ -733,7 +778,7 @@
     flex-direction: column;
     background: var(--nestform-surface);
     border: 1px solid var(--nestform-border);
-    border-radius: 12px;
+    border-radius: var(--nestform-radius);
     box-shadow: 0 20px 50px rgba(1, 18, 62, 0.18);
     overflow: hidden;
 }
@@ -806,7 +851,7 @@
     gap: var(--nestform-space-2);
     padding: var(--nestform-space-4);
     border: 1px solid var(--nestform-border);
-    border-radius: 10px;
+    border-radius: var(--nestform-radius);
     background: var(--nestform-surface);
     text-align: left;
     text-decoration: none;
@@ -1030,7 +1075,7 @@
     margin: var(--nestform-space-2) 0 0;
     padding: 0;
     border: 1px solid var(--nestform-border);
-    border-radius: 8px;
+    border-radius: var(--nestform-radius);
     background: var(--nestform-surface);
     overflow: hidden;
 }
@@ -1181,7 +1226,7 @@
     gap: var(--nestform-space-2);
     min-height: 58px;
     padding: var(--nestform-space-2);
-    border-radius: 6px;
+    border-radius: 4px;
     background: var(--nestform-raised);
     border: 1px solid var(--nestform-border);
     box-sizing: border-box;
@@ -1229,7 +1274,7 @@
 }
 
 .nestform-style-skins__preview--theme span:not(:last-child) {
-    border-radius: 2px;
+    border-radius: 4px;
 }
 
 .nestform-style-skins__copy {
@@ -1262,7 +1307,7 @@
     height: 36px;
     overflow: hidden;
     border: 1px solid var(--nestform-border);
-    border-radius: 8px;
+    border-radius: var(--nestform-radius);
     background: var(--nestform-surface);
 }
 
@@ -1318,7 +1363,7 @@
     margin: 0;
     padding: var(--nestform-space-2) var(--nestform-space-4);
     border: 1px solid var(--nestform-border);
-    border-radius: 8px;
+    border-radius: var(--nestform-radius);
     background: var(--nestform-surface);
     box-sizing: border-box;
     transition: var(--nestform-transition);
@@ -1432,7 +1477,7 @@
         var(--nestform-space-2) var(--nestform-space-6);
     background: var(--nestform-soft);
     border: 1px solid var(--nestform-border);
-    border-radius: 8px;
+    border-radius: var(--nestform-radius);
     color: var(--nestform-muted);
     font-size: 12px;
     line-height: var(--nestform-line-height);
@@ -1468,6 +1513,10 @@ body.nestform-settings-screen
 
 body.nestform-integrations-screen #wpcontent {
     background: var(--nestform-canvas);
+}
+
+.nestform-integrations .nestform-settings__layout {
+    grid-template-columns: minmax(160px, 200px) minmax(0, 1fr);
 }
 
 .nestform-integ-cards__grid {

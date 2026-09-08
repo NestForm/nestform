@@ -16,6 +16,11 @@
     --nestform-accent-soft: rgba(37, 99, 235, 0.08);
     --nestform-accent-line: #bfdbfe;
     --nestform-accent-mid: #3b82f6;
+    /* Secondary brand hue — indigo/violet for charts & Pro accents */
+    --nestform-violet: #6366f1;
+    --nestform-violet-mid: #818cf8;
+    --nestform-violet-soft: rgba(99, 102, 241, 0.1);
+    --nestform-violet-line: #c7d2fe;
     --nestform-primary: #2563eb;
     --nestform-primary-hover: #1d4ed8;
     --nestform-surface: #ffffff;
@@ -50,16 +55,16 @@
     --nestform-navy-alt: #02194c;
     --nestform-ink: var(--nestform-navy);
     --nestform-ink-alt: var(--nestform-navy-alt);
-    /* Status — muted cool tones (fit navy/accent; avoid Tailwind candy green/amber/red) */
-    --nestform-ok: #147a66;
-    --nestform-ok-soft: #e6f2ef;
-    --nestform-ok-border: #c5ddd6;
+    /* Status — cool tones that sit with navy / accent / violet */
+    --nestform-ok: #0d9b87;
+    --nestform-ok-soft: #e8f8f5;
+    --nestform-ok-border: #b5e5dc;
     --nestform-warn: #3b82f6;
     --nestform-warn-soft: #eff6ff;
     --nestform-warn-border: #bfdbfe;
-    --nestform-danger: #b44a55;
-    --nestform-danger-soft: #f6ebee;
-    --nestform-danger-border: #e5c4c8;
+    --nestform-danger: #d14b63;
+    --nestform-danger-soft: #fdf0f3;
+    --nestform-danger-border: #f0c5ce;
     --nestform-radius: 8px;
     --nestform-radius-sm: 8px;
     --nestform-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);

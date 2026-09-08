@@ -300,7 +300,7 @@ class Nestform_Captcha {
 
 		$s        = Nestform_Settings::get();
 		$ready    = Nestform_Settings::captcha_ready();
-		$url      = class_exists( 'Nestform_Integrations' ) ? Nestform_Integrations::url() : Nestform_Settings::url();
+		$url      = class_exists( 'Nestform_Integrations' ) ? Nestform_Integrations::url( array( 'section' => 'captcha' ) ) : Nestform_Settings::url();
 		$provider = (string) ( $s['captcha_provider'] ?? 'recaptcha_v2' );
 		$all      = self::providers();
 		if ( ! isset( $all[ $provider ] ) ) {

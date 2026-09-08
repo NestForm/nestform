@@ -156,6 +156,7 @@ class Nestform_Developers {
 			'nestform_dashboard_chart_metrics'   => __( 'Dashboard chart metrics nav HTML.', 'nestform' ),
 			'nestform_dashboard_chart_empty'     => __( 'Whether the activity chart shows empty state.', 'nestform' ),
 			'nestform_dashboard_chart_data'      => __( 'Extra chart series markup/data.', 'nestform' ),
+			'nestform_dashboard_work_pulse_extra' => __( 'Extra Work pulse chips (e.g. Hot leads).', 'nestform' ),
 			'nestform_dashboard_lead_insights'   => __( 'Lead insights panel HTML.', 'nestform' ),
 			'nestform_dashboard_responses_panel' => __( 'Response breakdown panel HTML (survey/quiz).', 'nestform' ),
 		);

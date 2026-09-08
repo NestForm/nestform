@@ -68,7 +68,8 @@ class Nestform_Upgrade {
 			__( 'Quizzes & surveys with scoring and result bands', 'nestform' ),
 			__( 'HTML email designer & PDF attachments', 'nestform' ),
 			__( 'Automations, calculated fields & repeaters', 'nestform' ),
-			__( 'Native integrations (Telegram, Slack, Sheets)', 'nestform' ),
+			__( 'Stripe payment fields on forms', 'nestform' ),
+			__( 'HubSpot contact sync on submit', 'nestform' ),
 			__( 'Advanced fields, analytics & lead insights', 'nestform' ),
 		);
 
@@ -336,7 +337,7 @@ class Nestform_Upgrade {
 	 */
 	public static function pill_html() {
 		return '<span class="nestform-pro-pill">'
-			. nestform_admin_icon_html( 'crown' )
+			. nestform_admin_icon_html( 'pro' )
 			. esc_html__( 'PRO', 'nestform' )
 			. '</span>';
 	}
@@ -351,26 +352,21 @@ class Nestform_Upgrade {
 	}
 
 	/**
-	 * Sidebar usage + Pro card.
+	 * Sidebar Pro card (forms count lives in nav / inbox stats).
 	 *
-	 * @param int $forms_n Form count.
+	 * @param int $forms_n Form count (unused; kept for callers).
 	 */
-	public static function render_sidebar( $forms_n ) {
-		$forms_n = (int) $forms_n;
+	public static function render_sidebar( $forms_n = 0 ) {
+		unset( $forms_n );
+		if ( self::is_pro() || ! class_exists( 'Nestform_Promotion' ) || ! Nestform_Promotion::should_promote() ) {
+			return;
+		}
 		?>
-		<div class="nestform-app__usage">
-			<div class="nestform-app__usage-row">
-				<span><?php esc_html_e( 'Forms', 'nestform' ); ?></span>
-				<strong><?php echo esc_html( number_format_i18n( $forms_n ) ); ?></strong>
-			</div>
-		</div>
-		<?php if ( ! self::is_pro() && class_exists( 'Nestform_Promotion' ) && Nestform_Promotion::should_promote() ) : ?>
-			<a class="nestform-app__pro" href="<?php echo esc_url( Nestform_Promotion::url() ); ?>">
-				<span class="nestform-app__pro-kicker"><?php echo nestform_admin_icon_html( 'crown' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG ?> <?php esc_html_e( 'Nestform Pro', 'nestform' ); ?></span>
-				<span class="nestform-app__pro-copy"><?php esc_html_e( 'Quizzes, multi-step flows, PDF, integrations, and lead insights.', 'nestform' ); ?></span>
-				<span class="nestform-pro-cta nestform-app__pro-cta"><?php esc_html_e( 'Learn more', 'nestform' ); ?></span>
-			</a>
-		<?php endif; ?>
+		<a class="nestform-app__pro" href="<?php echo esc_url( Nestform_Promotion::url() ); ?>">
+			<span class="nestform-app__pro-kicker"><?php echo nestform_admin_icon_html( 'pro' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG ?> <?php esc_html_e( 'Nestform Pro', 'nestform' ); ?></span>
+			<span class="nestform-app__pro-copy"><?php esc_html_e( 'Quizzes, multi-step flows, PDF, integrations, and lead insights.', 'nestform' ); ?></span>
+			<span class="nestform-pro-cta nestform-app__pro-cta"><?php esc_html_e( 'Learn more', 'nestform' ); ?></span>
+		</a>
 		<?php
 	}
 

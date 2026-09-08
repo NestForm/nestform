@@ -63,7 +63,7 @@ class Nestform_Promotion {
 	 * @return string
 	 */
 	public static function summary() {
-		return __( 'Multi-step flows, quizzes, HTML email, PDF, automations, native integrations, and lead insights.', 'nestform' );
+		return __( 'Multi-step flows, quizzes, HTML email, PDF, Stripe, HubSpot, automations, and lead insights.', 'nestform' );
 	}
 
 	/**
@@ -103,7 +103,7 @@ class Nestform_Promotion {
 			array(
 				'job'  => __( 'Getting answers where you need them', 'nestform' ),
 				'free' => __( 'Per-form mail, CC/BCC, autoreply, CSV export, and outbound webhooks (up to 5 HTTPS endpoints per form).', 'nestform' ),
-				'pro'  => __( 'Automations, HTML email designer, and native connectors (Telegram, Slack, Google Sheets).', 'nestform' ),
+				'pro'  => __( 'Automations, HTML email designer, HubSpot sync, and Stripe payment fields.', 'nestform' ),
 			),
 			array(
 				'job'  => __( 'Understanding performance', 'nestform' ),
@@ -156,7 +156,7 @@ class Nestform_Promotion {
 				array(
 					'title'        => __( 'Nestform Pro', 'nestform' ),
 					'description'  => __( 'Everything in Nestform is free and unlimited. Pro is a separate add-on for multi-step flows, quizzes, and deeper analytics.', 'nestform' ),
-					'icon'         => 'crown',
+					'icon'         => 'pro',
 					'actions_html' => '<a class="nestform-btn nestform-btn--primary" href="' . esc_url( $store ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'View plans on nestform.app', 'nestform' ) . '</a>',
 				)
 			);
@@ -164,7 +164,7 @@ class Nestform_Promotion {
 			<div class="nestform-upgrade__shell">
 				<header class="nestform-upgrade__head">
 					<span class="nestform-upgrade__badge">
-						<?php echo nestform_admin_icon_html( 'crown' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo nestform_admin_icon_html( 'pro' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						<?php esc_html_e( 'Nestform Pro', 'nestform' ); ?>
 					</span>
 					<h2 class="nestform-upgrade__title"><?php esc_html_e( 'Forms, quizzes & surveys that convert', 'nestform' ); ?></h2>
@@ -240,12 +240,49 @@ class Nestform_Promotion {
 		?>
 		<div class="nestform-admin__surface nestform-settings__pro-card" aria-label="<?php esc_attr_e( 'Nestform Pro', 'nestform' ); ?>">
 			<p class="nestform-settings__pro-kicker">
-				<?php echo nestform_admin_icon_html( 'crown' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php echo nestform_admin_icon_html( 'pro' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				<?php esc_html_e( 'Nestform Pro', 'nestform' ); ?>
 			</p>
 			<p class="nestform-settings__pro-copy"><?php echo esc_html( self::summary() ); ?></p>
 			<a class="nestform-btn nestform-btn--outline nestform-settings__pro-link" href="<?php echo esc_url( self::url() ); ?>">
 				<?php esc_html_e( 'See what Pro adds', 'nestform' ); ?>
+			</a>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Honest Pro upsell (no interactive controls — wp.org guideline 5).
+	 *
+	 * @param array{title?:string,copy?:string,cta?:string,url?:string,compact?:bool} $args Teaser copy.
+	 */
+	public static function render_feature_teaser( array $args = array() ) {
+		$title = isset( $args['title'] ) ? (string) $args['title'] : __( 'Nestform Pro', 'nestform' );
+		$copy  = array_key_exists( 'copy', $args ) ? (string) $args['copy'] : self::summary();
+		$cta   = isset( $args['cta'] ) ? (string) $args['cta'] : __( 'See Nestform Pro', 'nestform' );
+		$url   = isset( $args['url'] ) && is_string( $args['url'] ) && '' !== $args['url']
+			? (string) $args['url']
+			: self::url();
+		// Compact banner is default for contextual upsells (Integrations / Fields / Mail).
+		$compact = ! array_key_exists( 'compact', $args ) || ! empty( $args['compact'] );
+		$class   = $compact ? 'nestform-pro-teaser nestform-pro-teaser--compact' : 'nestform-pro-teaser';
+		?>
+		<div class="<?php echo esc_attr( $class ); ?>" aria-label="<?php echo esc_attr( $title ); ?>">
+			<div class="nestform-pro-teaser__body">
+				<p class="nestform-app__pro-kicker">
+					<?php echo nestform_admin_icon_html( 'pro' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php esc_html_e( 'Nestform Pro', 'nestform' ); ?>
+				</p>
+				<p class="nestform-pro-teaser__title"><?php echo esc_html( $title ); ?></p>
+				<?php if ( '' !== trim( $copy ) ) : ?>
+					<p class="nestform-pro-teaser__copy"><?php echo esc_html( $copy ); ?></p>
+				<?php endif; ?>
+				<?php if ( ! $compact ) : ?>
+					<p class="nestform-pro-teaser__note"><?php esc_html_e( 'This is a separate add-on. It is not included or locked inside the free plugin.', 'nestform' ); ?></p>
+				<?php endif; ?>
+			</div>
+			<a class="nestform-pro-cta nestform-pro-teaser__cta" href="<?php echo esc_url( $url ); ?>">
+				<?php echo esc_html( $cta ); ?>
 			</a>
 		</div>
 		<?php
@@ -359,7 +396,7 @@ class Nestform_Promotion {
 			case 'quiz':
 				return __( 'Your forms look like quizzes or surveys. Nestform Pro adds scoring, result bands, timers, and shareable outcomes. Everything you have now stays free.', 'nestform' );
 			case 'exports':
-				return __( 'You have exported entries by hand a few times. Nestform Pro adds automations and native integrations so answers can flow to your stack without CSV downloads. Everything you have now stays free.', 'nestform' );
+				return __( 'You have exported entries by hand a few times. Nestform Pro adds automations and HubSpot sync so answers can flow to your stack without CSV downloads. Everything you have now stays free.', 'nestform' );
 			case 'analytics':
 				return __( 'You are collecting a steady stream of entries. Nestform Pro adds conversion metrics and lead insights on top of your dashboard. Everything you have now stays free.', 'nestform' );
 			default:

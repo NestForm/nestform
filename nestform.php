@@ -3,7 +3,7 @@
  * Plugin Name: Nestform
  * Plugin URI: https://nestform.app
  * Description: Build forms, quizzes and surveys for WordPress that convert — entries inbox, email, spam protection, and analytics.
- * Version: 2.2.1
+ * Version: 2.3.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: A.CH
@@ -24,7 +24,7 @@ if ( defined( 'NESTFORM_VERSION' ) ) {
 	return;
 }
 
-define( 'NESTFORM_VERSION', '2.2.1' );
+define( 'NESTFORM_VERSION', '2.3.0' );
 define( 'NESTFORM_PATH', trailingslashit( dirname( __FILE__ ) ) );
 define( 'NESTFORM_URL', trailingslashit( plugin_dir_url( __FILE__ ) ) );
 
@@ -290,28 +290,44 @@ function nestform_admin_stats() {
  */
 function nestform_admin_icon_html( $name, $variant = '' ) {
 	unset( $variant );
+	/*
+	 * Unified icon language: 24×24 grid, 1.75 stroke, round caps/joins.
+	 * Display size is often overridden in CSS (nav 16px, buttons ~14px).
+	 */
+	$a = 'width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"';
 	$icons = array(
-		'forms'     => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h4"/></svg>',
-		'analytics' => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 16l4-6 4 4 4-8"/></svg>',
-		'entries'   => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
-		'settings'  => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
-		'plus'      => '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
-		'search'    => '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
-		'copy'      => '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>',
-		'save'      => '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>',
-		'preview'   => '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
-		'undo'      => '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>',
-		'external'  => '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
-		'back'      => '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>',
-		'forward'   => '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7.5H12.3333" stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" /> <path d="M8 3L13 7.5L8 12" stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" /></svg>',
-		'download'  => '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
-		'crown'     => '<svg class="nestform-icon-crown" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 16L3 7l5.5 4L12 4l3.5 7L21 7l-2 9H5zm0 2h14v2H5v-2z"/></svg>',
-		'sparkle'   => '<svg class="nestform-icon-crown" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 16L3 7l5.5 4L12 4l3.5 7L21 7l-2 9H5zm0 2h14v2H5v-2z"/></svg>',
-		'check'     => '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>',
-		'developers'=> '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
-		'docs'      => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="14" y2="11"/></svg>',
-		'integrations' => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
-		'trash'     => '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>',
+		'forms'        => '<svg ' . $a . '><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h.01"/><path d="M12 8h4"/><path d="M8 12h.01"/><path d="M12 12h4"/><path d="M8 16h.01"/><path d="M12 16h3"/></svg>',
+		'analytics'    => '<svg ' . $a . '><rect x="3" y="12" width="4" height="8" rx="1"/><rect x="10" y="7" width="4" height="13" rx="1"/><rect x="17" y="3" width="4" height="17" rx="1"/></svg>',
+		'entries'      => '<svg ' . $a . '><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>',
+		'settings'     => '<svg ' . $a . '><path d="M4 21v-7"/><path d="M4 10V3"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M20 21v-5"/><path d="M20 12V3"/><path d="M1 14h6"/><path d="M9 8h6"/><path d="M17 16h6"/></svg>',
+		'license'      => '<svg ' . $a . '><circle cx="8" cy="15" r="5"/><path d="m16 3 5 5"/><path d="m13.5 8.5 3 3L21 7l-3-3"/><circle cx="8" cy="15" r="1.5"/></svg>',
+		'plus'         => '<svg ' . $a . '><path d="M12 5v14"/><path d="M5 12h14"/></svg>',
+		'search'       => '<svg ' . $a . '><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+		'copy'         => '<svg ' . $a . '><rect x="9" y="9" width="13" height="13" rx="2.5"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+		'save'         => '<svg ' . $a . '><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg>',
+		'draft'        => '<svg ' . $a . '><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>',
+		'unpublish'    => '<svg ' . $a . '><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>',
+		'publish'      => '<svg ' . $a . '><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>',
+		'preview'      => '<svg ' . $a . '><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>',
+		'eye-off'      => '<svg ' . $a . '><path d="M10.7 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a18 18 0 0 1-2 2.9"/><path d="M6.6 6.6A18 18 0 0 0 2 12s3.5 7 10 7a10.4 10.4 0 0 0 4.4-.9"/><path d="m2 2 20 20"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>',
+		'undo'         => '<svg ' . $a . '><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6.3 2.6L3 13"/></svg>',
+		'external'     => '<svg ' . $a . '><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>',
+		'back'         => '<svg ' . $a . '><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>',
+		'forward'      => '<svg ' . $a . '><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>',
+		'chevron'      => '<svg ' . $a . '><path d="m9 18 6-6-6-6"/></svg>',
+		'download'     => '<svg ' . $a . '><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>',
+		/*
+		 * Nestform Pro mark: nested form cards + spark (product DNA).
+		 * `crown` kept as alias for older call sites.
+		 */
+		'pro'          => '<svg class="nestform-icon-pro" ' . $a . '><rect x="8" y="3" width="12.5" height="14.5" rx="2.25"/><rect x="3.5" y="7.5" width="12.5" height="14.5" rx="2.25"/><path d="M19.2 2.2l.5 1.25 1.25.5-1.25.5-.5 1.25-.5-1.25-1.25-.5 1.25-.5z" fill="currentColor" stroke="none"/></svg>',
+		'crown'        => '<svg class="nestform-icon-pro" ' . $a . '><rect x="8" y="3" width="12.5" height="14.5" rx="2.25"/><rect x="3.5" y="7.5" width="12.5" height="14.5" rx="2.25"/><path d="M19.2 2.2l.5 1.25 1.25.5-1.25.5-.5 1.25-.5-1.25-1.25-.5 1.25-.5z" fill="currentColor" stroke="none"/></svg>',
+		'sparkle'      => '<svg class="nestform-icon-pro" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l1.2 4.1L17.5 8 13.2 9.4 12 13.5l-1.2-4.1L6.5 8l4.3-1.4L12 2.5zm6.8 8.2l.7 2.3 2.3.7-2.3.7-.7 2.3-.7-2.3-2.3-.7 2.3-.7.7-2.3zM5.5 14.2l.55 1.85 1.85.55-1.85.55-.55 1.85-.55-1.85-1.85-.55 1.85-.55.55-1.85z"/></svg>',
+		'check'        => '<svg ' . $a . '><path d="M20 6 9 17l-5-5"/></svg>',
+		'developers'   => '<svg ' . $a . '><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="m8 10 2.5 2.5L8 15"/><path d="M13 15h4"/></svg>',
+		'docs'         => '<svg ' . $a . '><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8"/><path d="M8 11h6"/></svg>',
+		'integrations' => '<svg ' . $a . '><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="m16.24 7.76 2.83-2.83"/><circle cx="12" cy="12" r="3.5"/></svg>',
+		'trash'        => '<svg ' . $a . '><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>',
 	);
 
 	return isset( $icons[ $name ] ) ? $icons[ $name ] : '';
@@ -348,42 +364,49 @@ function nestform_render_app_open( $current ) {
 			'label' => __( 'Dashboard', 'nestform' ),
 			'url'   => class_exists( 'Nestform_Dashboard' ) ? Nestform_Dashboard::url() : '',
 			'icon'  => 'analytics',
+			'group' => 'primary',
 		),
 		array(
 			'id'    => 'forms',
 			'label' => __( 'Forms', 'nestform' ),
 			'url'   => class_exists( 'Nestform_Post_Type' ) ? Nestform_Post_Type::hub_url() : '',
 			'icon'  => 'forms',
+			'group' => 'primary',
 		),
 		array(
 			'id'    => 'entries',
 			'label' => __( 'Entries', 'nestform' ),
 			'url'   => class_exists( 'Nestform_Submissions' ) ? Nestform_Submissions::hub_url() : '',
 			'icon'  => 'entries',
+			'group' => 'primary',
 		),
 		array(
 			'id'    => 'integrations',
 			'label' => __( 'Integrations', 'nestform' ),
 			'url'   => class_exists( 'Nestform_Integrations' ) ? Nestform_Integrations::url() : '',
 			'icon'  => 'integrations',
+			'group' => 'primary',
 		),
 		array(
 			'id'    => 'settings',
 			'label' => __( 'Settings', 'nestform' ),
 			'url'   => class_exists( 'Nestform_Settings' ) ? Nestform_Settings::url() : '',
 			'icon'  => 'settings',
+			'group' => 'primary',
 		),
 		array(
 			'id'    => 'developers',
 			'label' => __( 'Developers', 'nestform' ),
 			'url'   => class_exists( 'Nestform_Developers' ) ? Nestform_Developers::url() : '',
 			'icon'  => 'developers',
+			'group' => 'tools',
 		),
 		array(
 			'id'    => 'import',
 			'label' => __( 'Import forms', 'nestform' ),
 			'url'   => class_exists( 'Nestform_Importer' ) && Nestform_Importer::user_can_import() ? Nestform_Importer::url() : '',
 			'icon'  => 'download',
+			'group' => 'tools',
 		),
 	);
 
@@ -392,7 +415,8 @@ function nestform_render_app_open( $current ) {
 			'id'    => 'pro',
 			'label' => __( 'Pro', 'nestform' ),
 			'url'   => Nestform_Promotion::url(),
-			'icon'  => 'crown',
+			'icon'  => 'pro',
+			'group' => 'account',
 		);
 	}
 
@@ -401,19 +425,35 @@ function nestform_render_app_open( $current ) {
 			'id'    => 'license',
 			'label' => __( 'License', 'nestform' ),
 			'url'   => Nestform_Pro_License::url(),
-			'icon'  => 'crown',
+			'icon'  => 'license',
+			'group' => 'account',
 		);
 	}
 
 	/**
 	 * Filter Nestform app sidebar nav items.
 	 *
-	 * @param array<int, array{id:string,label:string,url:string,icon:string}> $items   Nav items.
-	 * @param string                                                             $current Active view id.
+	 * @param array<int, array{id:string,label:string,url:string,icon:string,group?:string}> $items   Nav items.
+	 * @param string                                                                         $current Active view id.
 	 */
 	$items = apply_filters( 'nestform_app_nav_items', $items, $current );
 
 	$nav_current = ( 'editor' === $current ) ? 'forms' : $current;
+	$nav_groups  = array(
+		'primary' => array(),
+		'tools'   => array(),
+		'account' => array(),
+	);
+	foreach ( $items as $item ) {
+		if ( empty( $item['url'] ) ) {
+			continue;
+		}
+		$group = isset( $item['group'] ) ? sanitize_key( (string) $item['group'] ) : 'primary';
+		if ( ! isset( $nav_groups[ $group ] ) ) {
+			$group = 'primary';
+		}
+		$nav_groups[ $group ][] = $item;
+	}
 	?>
 	<div class="nestform-app" data-nestform-app>
 		<script>
@@ -423,6 +463,10 @@ function nestform_render_app_open( $current ) {
 					var app = document.currentScript && document.currentScript.parentElement;
 					if ( app ) {
 						app.classList.add( 'nestform-app--sidebar-collapsed' );
+						var toggle = app.querySelector( '[data-nestform-sidebar-toggle]' );
+						if ( toggle ) {
+							toggle.setAttribute( 'aria-expanded', 'false' );
+						}
 					}
 				}
 			} catch ( e ) {}
@@ -443,27 +487,38 @@ function nestform_render_app_open( $current ) {
 				</div>
 			</div>
 			<nav class="nestform-app__nav" aria-label="<?php esc_attr_e( 'Nestform', 'nestform' ); ?>">
-				<?php foreach ( $items as $item ) : ?>
-					<?php
-					if ( empty( $item['url'] ) ) {
+				<?php
+				$group_i = 0;
+				foreach ( $nav_groups as $group_id => $group_items ) :
+					if ( array() === $group_items ) {
 						continue;
 					}
-					$is_on = ( $nav_current === $item['id'] );
-					$class = 'nestform-app__nav-item' . ( $is_on ? ' nestform-app__nav-item--active' : '' );
-					$label = (string) $item['label'];
-					?>
-					<a
-						class="<?php echo esc_attr( $class ); ?>"
-						href="<?php echo esc_url( $item['url'] ); ?>"
-						title="<?php echo esc_attr( $label ); ?>"
-					>
-						<span class="nestform-app__nav-icon"><?php nestform_admin_icon( isset( $item['icon'] ) ? (string) $item['icon'] : 'forms' ); ?></span>
-						<span class="nestform-app__nav-label"><?php echo esc_html( $label ); ?></span>
-						<?php if ( 'entries' === $item['id'] && $new_n > 0 ) : ?>
-							<span class="nestform-app__nav-count"><?php echo esc_html( number_format_i18n( $new_n ) ); ?></span>
-						<?php endif; ?>
-					</a>
-				<?php endforeach; ?>
+					if ( $group_i > 0 ) :
+						?>
+						<span class="nestform-app__nav-sep" aria-hidden="true"></span>
+						<?php
+					endif;
+					++$group_i;
+					foreach ( $group_items as $item ) :
+						$is_on = ( $nav_current === $item['id'] );
+						$class = 'nestform-app__nav-item' . ( $is_on ? ' nestform-app__nav-item--active' : '' );
+						$label = (string) $item['label'];
+						?>
+						<a
+							class="<?php echo esc_attr( $class ); ?>"
+							href="<?php echo esc_url( $item['url'] ); ?>"
+							title="<?php echo esc_attr( $label ); ?>"
+						>
+							<span class="nestform-app__nav-icon"><?php nestform_admin_icon( isset( $item['icon'] ) ? (string) $item['icon'] : 'forms' ); ?></span>
+							<span class="nestform-app__nav-label"><?php echo esc_html( $label ); ?></span>
+							<?php if ( 'entries' === $item['id'] && $new_n > 0 ) : ?>
+								<span class="nestform-app__nav-count"><?php echo esc_html( number_format_i18n( $new_n ) ); ?></span>
+							<?php endif; ?>
+						</a>
+						<?php
+					endforeach;
+				endforeach;
+				?>
 			</nav>
 			<div class="nestform-app__foot">
 				<?php if ( class_exists( 'Nestform_Upgrade' ) ) : ?>
@@ -473,30 +528,21 @@ function nestform_render_app_open( $current ) {
 				<div class="nestform-app__foot-card">
 					<div class="nestform-app__foot-card-head">
 						<span class="nestform-app__foot-card-title"><?php esc_html_e( 'Inbox', 'nestform' ); ?></span>
-						<?php if ( $new_n > 0 ) : ?>
-							<a class="nestform-app__foot-card-link" href="<?php echo esc_url( $new_url ); ?>">
-								<?php esc_html_e( 'Review', 'nestform' ); ?>
-								<?php echo nestform_admin_icon_html( 'forward' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG ?>
-							</a>
-						<?php elseif ( $entries_url !== '' ) : ?>
-							<a class="nestform-app__foot-card-link" href="<?php echo esc_url( $entries_url ); ?>">
-								<?php esc_html_e( 'Open', 'nestform' ); ?>
+						<?php if ( $entries_url !== '' ) : ?>
+							<a class="nestform-app__foot-card-link" href="<?php echo esc_url( $new_n > 0 ? $new_url : $entries_url ); ?>">
+								<?php echo esc_html( $new_n > 0 ? __( 'Review', 'nestform' ) : __( 'Open', 'nestform' ) ); ?>
 								<?php echo nestform_admin_icon_html( 'forward' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG ?>
 							</a>
 						<?php endif; ?>
 					</div>
 
 					<?php if ( $new_n > 0 ) : ?>
-						<a class="nestform-app__foot-alert" href="<?php echo esc_url( $new_url ); ?>">
-							<span class="nestform-app__foot-alert-dot" aria-hidden="true"></span>
-							<span class="nestform-app__foot-alert-text">
+						<a class="nestform-app__foot-cta" href="<?php echo esc_url( $new_url ); ?>">
+							<span class="nestform-app__foot-cta-count"><?php echo esc_html( number_format_i18n( $new_n ) ); ?></span>
+							<span class="nestform-app__foot-cta-text">
 								<?php
 								echo esc_html(
-									sprintf(
-										/* translators: %s: new entry count */
-										_n( '%s new waiting', '%s new waiting', $new_n, 'nestform' ),
-										number_format_i18n( $new_n )
-									)
+									_n( 'new entry to review', 'new entries to review', $new_n, 'nestform' )
 								);
 								?>
 							</span>
@@ -507,39 +553,16 @@ function nestform_render_app_open( $current ) {
 						</p>
 					<?php endif; ?>
 
-					<div class="nestform-app__foot-grid" aria-label="<?php esc_attr_e( 'Quick stats', 'nestform' ); ?>">
-						<a class="nestform-app__foot-cell<?php echo $new_n > 0 ? ' nestform-app__foot-cell--accent' : ''; ?>" href="<?php echo esc_url( $new_url ); ?>">
-							<span class="nestform-app__foot-val"><?php echo esc_html( number_format_i18n( $new_n ) ); ?></span>
-							<span class="nestform-app__foot-label"><?php esc_html_e( 'New', 'nestform' ); ?></span>
-						</a>
+					<div class="nestform-app__foot-grid nestform-app__foot-grid--compact" aria-label="<?php esc_attr_e( 'Quick stats', 'nestform' ); ?>">
 						<a class="nestform-app__foot-cell" href="<?php echo esc_url( $analytics_url !== '' ? $analytics_url : $entries_url ); ?>">
 							<span class="nestform-app__foot-val"><?php echo esc_html( number_format_i18n( $today_n ) ); ?></span>
 							<span class="nestform-app__foot-label"><?php esc_html_e( 'Today', 'nestform' ); ?></span>
-						</a>
-						<?php
-						$forms_url = class_exists( 'Nestform_Post_Type' ) ? Nestform_Post_Type::hub_url() : '';
-						?>
-						<a class="nestform-app__foot-cell" href="<?php echo esc_url( $forms_url !== '' ? $forms_url : '#' ); ?>">
-							<span class="nestform-app__foot-val"><?php echo esc_html( number_format_i18n( $forms_n ) ); ?></span>
-							<span class="nestform-app__foot-label"><?php esc_html_e( 'Forms', 'nestform' ); ?></span>
 						</a>
 						<a class="nestform-app__foot-cell" href="<?php echo esc_url( $entries_url ); ?>">
 							<span class="nestform-app__foot-val"><?php echo esc_html( number_format_i18n( $entries_n ) ); ?></span>
 							<span class="nestform-app__foot-label"><?php esc_html_e( 'Entries', 'nestform' ); ?></span>
 						</a>
 					</div>
-
-					<p class="nestform-app__foot-hint">
-						<?php
-						echo esc_html(
-							sprintf(
-								/* translators: %s: current date */
-								__( 'Updated %s', 'nestform' ),
-								wp_date( 'j M, H:i' )
-							)
-						);
-						?>
-					</p>
 				</div>
 			</div>
 			<button
@@ -551,7 +574,7 @@ function nestform_render_app_open( $current ) {
 				title="<?php esc_attr_e( 'Collapse sidebar', 'nestform' ); ?>"
 			>
 				<span class="nestform-app__sidebar-toggle-icon" aria-hidden="true">
-					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
 				</span>
 				<span class="nestform-app__sidebar-toggle-label"><?php esc_html_e( 'Collapse', 'nestform' ); ?></span>
 			</button>
@@ -641,11 +664,11 @@ function nestform_admin_notice_boot_css() {
 		. 'body.nestform-admin-screen div.notice.notice-success:not(.inline):not(.hidden),'
 		. 'body.nestform-admin-screen div.updated:not(.inline):not(.hidden),'
 		. 'body.nestform-admin-screen div.notice.updated:not(.inline):not(.hidden){'
-		. 'border-color:#c5ddd6!important;background:#e6f2ef!important;color:#147a66!important;'
+		. 'border-color:#b5e5dc!important;background:#e8f8f5!important;color:#0d9b87!important;'
 		. '}'
 		. 'body.nestform-admin-screen div.notice.notice-error:not(.inline):not(.hidden),'
 		. 'body.nestform-admin-screen div.error:not(.inline):not(.hidden){'
-		. 'border-color:#e5c4c8!important;background:#f6ebee!important;color:#b44a55!important;'
+		. 'border-color:#f0c5ce!important;background:#fdf0f3!important;color:#d14b63!important;'
 		. '}'
 		. 'body.nestform-admin-screen div.notice.notice-warning:not(.inline):not(.hidden){'
 		. 'border-color:#bfdbfe!important;background:#eff6ff!important;color:#3b82f6!important;'
@@ -717,7 +740,8 @@ add_action(
  *     @type string $title         Page title.
  *     @type string $description   Short help text.
  *     @type string $actions_html  Escaped HTML for the right side.
- *     @type string $icon          Optional lead icon key (forms|analytics|entries|settings|developers|crown).
+ *     @type string $meta_html     Optional compact meta (e.g. Pro insights) near actions.
+ *     @type string $icon          Optional lead icon key (forms|analytics|entries|settings|developers|pro).
  * }
  */
 function nestform_render_page_head( array $args ) {
@@ -727,6 +751,7 @@ function nestform_render_page_head( array $args ) {
 			'title'        => '',
 			'description'  => '',
 			'actions_html' => '',
+			'meta_html'    => '',
 			'icon'         => '',
 		)
 	);
@@ -745,13 +770,14 @@ function nestform_render_page_head( array $args ) {
 			'integrations' => 'integrations',
 			'developers'   => 'developers',
 			'docs'         => 'docs',
-			'pro'          => 'crown',
-			'license'      => 'crown',
+			'pro'          => 'pro',
+			'license'      => 'license',
 		);
 		$icon = isset( $map[ $view ] ) ? $map[ $view ] : '';
 	}
 	$icon_html = $icon !== '' ? nestform_admin_icon_html( $icon ) : '';
 	$actions   = (string) $args['actions_html'];
+	$meta      = (string) $args['meta_html'];
 	?>
 	<header class="nestform-page-head">
 		<div class="nestform-page-head__lead">
@@ -765,9 +791,18 @@ function nestform_render_page_head( array $args ) {
 				<?php endif; ?>
 			</div>
 		</div>
-		<?php if ( $actions !== '' ) : ?>
-			<div class="nestform-page-head__actions">
-				<?php echo $actions; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by trusted admin screens ?>
+		<?php if ( $meta !== '' || $actions !== '' ) : ?>
+			<div class="nestform-page-head__aside">
+				<?php if ( $meta !== '' ) : ?>
+					<div class="nestform-page-head__meta">
+						<?php echo $meta; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by trusted admin screens / Pro filters ?>
+					</div>
+				<?php endif; ?>
+				<?php if ( $actions !== '' ) : ?>
+					<div class="nestform-page-head__actions">
+						<?php echo $actions; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by trusted admin screens ?>
+					</div>
+				<?php endif; ?>
 			</div>
 		<?php endif; ?>
 	</header>
@@ -817,6 +852,8 @@ require_once NESTFORM_PATH . 'includes/class-elementor.php';
 add_action(
 	'plugins_loaded',
 	static function () {
+		load_plugin_textdomain( 'nestform', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+
 		Nestform_Migration::init();
 		Nestform_Compat::init();
 		Nestform_Capabilities::init();

@@ -300,6 +300,17 @@ class Nestform_Export {
 		if ( is_bool( $value ) ) {
 			return $value ? '1' : '0';
 		}
+		if ( is_array( $value ) && isset( $value['intent_id'], $value['amount'], $value['currency'] ) ) {
+			$line = sprintf(
+				'Paid %s %s',
+				(string) $value['amount'],
+				(string) $value['currency']
+			);
+			if ( ! empty( $value['intent_id'] ) ) {
+				$line .= ' (' . (string) $value['intent_id'] . ')';
+			}
+			return $line;
+		}
 		if ( is_array( $value ) && ! empty( $value['url'] ) ) {
 			return (string) $value['url'];
 		}

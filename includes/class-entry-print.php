@@ -276,7 +276,7 @@ class Nestform_Entry_Print {
 		.nestform-print p,
 		.nestform-print dt,
 		.nestform-print dd { margin: 0; padding: 0; }
-		.nestform-print__header { margin-bottom: 28px; padding-bottom: 20px; border-bottom: 2px solid #1d2327; }
+		.nestform-print__header { margin-bottom: 32px; padding-bottom: 16px; border-bottom: 2px solid #1d2327; }
 		.nestform-print__site { margin: 0 0 4px; color: #646970; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; }
 		.nestform-print__title { margin: 0 0 16px; font-size: 26px; line-height: 1.25; }
 		.nestform-print__meta { display: flex; flex-wrap: wrap; gap: 24px 32px; margin: 0; }
@@ -286,10 +286,10 @@ class Nestform_Entry_Print {
 		.nestform-print__body {
 			display: flex;
 			flex-direction: column;
-			gap: 14px;
+			gap: 16px;
 		}
 		.nestform-print__section { margin: 8px 0 0; }
-		.nestform-print__section-title { margin: 0; padding-bottom: 6px; border-bottom: 1px solid #dcdcde; font-size: 16px; }
+		.nestform-print__section-title { margin: 0; padding-bottom: 8px; border-bottom: 1px solid #dcdcde; font-size: 16px; }
 		.nestform-print__note { color: #50575e; }
 		.nestform-print__field {
 			display: grid;

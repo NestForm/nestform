@@ -123,7 +123,7 @@
     padding: var(--nestform-space-1) var(--nestform-space-2)
         var(--nestform-space-1) var(--nestform-space-1);
     border: 0;
-    border-radius: 8px;
+    border-radius: var(--nestform-radius);
     background: transparent;
     font-size: 11px;
     font-weight: 700;
@@ -153,6 +153,7 @@
     width: 20px;
     height: 20px;
     line-height: 0;
+    color: var(--nestform-accent);
 }
 
 .nestform-add__icon svg {
@@ -249,7 +250,7 @@
     padding: var(--nestform-space-2);
     background: var(--nestform-surface);
     border: 1px solid var(--nestform-border);
-    border-radius: 8px;
+    border-radius: var(--nestform-radius);
     box-shadow: 0 10px 28px rgba(16, 18, 24, 0.12);
     box-sizing: border-box;
 }
@@ -305,7 +306,7 @@
     margin: 0;
     padding: var(--nestform-space-2) var(--nestform-space-4);
     border: 0;
-    border-radius: 6px;
+    border-radius: 4px;
     background: transparent;
     color: var(--nestform-ink);
     font-size: 13px;
@@ -321,6 +322,33 @@
     background: var(--nestform-accent-soft);
     color: var(--nestform-accent-dark);
     outline: none;
+}
+
+.nestform-add-menu__item--teaser {
+    cursor: default;
+    color: var(--nestform-muted);
+    font-weight: 400;
+}
+
+.nestform-add-menu__item--teaser:hover,
+.nestform-add-menu__item--teaser:focus {
+    background: transparent;
+    color: var(--nestform-muted);
+}
+
+.nestform-add-menu__pro-link {
+    display: inline-flex;
+    margin: var(--nestform-space-2) var(--nestform-space-2) 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--nestform-pro-mid);
+    text-decoration: none;
+}
+
+.nestform-add-menu__pro-link:hover,
+.nestform-add-menu__pro-link:focus {
+    color: var(--nestform-pro);
+    text-decoration: underline;
 }
 
 /*
@@ -585,7 +613,7 @@ body.wp-core-ui.nestform-admin-screen
     .nestform-card__btn:is(:focus, :focus-visible) {
     outline: none;
     outline-offset: 0;
-    border-radius: 7px;
+    border-radius: var(--nestform-radius);
 }
 
 body.wp-core-ui.nestform-admin-screen
@@ -609,7 +637,7 @@ body.wp-core-ui.nestform-admin-screen
     flex: 0 0 auto;
     width: 36px;
     height: 20px;
-    border-radius: 10px;
+    border-radius: var(--nestform-space-8);
     background: var(--nestform-border-strong);
     transition: var(--nestform-transition);
     box-sizing: border-box;
@@ -778,7 +806,8 @@ body.wp-core-ui.nestform-admin-screen.edit-php
     min-height: var(--nestform-control-h);
     height: auto;
     margin: 0;
-    padding:var(--nestform-space-2) var(--nestform-space-8) var(--nestform-space-2) var(--nestform-space-2);
+    padding: var(--nestform-space-2) var(--nestform-space-8)
+        var(--nestform-space-2) var(--nestform-space-2);
     border: 1px solid var(--nestform-border);
     border-radius: var(--nestform-radius);
     background-color: var(--nestform-surface);

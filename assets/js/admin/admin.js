@@ -797,6 +797,7 @@
 		'file-limits': ['file'],
 		'file-max': ['file'],
 		options: ['select', 'radio', 'checkboxes', 'range', 'rating', 'scale', 'ranking', 'matrix'],
+		'payment-setup': ['payment'],
 		formula: ['calculated'],
 		subfields: ['repeater'],
 		'choice-other': ['select', 'radio', 'checkboxes'],
@@ -848,6 +849,7 @@
 			'paragraph',
 			'calculated',
 			'repeater',
+			'payment',
 		],
 		'acceptance-html': ['acceptance'],
 		condition: [
@@ -875,6 +877,7 @@
 			'ranking',
 			'calculated',
 			'repeater',
+			'payment',
 		],
 	};
 
@@ -1137,6 +1140,17 @@
 		syncShowControls(card, type);
 		syncPhonePicker(card);
 		syncOptionsHelp(card, type);
+		if (type === 'payment') {
+			var payAmount = card.querySelector('[data-nestform-payment-amount]');
+			var payCurrency = card.querySelector('[data-nestform-payment-currency]');
+			if (payAmount && !String(payAmount.value || '').trim()) {
+				payAmount.value = '9.99';
+			}
+			if (payCurrency && !String(payCurrency.value || '').trim()) {
+				payCurrency.value = 'USD';
+			}
+			syncCardSummary(card);
+		}
 		var phInput = card.querySelector('[data-nestform-placeholder]');
 		if (phInput) {
 			phInput.placeholder =
@@ -1197,9 +1211,25 @@
 		}
 		var type = card.getAttribute('data-field-type') || '';
 		var chips = [];
+		var enabledInput = card.querySelector('[data-nestform-enabled]');
+		if (enabledInput && !enabledInput.checked) {
+			chips.push({
+				text: i18n.fieldHiddenChip || 'Hidden',
+				mod: 'hidden',
+			});
+		}
+		if (type === 'payment') {
+			var sumAmount = card.querySelector('[data-nestform-payment-amount]');
+			var sumCurrency = card.querySelector('[data-nestform-payment-currency]');
+			var sumA = sumAmount ? String(sumAmount.value || '').trim() : '';
+			var sumC = sumCurrency ? String(sumCurrency.value || '').trim().toUpperCase() : '';
+			if (sumA || sumC) {
+				chips.push({ text: (sumA || '9.99') + ' ' + (sumC || 'USD') });
+			}
+		}
 		var width = card.querySelector('select[name*="[width]"]');
 		if (width && width.value === 'half') {
-			chips.push('½');
+			chips.push({ text: '½' });
 		}
 		if (!isLayoutType(type)) {
 			var condField = card.querySelector('[data-nestform-condition-field]');
@@ -1213,7 +1243,7 @@
 				if (op !== 'empty' && op !== 'not_empty' && val) {
 					text += ' “' + val + '”';
 				}
-				chips.push(text);
+				chips.push({ text: text });
 			}
 		}
 		summary.textContent = '';
@@ -1223,9 +1253,11 @@
 		}
 		summary.hidden = false;
 		chips.forEach(function (chip) {
+			var item = typeof chip === 'string' ? { text: chip } : chip || {};
 			var span = document.createElement('span');
-			span.className = 'nestform-card__chip';
-			span.textContent = chip;
+			span.className =
+				'nestform-card__chip' + (item.mod ? ' nestform-card__chip--' + item.mod : '');
+			span.textContent = item.text || '';
 			summary.appendChild(span);
 		});
 	}
@@ -1743,6 +1775,22 @@
 			);
 		} else if (type === 'signature') {
 			field.appendChild(previewSignatureNode());
+		} else if (type === 'payment') {
+			var payAmountEl = card.querySelector('[data-nestform-payment-amount]');
+			var payCurrencyEl = card.querySelector('[data-nestform-payment-currency]');
+			var payAmount = payAmountEl ? String(payAmountEl.value || '').trim() : '';
+			var payCurrency = payCurrencyEl ? String(payCurrencyEl.value || '').trim().toUpperCase() : '';
+			if (!payAmount) {
+				payAmount = '9.99';
+			}
+			if (!payCurrency) {
+				payCurrency = 'USD';
+			}
+			field.appendChild(
+				previewControlNode(
+					(i18n.fieldPreviewPayment || 'Card payment') + ' · ' + payAmount + ' ' + payCurrency
+				)
+			);
 		} else {
 			field.appendChild(previewControlNode(placeholder || defaultVal));
 		}
@@ -2134,6 +2182,27 @@
 		if (wrap) {
 			wrap.classList.toggle('is-on', on);
 		}
+	}
+
+	function syncEnabledState(card) {
+		var checkbox = card.querySelector('[data-nestform-enabled]');
+		var wrap = card.querySelector('[data-nestform-enabled-wrap]');
+		var on = !(checkbox && !checkbox.checked);
+		card.classList.toggle('is-disabled', !on);
+		if (wrap) {
+			wrap.classList.toggle('is-off', !on);
+			var tip = on
+				? i18n.hideField || 'Hide from form'
+				: i18n.showField || 'Show on form';
+			wrap.setAttribute('data-nestform-tooltip', tip);
+			wrap.setAttribute('aria-label', tip);
+			wrap.removeAttribute('title');
+			var sr = wrap.querySelector('.screen-reader-text');
+			if (sr) {
+				sr.textContent = tip;
+			}
+		}
+		syncCardSummary(card);
 	}
 
 	function syncStepBadge(card) {
@@ -2560,6 +2629,7 @@
 		syncTypeUi(card);
 		syncTitle(card);
 		syncRequiredPill(card);
+		syncEnabledState(card);
 		syncStepBadge(card);
 		syncConditionValue(card);
 		bindImagePicker(card);
@@ -2669,6 +2739,16 @@
 				var matrixOpts = node.querySelector('[data-nestform-show="options"] textarea');
 				if (matrixOpts && !String(matrixOpts.value || '').trim()) {
 					matrixOpts.value = i18n.optionsPhMatrix || "Support\nProduct\n---\nPoor\nFair\nGood";
+				}
+			}
+			if (type === 'payment') {
+				var payAmount = node.querySelector('[data-nestform-payment-amount]');
+				var payCurrency = node.querySelector('[data-nestform-payment-currency]');
+				if (payAmount && !String(payAmount.value || '').trim()) {
+					payAmount.value = '9.99';
+				}
+				if (payCurrency && !String(payCurrency.value || '').trim()) {
+					payCurrency.value = 'USD';
 				}
 			}
 			if (type === 'select' || type === 'radio' || type === 'checkboxes') {
@@ -2869,9 +2949,114 @@
 				panel.hidden = !match;
 			});
 			if (id === 'mail') {
-				window.setTimeout(initMailBodyEditor, 60);
+				window.setTimeout(function () {
+					initMailBodyEditor();
+					refreshVisibleSubtabs(root);
+				}, 60);
+			}
+			if (id === 'settings' || id === 'mail') {
+				refreshVisibleSubtabs(root);
 			}
 			persistEditorTab(id, { skipHash: !!options.skipHash });
+		}
+
+		function editorSubtabStorageKey(scope) {
+			var formId = root.getAttribute('data-form-id') || '0';
+			return 'nestform_subtab_' + formId + '_' + scope;
+		}
+
+		function activateSubtabs(wrap, id) {
+			if (!wrap) {
+				return;
+			}
+			var tabs = wrap.querySelectorAll('[data-nestform-subtab]');
+			var panels = wrap.querySelectorAll('[data-nestform-subpanel]');
+			var ids = [];
+			tabs.forEach(function (tab) {
+				var tid = tab.getAttribute('data-nestform-subtab') || '';
+				if (tid) {
+					ids.push(tid);
+				}
+			});
+			if (ids.indexOf(id) === -1) {
+				id = wrap.getAttribute('data-nestform-subtabs-default') || ids[0] || '';
+			}
+			tabs.forEach(function (tab) {
+				var on = tab.getAttribute('data-nestform-subtab') === id;
+				tab.classList.toggle('nestform-settings__subnav-item--active', on);
+				tab.setAttribute('aria-selected', on ? 'true' : 'false');
+				tab.tabIndex = on ? 0 : -1;
+			});
+			panels.forEach(function (panel) {
+				var on = panel.getAttribute('data-nestform-subpanel') === id;
+				panel.hidden = !on;
+				panel.classList.toggle('is-active', on);
+			});
+			var key = wrap.getAttribute('data-nestform-subtabs-key') || '';
+			if (key) {
+				try {
+					window.sessionStorage.setItem(editorSubtabStorageKey(key), id);
+				} catch (err) {
+					/* ignore */
+				}
+			}
+			if (key === 'mail' && id === 'notification') {
+				window.setTimeout(initMailBodyEditor, 60);
+			}
+		}
+
+		function refreshVisibleSubtabs(scope) {
+			scope.querySelectorAll('[data-nestform-subtabs]').forEach(function (wrap) {
+				var panel = wrap.closest('[data-nestform-panel]');
+				if (panel && panel.hidden) {
+					return;
+				}
+				var active = wrap.querySelector('[data-nestform-subtab].nestform-settings__subnav-item--active');
+				var id = active ? active.getAttribute('data-nestform-subtab') : '';
+				activateSubtabs(wrap, id || wrap.getAttribute('data-nestform-subtabs-default') || '');
+			});
+		}
+
+		function initEditorSubtabs() {
+			root.querySelectorAll('[data-nestform-subtabs]').forEach(function (wrap) {
+				var key = wrap.getAttribute('data-nestform-subtabs-key') || '';
+				var initial = wrap.getAttribute('data-nestform-subtabs-default') || '';
+				if (key) {
+					try {
+						var stored = window.sessionStorage.getItem(editorSubtabStorageKey(key));
+						if (stored) {
+							initial = stored;
+						}
+					} catch (err) {
+						/* ignore */
+					}
+				}
+				activateSubtabs(wrap, initial);
+				var tabs = wrap.querySelectorAll('[data-nestform-subtab]');
+				tabs.forEach(function (tab) {
+					tab.addEventListener('click', function (event) {
+						event.preventDefault();
+						activateSubtabs(wrap, tab.getAttribute('data-nestform-subtab') || '');
+					});
+					tab.addEventListener('keydown', function (event) {
+						if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+							return;
+						}
+						event.preventDefault();
+						var list = Array.prototype.slice.call(tabs);
+						var idx = list.indexOf(tab);
+						if (idx < 0) {
+							return;
+						}
+						var next =
+							event.key === 'ArrowRight'
+								? list[(idx + 1) % list.length]
+								: list[(idx - 1 + list.length) % list.length];
+						next.focus();
+						activateSubtabs(wrap, next.getAttribute('data-nestform-subtab') || '');
+					});
+				});
+			});
 		}
 
 		root.querySelectorAll('[data-nestform-tab]').forEach(function (tab) {
@@ -2884,6 +3069,7 @@
 			activateEditorTab(readEditorTab(), { skipHash: true });
 		});
 
+		initEditorSubtabs();
 		activateEditorTab(readEditorTab());
 
 		root.querySelectorAll('[data-nestform-field]').forEach(bindCard);
@@ -3071,6 +3257,9 @@
 				if (event.target.matches('[data-nestform-required]')) {
 					syncRequiredPill(card);
 				}
+				if (event.target.matches('[data-nestform-enabled]')) {
+					syncEnabledState(card);
+				}
 				if (event.target.matches('[data-nestform-condition-op]')) {
 					syncConditionValue(card);
 					syncCardSummary(card);
@@ -3083,6 +3272,9 @@
 					moveCardToStep(root, card, event.target.value);
 				}
 				if (event.target.matches('select[name*="[width]"]')) {
+					syncCardSummary(card);
+				}
+				if (event.target.matches('[data-nestform-payment-currency]')) {
 					syncCardSummary(card);
 				}
 				scheduleFieldPreview(card);
@@ -3117,6 +3309,9 @@
 				syncAllFieldNameSelects(root);
 			}
 			if (event.target.matches('[data-nestform-condition-value]')) {
+				syncCardSummary(card);
+			}
+			if (event.target.matches('[data-nestform-payment-amount], [data-nestform-payment-currency]')) {
 				syncCardSummary(card);
 			}
 			scheduleFieldPreview(card);
@@ -3230,6 +3425,7 @@
 				syncTypeUi(card);
 				syncTitle(card);
 				syncRequiredPill(card);
+				syncEnabledState(card);
 			});
 			pushing = false;
 		}

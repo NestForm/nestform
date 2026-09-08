@@ -18,6 +18,7 @@ phpunit.xml
 phpunit.xml.dist
 tests
 bin
+scripts
 .editorconfig
 .eslintrc*
 .phpcs.xml*
@@ -28,6 +29,9 @@ vite.config.*
 assets/css/admin/
 assets/css/front/
 assets/css/build.mjs
+assets/css/normalize-spacing.mjs
+assets/css/normalize-radius.mjs
+assets/css/normalize-line-height.mjs
 # JS sources (minified *.min.js siblings ship in the zip)
 assets/js/admin/admin.js
 assets/js/admin/admin-dashboard-chart.js

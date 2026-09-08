@@ -261,11 +261,13 @@ class Nestform_Renderer {
 						<?php echo esc_html( (string) ( $settings['next_label'] ?: __( 'Continue', 'nestform' ) ) ); ?>
 					</button>
 					<button type="submit" class="button button--primary nest-form__submit" data-nest-form-submit hidden>
-						<?php echo esc_html( $settings['submit_label'] ); ?>
+						<span class="nest-form__submit-spinner" aria-hidden="true"></span>
+						<span class="nest-form__submit-label"><?php echo esc_html( $settings['submit_label'] ); ?></span>
 					</button>
 				<?php else : ?>
 					<button type="submit" class="button button--primary nest-form__submit">
-						<?php echo esc_html( $settings['submit_label'] ); ?>
+						<span class="nest-form__submit-spinner" aria-hidden="true"></span>
+						<span class="nest-form__submit-label"><?php echo esc_html( $settings['submit_label'] ); ?></span>
 					</button>
 				<?php endif; ?>
 			</div>
@@ -297,6 +299,10 @@ class Nestform_Renderer {
 	 * @return string
 	 */
 	private static function render_field( array $field, $uid, $start_hidden = false ) {
+		if ( ! Nestform_Form_Config::is_field_enabled( $field ) ) {
+			return '';
+		}
+
 		$type = $field['type'];
 
 		/**
@@ -315,6 +321,8 @@ class Nestform_Renderer {
 				$pro_cap = Nestform_Features::CALCULATED_FIELDS;
 			} elseif ( 'repeater' === $type ) {
 				$pro_cap = Nestform_Features::REPEATERS;
+			} elseif ( 'payment' === $type ) {
+				$pro_cap = Nestform_Features::PAYMENTS;
 			}
 			if ( null !== $pro_cap ) {
 				if ( ! Nestform_Features::can( $pro_cap ) ) {
@@ -795,6 +803,7 @@ class Nestform_Renderer {
 				'i18n'    => array(
 					'close'         => __( 'Close', 'nestform' ),
 					'successTitle'  => __( 'Thank you', 'nestform' ),
+					'submitting'    => __( 'Sending…', 'nestform' ),
 				),
 			)
 		);

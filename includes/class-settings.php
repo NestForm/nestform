@@ -46,6 +46,11 @@ class Nestform_Settings {
 			'captcha_secret_key'         => '',
 			'captcha_v3_score'           => '0.5',
 			'captcha_keys'               => self::empty_captcha_keys(),
+			'stripe_enabled'             => '0',
+			'stripe_mode'                => 'test',
+			'stripe_keys'                => self::empty_stripe_keys(),
+			'hubspot_enabled'            => '0',
+			'hubspot_access_token'       => '',
 			'default_submit_label'       => '',
 			'default_success_message'    => '',
 			'email_from_name'            => '',
@@ -93,6 +98,51 @@ class Nestform_Settings {
 	}
 
 	/**
+	 * Empty Stripe key map (test + live).
+	 *
+	 * @return array<string, array{publishable:string,secret:string}>
+	 */
+	public static function empty_stripe_keys() {
+		return array(
+			'test' => array(
+				'publishable' => '',
+				'secret'      => '',
+			),
+			'live' => array(
+				'publishable' => '',
+				'secret'      => '',
+			),
+		);
+	}
+
+	/**
+	 * Normalize stripe_keys option.
+	 *
+	 * @param array<string, mixed> $settings Settings row.
+	 * @return array<string, mixed>
+	 */
+	public static function sync_stripe_keys( array $settings ) {
+		$mode = isset( $settings['stripe_mode'] ) ? sanitize_key( (string) $settings['stripe_mode'] ) : 'test';
+		if ( ! in_array( $mode, array( 'test', 'live' ), true ) ) {
+			$mode = 'test';
+		}
+
+		$keys = self::empty_stripe_keys();
+		$raw  = isset( $settings['stripe_keys'] ) && is_array( $settings['stripe_keys'] ) ? $settings['stripe_keys'] : array();
+		foreach ( array( 'test', 'live' ) as $slug ) {
+			$row = isset( $raw[ $slug ] ) && is_array( $raw[ $slug ] ) ? $raw[ $slug ] : array();
+			$keys[ $slug ] = array(
+				'publishable' => isset( $row['publishable'] ) ? sanitize_text_field( (string) $row['publishable'] ) : '',
+				'secret'      => isset( $row['secret'] ) ? sanitize_text_field( (string) $row['secret'] ) : '',
+			);
+		}
+
+		$settings['stripe_mode'] = $mode;
+		$settings['stripe_keys'] = $keys;
+		return $settings;
+	}
+
+	/**
 	 * Normalize captcha_keys option and keep active site/secret in sync.
 	 *
 	 * @param array<string, mixed> $settings Settings row.
@@ -136,6 +186,7 @@ class Nestform_Settings {
 		$stored = get_option( self::OPTION, array() );
 		$stored = is_array( $stored ) ? $stored : array();
 		$out    = self::sync_captcha_keys( array_merge( self::defaults(), $stored ) );
+		$out    = self::sync_stripe_keys( $out );
 
 		if ( defined( 'NESTFORM_RECAPTCHA_SITE_KEY' ) && NESTFORM_RECAPTCHA_SITE_KEY !== '' ) {
 			$out['captcha_site_key'] = (string) NESTFORM_RECAPTCHA_SITE_KEY;
@@ -225,6 +276,79 @@ class Nestform_Settings {
 			return false;
 		}
 		return (string) ( $s['captcha_site_key'] ?? '' ) !== '' && (string) ( $s['captcha_secret_key'] ?? '' ) !== '';
+	}
+
+	/**
+	 * Whether Stripe is enabled and keys for the active mode are present.
+	 *
+	 * @return bool
+	 */
+	public static function stripe_ready() {
+		$s = self::get();
+		if ( '1' !== (string) ( $s['stripe_enabled'] ?? '0' ) ) {
+			return false;
+		}
+		$pub = self::stripe_publishable_key();
+		$sec = self::stripe_secret_key();
+		return '' !== $pub && '' !== $sec;
+	}
+
+	/**
+	 * Active Stripe mode (test|live).
+	 *
+	 * @return string
+	 */
+	public static function stripe_mode() {
+		$s    = self::get();
+		$mode = sanitize_key( (string) ( $s['stripe_mode'] ?? 'test' ) );
+		return in_array( $mode, array( 'test', 'live' ), true ) ? $mode : 'test';
+	}
+
+	/**
+	 * Publishable key for the active mode (safe for front-end).
+	 *
+	 * @return string
+	 */
+	public static function stripe_publishable_key() {
+		$s    = self::get();
+		$mode = self::stripe_mode();
+		$keys = isset( $s['stripe_keys'][ $mode ] ) && is_array( $s['stripe_keys'][ $mode ] ) ? $s['stripe_keys'][ $mode ] : array();
+		return trim( (string) ( $keys['publishable'] ?? '' ) );
+	}
+
+	/**
+	 * Secret key for the active mode (server-side only — never localize).
+	 *
+	 * @return string
+	 */
+	public static function stripe_secret_key() {
+		$s    = self::get();
+		$mode = self::stripe_mode();
+		$keys = isset( $s['stripe_keys'][ $mode ] ) && is_array( $s['stripe_keys'][ $mode ] ) ? $s['stripe_keys'][ $mode ] : array();
+		return trim( (string) ( $keys['secret'] ?? '' ) );
+	}
+
+	/**
+	 * Whether HubSpot is enabled and a Private App token is present.
+	 *
+	 * @return bool
+	 */
+	public static function hubspot_ready() {
+		$s = self::get();
+		if ( empty( $s['hubspot_enabled'] ) || '1' !== (string) $s['hubspot_enabled'] ) {
+			return false;
+		}
+		return '' !== self::hubspot_access_token();
+	}
+
+	/**
+	 * HubSpot Private App access token (server-side only).
+	 *
+	 * @return string
+	 */
+	public static function hubspot_access_token() {
+		$s = self::get();
+		return trim( (string) ( $s['hubspot_access_token'] ?? '' ) );
 	}
 
 	/**
@@ -378,7 +502,7 @@ class Nestform_Settings {
 		$out     = array_merge( self::defaults(), $stored );
 		$section = isset( $input['_section'] ) ? sanitize_key( (string) $input['_section'] ) : 'general';
 
-		if ( 'integrations' === $section ) {
+		if ( 'integrations' === $section || 'integrations_captcha' === $section ) {
 			$provider = isset( $input['captcha_provider'] ) ? sanitize_key( (string) $input['captcha_provider'] ) : 'recaptcha_v2';
 			$allowed  = array( 'recaptcha_v2', 'recaptcha_v3', 'turnstile', 'hcaptcha' );
 			if ( ! in_array( $provider, $allowed, true ) ) {
@@ -409,6 +533,51 @@ class Nestform_Settings {
 			$out['captcha_site_key']   = $keys[ $provider ]['site'];
 			$out['captcha_secret_key'] = $keys[ $provider ]['secret'];
 			$out['captcha_v3_score']   = (string) $score;
+
+			if ( 'integrations_captcha' === $section ) {
+				return $out;
+			}
+		}
+
+		if ( 'integrations' === $section || 'integrations_stripe' === $section ) {
+			$can_payments = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::PAYMENTS );
+			if ( ! $can_payments ) {
+				if ( 'integrations_stripe' === $section ) {
+					return $out;
+				}
+			} else {
+				$stripe_mode = isset( $input['stripe_mode'] ) ? sanitize_key( (string) $input['stripe_mode'] ) : 'test';
+				if ( ! in_array( $stripe_mode, array( 'test', 'live' ), true ) ) {
+					$stripe_mode = 'test';
+				}
+				$stripe_keys     = self::empty_stripe_keys();
+				$raw_stripe_keys = isset( $input['stripe_keys'] ) && is_array( $input['stripe_keys'] ) ? $input['stripe_keys'] : array();
+				foreach ( array( 'test', 'live' ) as $slug ) {
+					$row = isset( $raw_stripe_keys[ $slug ] ) && is_array( $raw_stripe_keys[ $slug ] ) ? $raw_stripe_keys[ $slug ] : array();
+					$stripe_keys[ $slug ] = array(
+						'publishable' => isset( $row['publishable'] ) ? sanitize_text_field( (string) $row['publishable'] ) : '',
+						'secret'      => isset( $row['secret'] ) ? sanitize_text_field( (string) $row['secret'] ) : '',
+					);
+				}
+				$out['stripe_enabled'] = ! empty( $input['stripe_enabled'] ) ? '1' : '0';
+				$out['stripe_mode']    = $stripe_mode;
+				$out['stripe_keys']    = $stripe_keys;
+
+				if ( 'integrations_stripe' === $section ) {
+					return $out;
+				}
+			}
+		}
+
+		if ( 'integrations' === $section || 'integrations_hubspot' === $section ) {
+			$can_hubspot = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::HUBSPOT );
+			if ( ! $can_hubspot ) {
+				return $out;
+			}
+			$out['hubspot_enabled']      = ! empty( $input['hubspot_enabled'] ) ? '1' : '0';
+			$out['hubspot_access_token'] = isset( $input['hubspot_access_token'] )
+				? sanitize_text_field( (string) $input['hubspot_access_token'] )
+				: '';
 			return $out;
 		}
 
@@ -632,7 +801,7 @@ class Nestform_Settings {
 			}
 			?>
 
-			<div class="nestform-settings__layout">
+			<div class="nestform-settings__layout<?php echo in_array( $section, array( 'general', 'security' ), true ) ? '' : ' nestform-settings__layout--compact'; ?>">
 				<nav class="nestform-settings__nav" aria-label="<?php esc_attr_e( 'Settings sections', 'nestform' ); ?>">
 					<?php foreach ( $sections as $id => $meta ) : ?>
 						<a
@@ -643,8 +812,10 @@ class Nestform_Settings {
 						</a>
 					<?php endforeach; ?>
 					<?php if ( $integrations_url ) : ?>
+						<span class="nestform-settings__nav-sep" aria-hidden="true"></span>
 						<a class="nestform-settings__nav-item nestform-settings__nav-item--external" href="<?php echo esc_url( $integrations_url ); ?>">
 							<?php esc_html_e( 'Integrations', 'nestform' ); ?>
+							<span class="nestform-settings__nav-hint"><?php esc_html_e( 'Captcha & payments', 'nestform' ); ?></span>
 						</a>
 					<?php endif; ?>
 				</nav>
@@ -660,7 +831,7 @@ class Nestform_Settings {
 								<div class="nestform-admin__panel-head">
 									<div>
 										<h3 class="nestform-admin__panel-title"><?php esc_html_e( 'Form defaults', 'nestform' ); ?></h3>
-										<p class="nestform-admin__panel-desc"><?php esc_html_e( 'Starting values for new forms. Each form can override these in the builder.', 'nestform' ); ?></p>
+										<p class="nestform-admin__panel-desc"><?php esc_html_e( 'Each form can override these in the builder.', 'nestform' ); ?></p>
 									</div>
 								</div>
 								<table class="form-table nestform-settings__table" role="presentation">
@@ -681,7 +852,7 @@ class Nestform_Settings {
 								</table>
 								<button type="submit" class="nestform-btn nestform-btn--primary" name="submit" value="1">
 									<?php nestform_admin_icon( 'save' ); ?>
-									<?php esc_html_e( 'Save', 'nestform' ); ?>
+									<?php esc_html_e( 'Save defaults', 'nestform' ); ?>
 								</button>
 							</div>
 						</form>
@@ -1172,10 +1343,11 @@ class Nestform_Settings {
 					<?php endif; ?>
 				</div>
 
+				<?php if ( in_array( $section, array( 'general', 'security' ), true ) ) : ?>
 				<aside class="nestform-settings__aside">
 					<div class="nestform-admin__surface nestform-settings__aside-card">
 						<h3 class="nestform-settings__aside-title"><?php esc_html_e( 'Always on', 'nestform' ); ?></h3>
-						<p class="nestform-settings__aside-text"><?php esc_html_e( 'Every form also gets a nonce, honeypot, and per-form time trap. Captcha and Akismet stay in Integrations / the form builder.', 'nestform' ); ?></p>
+						<p class="nestform-settings__aside-text"><?php esc_html_e( 'Every form gets a nonce, honeypot, and time trap by default.', 'nestform' ); ?></p>
 						<?php if ( 'security' !== $section ) : ?>
 							<p class="nestform-settings__aside-text">
 								<a href="<?php echo esc_url( self::url( array( 'section' => 'security' ) ) ); ?>"><?php esc_html_e( 'Open Security settings', 'nestform' ); ?></a>
@@ -1183,6 +1355,7 @@ class Nestform_Settings {
 						<?php endif; ?>
 					</div>
 				</aside>
+				<?php endif; ?>
 			</div>
 		</div>
 		<?php

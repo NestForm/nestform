@@ -152,6 +152,9 @@ class Nestform_Form_Config {
 			'redirect_url'       => '',
 			'success_display'    => 'inline',
 			'enable_captcha'     => '0',
+			'enable_stripe'      => '0',
+			'enable_hubspot'     => '0',
+			'hubspot_map'        => self::default_hubspot_map(),
 			'enable_steps'       => '0',
 			'step_labels'        => "About you\nYour project\nDetails",
 			'next_label'         => 'Continue',
@@ -1133,6 +1136,13 @@ class Nestform_Form_Config {
 			$settings['automation_then_webhook'] = '';
 			$settings['automation_skip_spam']    = '1';
 		}
+		if ( ! class_exists( 'Nestform_Features' ) || ! Nestform_Features::can( Nestform_Features::PAYMENTS ) ) {
+			$settings['enable_stripe'] = '0';
+		}
+		if ( ! class_exists( 'Nestform_Features' ) || ! Nestform_Features::can( Nestform_Features::HUBSPOT ) ) {
+			$settings['enable_hubspot'] = '0';
+			$settings['hubspot_map']    = self::sanitize_hubspot_map( array() );
+		}
 		return $settings;
 	}
 
@@ -1155,6 +1165,9 @@ class Nestform_Form_Config {
 			$display = isset( $raw['success_display'] ) ? sanitize_key( (string) $raw['success_display'] ) : 'inline';
 			$out['success_display'] = in_array( $display, array( 'inline', 'replace', 'popup' ), true ) ? $display : 'inline';
 			$out['enable_captcha'] = ! empty( $raw['enable_captcha'] ) && '0' !== (string) $raw['enable_captcha'] ? '1' : '0';
+			$out['enable_stripe']  = ! empty( $raw['enable_stripe'] ) && '0' !== (string) $raw['enable_stripe'] ? '1' : '0';
+			$out['enable_hubspot'] = ! empty( $raw['enable_hubspot'] ) && '0' !== (string) $raw['enable_hubspot'] ? '1' : '0';
+			$out['hubspot_map']    = self::sanitize_hubspot_map( isset( $raw['hubspot_map'] ) ? $raw['hubspot_map'] : array() );
 			$out['enable_steps']   = ! empty( $raw['enable_steps'] ) && '0' !== (string) $raw['enable_steps'] ? '1' : '0';
 			if ( isset( $raw['step_labels'] ) && is_string( $raw['step_labels'] ) ) {
 				$out['step_labels'] = sanitize_textarea_field( $raw['step_labels'] );
@@ -1304,6 +1317,11 @@ class Nestform_Form_Config {
 				: 'inline';
 			$settings['success_display'] = in_array( $display, array( 'inline', 'replace', 'popup' ), true ) ? $display : 'inline';
 			$settings['enable_captcha'] = ! empty( $config['settings']['enable_captcha'] ) ? '1' : '0';
+			$settings['enable_stripe']  = ! empty( $config['settings']['enable_stripe'] ) ? '1' : '0';
+			$settings['enable_hubspot'] = ! empty( $config['settings']['enable_hubspot'] ) ? '1' : '0';
+			$settings['hubspot_map']    = self::sanitize_hubspot_map(
+				isset( $config['settings']['hubspot_map'] ) ? $config['settings']['hubspot_map'] : array()
+			);
 
 			$can_steps   = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::MULTI_STEP );
 			$existing    = self::get_settings_raw( $form_id );
@@ -1466,6 +1484,8 @@ class Nestform_Form_Config {
 			$options = self::sanitize_file_extensions( $options_raw );
 		} elseif ( 'calculated' === $type ) {
 			$options = sanitize_text_field( $options_raw );
+		} elseif ( 'payment' === $type ) {
+			$options = self::sanitize_payment_options( $row, $options_raw );
 		} else {
 			$options = sanitize_textarea_field( $options_raw );
 		}
@@ -1485,6 +1505,8 @@ class Nestform_Form_Config {
 		}
 
 		$required = ! empty( $row['required'] ) && ! self::is_layout_field( $type );
+		// Missing key = enabled (backward compatible). Posted "0" disables the field on the front.
+		$enabled = ! array_key_exists( 'enabled', $row ) || ! empty( $row['enabled'] );
 
 		$cond_field = isset( $row['condition_field'] ) ? sanitize_key( (string) $row['condition_field'] ) : '';
 		$cond_field = str_replace( '-', '_', $cond_field );
@@ -1508,6 +1530,7 @@ class Nestform_Form_Config {
 			'default'         => $default,
 			'css_class'       => sanitize_html_class( (string) ( $row['css_class'] ?? '' ) ),
 			'required'        => $required,
+			'enabled'         => $enabled,
 			'width'           => $width,
 			'options'         => $options,
 			'allow_other'     => ! empty( $row['allow_other'] ) && in_array( $type, array( 'select', 'radio', 'checkboxes' ), true ),
@@ -1578,6 +1601,19 @@ class Nestform_Form_Config {
 	}
 
 	/**
+	 * Whether a field is enabled for the public form (soft-hide in the builder).
+	 *
+	 * @param array<string, mixed> $field Field config.
+	 * @return bool
+	 */
+	public static function is_field_enabled( array $field ) {
+		if ( ! array_key_exists( 'enabled', $field ) ) {
+			return true;
+		}
+		return ! empty( $field['enabled'] );
+	}
+
+	/**
 	 * Whether a field should be visible given current submitted/posted values.
 	 *
 	 * @param array<string, mixed> $field Field config.
@@ -1585,6 +1621,9 @@ class Nestform_Form_Config {
 	 * @return bool
 	 */
 	public static function is_field_visible( array $field, array $data ) {
+		if ( ! self::is_field_enabled( $field ) ) {
+			return false;
+		}
 		$watch = isset( $field['condition_field'] ) ? (string) $field['condition_field'] : '';
 		if ( $watch === '' ) {
 			return true;
@@ -2096,6 +2135,54 @@ class Nestform_Form_Config {
 	}
 
 	/**
+	 * Default HubSpot contact property → form field name map.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function default_hubspot_map() {
+		return array(
+			'email'     => '',
+			'firstname' => '',
+			'lastname'  => '',
+			'phone'     => '',
+			'company'   => '',
+		);
+	}
+
+	/**
+	 * @param mixed $raw Raw map.
+	 * @return array<string, string>
+	 */
+	public static function sanitize_hubspot_map( $raw ) {
+		$out = self::default_hubspot_map();
+		if ( ! is_array( $raw ) ) {
+			return $out;
+		}
+		foreach ( array_keys( $out ) as $prop ) {
+			if ( ! isset( $raw[ $prop ] ) ) {
+				continue;
+			}
+			$out[ $prop ] = sanitize_key( str_replace( '-', '_', (string) $raw[ $prop ] ) );
+		}
+		return $out;
+	}
+
+	/**
+	 * Labels for HubSpot property mapping UI.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function hubspot_map_labels() {
+		return array(
+			'email'     => __( 'Email', 'nestform' ),
+			'firstname' => __( 'First name', 'nestform' ),
+			'lastname'  => __( 'Last name', 'nestform' ),
+			'phone'     => __( 'Phone', 'nestform' ),
+			'company'   => __( 'Company', 'nestform' ),
+		);
+	}
+
+	/**
 	 * @param string $type Field type.
 	 * @return bool
 	 */
@@ -2151,6 +2238,50 @@ class Nestform_Form_Config {
 	public static function is_dangerous_file_extension( $ext ) {
 		$ext = strtolower( preg_replace( '/[^a-z0-9]/', '', (string) $ext ) );
 		return $ext !== '' && in_array( $ext, self::dangerous_file_extensions(), true );
+	}
+
+	/**
+	 * Common Stripe currency codes for the builder (Pro may filter further).
+	 *
+	 * @return array<int, string>
+	 */
+	public static function payment_currency_options() {
+		$codes = array( 'USD', 'EUR', 'GBP', 'RUB', 'CAD', 'AUD', 'CHF', 'JPY', 'PLN', 'SEK', 'NOK', 'DKK', 'CZK', 'UAH', 'BRL', 'MXN', 'INR', 'SGD', 'HKD', 'NZD' );
+		if ( class_exists( 'Nestform_Pro_Payments' ) && is_callable( array( 'Nestform_Pro_Payments', 'currencies' ) ) ) {
+			$codes = Nestform_Pro_Payments::currencies();
+		}
+		return array_values( array_unique( array_map( 'strtoupper', (array) $codes ) ) );
+	}
+
+	/**
+	 * Build payment options string from dedicated amount/currency inputs or legacy textarea.
+	 *
+	 * @param array  $row         Raw field row.
+	 * @param string $options_raw Existing options textarea value.
+	 * @return string amount\\ncurrency
+	 */
+	public static function sanitize_payment_options( array $row, $options_raw ) {
+		$allowed = self::payment_currency_options();
+		$amount  = '';
+		$currency = '';
+
+		if ( array_key_exists( 'payment_amount', $row ) || array_key_exists( 'payment_currency', $row ) ) {
+			$amount   = trim( (string) ( $row['payment_amount'] ?? '' ) );
+			$currency = strtoupper( trim( (string) ( $row['payment_currency'] ?? '' ) ) );
+		} else {
+			$lines    = preg_split( '/\r\n|\r|\n/', (string) $options_raw );
+			$amount   = is_array( $lines ) && isset( $lines[0] ) ? trim( (string) $lines[0] ) : '';
+			$currency = is_array( $lines ) && isset( $lines[1] ) ? strtoupper( trim( (string) $lines[1] ) ) : '';
+		}
+
+		if ( ! preg_match( '/^\d+(\.\d{1,2})?$/', $amount ) ) {
+			$amount = '9.99';
+		}
+		if ( ! in_array( $currency, $allowed, true ) ) {
+			$currency = 'USD';
+		}
+
+		return $amount . "\n" . $currency;
 	}
 
 	/**

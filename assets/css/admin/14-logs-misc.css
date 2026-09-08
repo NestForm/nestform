@@ -17,7 +17,7 @@ body.wp-core-ui.nestform-settings-screen .nestform-log__notice,
     margin: 0 0 var(--nestform-space-4);
     padding: var(--nestform-space-2) var(--nestform-space-4);
     border: 1px solid var(--nestform-accent-line);
-    border-radius: 8px;
+    border-radius: var(--nestform-radius);
     background: var(--nestform-accent-soft);
     color: var(--nestform-ink);
     font-size: 13px;
@@ -41,7 +41,7 @@ body.wp-core-ui.nestform-settings-screen .nestform-log__summary,
     margin: 0 0 var(--nestform-space-4);
     padding: var(--nestform-space-4);
     border: 1px solid var(--nestform-border);
-    border-radius: 8px;
+    border-radius: var(--nestform-radius);
     background: var(--nestform-soft);
 }
 
@@ -281,7 +281,7 @@ body.wp-core-ui.nestform-settings-screen .nestform-log__pager .page-numbers,
     height: 32px;
     padding: 0 var(--nestform-space-2);
     border: 1px solid var(--nestform-border);
-    border-radius: 6px;
+    border-radius: 4px;
     background: var(--nestform-surface);
     color: var(--nestform-muted);
     font-size: 12px;
@@ -583,12 +583,12 @@ body.wp-core-ui.nestform-settings-screen .nestform-log__clear,
     top: 50%;
     width: 10px;
     height: 10px;
-    margin-left: -5px;
+    margin-left: 0;
     background: var(--nestform-accent);
     border: 2px solid var(--nestform-surface);
     border-radius: 50%;
     box-shadow: var(--nestform-shadow);
-    transform: translateY(-50%);
+    transform: translate(-50%, -50%);
 }
 
 .nestform-summary__unique {
@@ -718,14 +718,16 @@ body.wp-core-ui.nestform-settings-screen .nestform-log__clear,
 }
 
 .nestform-entry-notes textarea {
-    margin-top: var(--nestform-space-1);
+    margin-top: 0;
 }
 
 .nestform-entry-notes__textarea {
     width: 100%;
-    min-height: 120px;
-    margin-top: var(--nestform-space-1);
+    min-height: 128px;
+    margin: 0;
+    padding: var(--nestform-space-2) var(--nestform-space-4);
     resize: vertical;
+    box-sizing: border-box;
 }
 
 .nestform-entry-notes-form[hidden] {

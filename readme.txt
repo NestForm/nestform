@@ -1,18 +1,18 @@
 === Nestform ===
 Contributors: nestform
-Tags: forms, contact form, survey, quiz, lead generation
+Tags: forms, contact form, lead generation, survey, email
 Requires at least: 6.0
-Tested up to: 6.8
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.2.1
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Build forms, quizzes and surveys for WordPress that convert — entries inbox, email, spam protection, and analytics.
+Build WordPress forms that convert — entries inbox, email notifications, spam protection, webhooks, and analytics.
 
 == Description ==
 
-Nestform is a focused form builder for lead capture, feedback, and interactive flows — not a Contact Form 7 clone.
+Nestform is a focused form builder for lead capture and feedback — not a Contact Form 7 clone.
 
 **Builder**
 
@@ -41,7 +41,7 @@ Nestform is a focused form builder for lead capture, feedback, and interactive f
 * Light / dark admin theme
 * **Developers** screen with hooks and filters
 
-**Optional Nestform Pro** is a **separate add-on** (`nestform-pro`), sold on [nestform.app](https://nestform.app) and hosted outside the WordPress.org directory. Premium code is not included in this download. It unlocks multi-step flows, quizzes and surveys, advanced fields, HTML email, PDF attachments, automations, and richer analytics. Compare features under **Forms → Pro**.
+**Optional Nestform Pro** is a **separate add-on** (`nestform-pro`), sold on [nestform.app](https://nestform.app) and hosted outside the WordPress.org directory. Premium code is not included in this download. It adds multi-step flows, quizzes and surveys, Stripe payments, HubSpot sync, advanced fields, HTML email, PDF attachments, automations, and richer analytics. Compare features under **Forms → Pro**.
 
 == Installation ==
 
@@ -106,6 +106,43 @@ This plugin can connect to optional third-party services configured by the site 
 * Data sent: challenge response tokens and related anti-spam data per [Google's policies](https://policies.google.com/privacy).
 * Terms: https://policies.google.com/terms
 
+**Cloudflare Turnstile** (optional)
+
+* Used for: spam protection on forms (alternative captcha provider).
+* When: after you choose Turnstile and save site/secret keys under **Forms → Integrations**.
+* Data sent: challenge tokens to Cloudflare per [Cloudflare's policies](https://www.cloudflare.com/privacypolicy/).
+* Terms: https://www.cloudflare.com/website-terms/
+
+**hCaptcha** (optional)
+
+* Used for: spam protection on forms (alternative captcha provider).
+* When: after you choose hCaptcha and save site/secret keys under **Forms → Integrations**.
+* Data sent: challenge tokens to hCaptcha per [hCaptcha's policies](https://www.hcaptcha.com/privacy).
+* Terms: https://www.hcaptcha.com/terms
+
+**Akismet** (optional)
+
+* Used for: spam scoring of submissions when the Akismet plugin is installed and configured.
+* When: after a form is submitted, if Akismet is available on the site.
+* Data sent: form field content and comment-check metadata to Automattic’s Akismet service per [Akismet's privacy policy](https://akismet.com/privacy/).
+* Terms: https://akismet.com/tos/
+
+**Stripe** (optional — Nestform Pro payment fields)
+
+* Used for: accepting card payments on forms that include a Payment field.
+* When: after you enable Stripe and save API keys under **Forms → Integrations**, enable Stripe on the form, and add a Payment field (requires Nestform Pro).
+* Data sent: payment amounts, currency, and payment intent metadata to Stripe; card details go directly to Stripe (never through Nestform servers).
+* Terms: https://stripe.com/legal
+* Privacy: https://stripe.com/privacy
+
+**HubSpot** (optional — Nestform Pro)
+
+* Used for: creating or updating HubSpot CRM contacts from form submissions.
+* When: after you enable HubSpot and save a Private App access token under **Forms → Integrations**, enable HubSpot on the form, map fields, and Nestform Pro is licensed.
+* Data sent: mapped contact properties (typically email, name, phone, company) to HubSpot’s CRM API.
+* Terms: https://legal.hubspot.com/terms-of-service
+* Privacy: https://legal.hubspot.com/privacy-policy
+
 **nestform.app** (optional — Pro purchase only)
 
 * Used for: purchasing Nestform Pro and managing your license.
@@ -122,6 +159,14 @@ The phone country picker uses self-hosted SVG flags from [flag-icons](https://gi
 
 == Changelog ==
 
+= 2.3.0 =
+* Dashboard redesign: Work pulse (New / Read / Spam), quieter KPIs, Activity chart without duplicate status footers.
+* Top forms rail replaces Status mix; Recent activity uses a normal panel frame.
+* Quick actions are visible secondary buttons (New form, Forms/Export, Integrations).
+* Developers docs: `nestform_dashboard_work_pulse_extra` filter.
+* WordPress.org: Tested up to 7.1; document Turnstile, hCaptcha, and Akismet under External services; load text domain on boot.
+* Smoke checks via `npm test`.
+
 = 2.2.1 =
 * Printable entries: two-column label/value layout so answers line up.
 * Empty Add New forms open the templates gallery; starter cards stay on the canvas.
@@ -137,6 +182,9 @@ The phone country picker uses self-hosted SVG flags from [flag-icons](https://gi
 * WordPress.org compliance: premium runtime ships in Nestform Pro add-on only.
 
 == Upgrade Notice ==
+
+= 2.3.0 =
+Clearer dashboard: one inbox pulse, cleaner chart and Top forms, WordPress 7.1 tested.
 
 = 2.2.1 =
 Print layout, templates on empty forms, and a clearer response summary.

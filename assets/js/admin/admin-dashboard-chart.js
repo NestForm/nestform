@@ -6,9 +6,30 @@
 
 	var ChartLib = window.Chart;
 	var i18n = (window.nestformDashChart && window.nestformDashChart.i18n) || {};
-	var ACCENT = '#2563eb';
 
 	var LOCALE = 'en-US';
+
+	var SERIES_PALETTE = {
+		submissions: {
+			line: '#2563eb',
+			softLight: 'rgba(37, 99, 235, 0.16)',
+			softDark: 'rgba(59, 130, 246, 0.22)',
+		},
+		views: {
+			line: '#6366f1',
+			softLight: 'rgba(99, 102, 241, 0.16)',
+			softDark: 'rgba(129, 140, 248, 0.22)',
+		},
+		conversion: {
+			line: '#1e3a8a',
+			softLight: 'rgba(30, 58, 138, 0.16)',
+			softDark: 'rgba(37, 99, 235, 0.24)',
+		},
+	};
+
+	function seriesPalette(key) {
+		return SERIES_PALETTE[key] || SERIES_PALETTE.submissions;
+	}
 
 	function isDarkAdmin() {
 		var body = document.body;
@@ -27,10 +48,12 @@
 		);
 	}
 
-	function chartColors() {
+	function chartColors(metric) {
 		var dark = isDarkAdmin();
+		var series = seriesPalette(metric || 'submissions');
 		return {
-			accentSoft: dark ? 'rgba(59, 130, 246, 0.22)' : 'rgba(37, 99, 235, 0.16)',
+			line: series.line,
+			accentSoft: dark ? series.softDark : series.softLight,
 			grid: dark ? 'rgba(148, 163, 184, 0.14)' : 'rgba(15, 23, 42, 0.08)',
 			tick: dark ? '#9aa3b5' : '#64748b',
 			pointBg: dark ? '#161921' : '#ffffff',
@@ -73,7 +96,13 @@
 	}
 
 	function formatValue(value, unit) {
+		if (value === null || value === undefined || (typeof value === 'number' && isNaN(value))) {
+			return '—';
+		}
 		var n = Number(value);
+		if (!isFinite(n)) {
+			return '—';
+		}
 		if (unit === 'percent') {
 			return (
 				(Math.round(n * 10) / 10).toLocaleString(LOCALE, {
@@ -105,12 +134,21 @@
 		if (data && Array.isArray(data.labels) && Array.isArray(data.values)) {
 			labels = data.labels.slice();
 			values = data.values.map(function (v) {
-				return Number(v) || 0;
+				if (v === null || v === undefined || v === '') {
+					return null;
+				}
+				var n = Number(v);
+				return isFinite(n) ? n : null;
 			});
 		} else if (data && Array.isArray(data.dots)) {
 			data.dots.forEach(function (dot) {
 				labels.push(dot.date);
-				values.push(Number(dot.value) || 0);
+				if (dot.value === null || dot.value === undefined || dot.value === '') {
+					values.push(null);
+					return;
+				}
+				var n = Number(dot.value);
+				values.push(isFinite(n) ? n : null);
 			});
 		}
 		return { labels: labels, values: values };
@@ -131,8 +169,9 @@
 			peakEl.textContent =
 				'Peak ' + (data.peak != null ? data.peak : '—') + (peakDate ? ' · ' + peakDate : '');
 		}
-		if (avgEl && data.avg != null) {
-			avgEl.textContent = 'Avg ' + data.avg + ' / day';
+		if (avgEl) {
+			avgEl.textContent =
+				data.avg != null ? 'Avg ' + data.avg + ' / day' : 'Avg —';
 		}
 	}
 
@@ -140,10 +179,14 @@
 		if (!ChartLib || !state.canvas || !data) {
 			return;
 		}
-		var colors = chartColors();
+		var colors = chartColors(state.active);
 		var packed = seriesToChartData(data);
 		var unit = data.unit || 'count';
 		var label = seriesLabel(state.active, data);
+
+		if (state.wrap) {
+			state.wrap.setAttribute('data-nestform-chart-metric', state.active);
+		}
 
 		if (state.chart) {
 			state.chart.destroy();
@@ -158,17 +201,18 @@
 					{
 						label: label,
 						data: packed.values,
-						borderColor: ACCENT,
+						borderColor: colors.line,
 						backgroundColor: colors.accentSoft,
 						borderWidth: 2,
 						fill: true,
 						tension: 0.35,
+						spanGaps: true,
 						clip: false,
 						pointRadius: 0,
 						pointHoverRadius: 5,
 						pointHitRadius: 12,
 						pointBackgroundColor: colors.pointBg,
-						pointBorderColor: ACCENT,
+						pointBorderColor: colors.line,
 						pointBorderWidth: 2,
 					},
 				],
@@ -208,7 +252,11 @@
 								return formatDate(String(items[0].label || ''));
 							},
 							label: function (item) {
-								return formatValue(item.parsed.y, unit) + ' · ' + label;
+								var y = item.parsed && item.parsed.y;
+								if (y === null || y === undefined || (typeof y === 'number' && isNaN(y))) {
+									return '— · ' + label;
+								}
+								return formatValue(y, unit) + ' · ' + label;
 							},
 						},
 					},
@@ -229,27 +277,35 @@
 							},
 						},
 					},
-					y: {
-						beginAtZero: true,
-						grace: '12%',
-						border: { display: false },
-						grid: {
-							color: colors.grid,
-							drawTicks: false,
-						},
-						ticks: {
-							color: colors.tick,
-							padding: 8,
-							precision: unit === 'percent' ? 1 : 0,
-							maxTicksLimit: 5,
-							callback: function (value) {
-								if (unit === 'percent') {
-									return formatValue(value, 'percent');
-								}
-								return Number(value).toLocaleString();
+					y: (function () {
+						var scale = {
+							beginAtZero: true,
+							border: { display: false },
+							grid: {
+								color: colors.grid,
+								drawTicks: false,
 							},
-						},
-					},
+							ticks: {
+								color: colors.tick,
+								padding: 8,
+								precision: unit === 'percent' ? 1 : 0,
+								maxTicksLimit: 5,
+								callback: function (value) {
+									if (unit === 'percent') {
+										return formatValue(value, 'percent');
+									}
+									return Number(value).toLocaleString();
+								},
+							},
+						};
+						if (unit === 'percent') {
+							scale.max = 100;
+							scale.grace = 0;
+						} else {
+							scale.grace = '12%';
+						}
+						return scale;
+					})(),
 				},
 			},
 		});
@@ -294,6 +350,23 @@
 		}
 		updateLegend(activeSeries());
 		buildChart(activeSeries());
+
+		var plot = state.wrap.querySelector('[data-nestform-chart-plot]');
+		if (plot && typeof ResizeObserver !== 'undefined') {
+			var resizeTimer = null;
+			var ro = new ResizeObserver(function () {
+				if (!state.chart) {
+					return;
+				}
+				window.clearTimeout(resizeTimer);
+				resizeTimer = window.setTimeout(function () {
+					if (state.chart) {
+						state.chart.resize();
+					}
+				}, 50);
+			});
+			ro.observe(plot);
+		}
 
 		if (window.matchMedia) {
 			window

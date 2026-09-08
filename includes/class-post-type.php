@@ -149,7 +149,7 @@ class Nestform_Post_Type {
 	 */
 	public static function menu_icon_css() {
 		echo '<style id="nestform-menu-icon">'
-			. '#adminmenu .menu-icon-nestform .wp-menu-image img{padding:5px 0 0;width:20px;height:20px;object-fit:contain;opacity:1}'
+			. '#adminmenu .menu-icon-nestform .wp-menu-image img{padding:4px 0 0;width:20px;height:20px;object-fit:contain;opacity:1}'
 			. '#adminmenu .menu-icon-nestform:hover .wp-menu-image img,'
 			. '#adminmenu .menu-icon-nestform.current .wp-menu-image img,'
 			. '#adminmenu .menu-icon-nestform.wp-has-current-submenu .wp-menu-image img{opacity:1}'
@@ -382,7 +382,7 @@ class Nestform_Post_Type {
 		$new_url = admin_url( 'post-new.php?post_type=' . self::POST_TYPE );
 		$add_btn = '<a class="nestform-btn nestform-btn--primary" href="' . esc_url( $new_url ) . '">' . nestform_admin_icon_html( 'plus' ) . ' ' . esc_html__( 'Add New', 'nestform' ) . '</a>';
 		if ( class_exists( 'Nestform_Form_IO' ) ) {
-			$add_btn = Nestform_Form_IO::hub_import_html() . ( class_exists( 'Nestform_Importer' ) ? Nestform_Importer::hub_link_html() : '' ) . $add_btn;
+			$add_btn = Nestform_Form_IO::hub_import_menu_html() . $add_btn;
 		}
 		?>
 		<div class="wrap nestform-hub" data-nestform-hub>
@@ -435,23 +435,23 @@ class Nestform_Post_Type {
 					<?php endif; ?>
 				</div>
 			<?php else : ?>
-				<div class="nestform-hub__stats" aria-label="<?php esc_attr_e( 'Forms overview', 'nestform' ); ?>">
-					<div class="nestform-hub__stat">
+				<div class="nestform-hub__stats" role="toolbar" aria-label="<?php esc_attr_e( 'Filter forms', 'nestform' ); ?>">
+					<button type="button" class="nestform-hub__stat is-active" data-nestform-hub-chip="all" aria-pressed="true">
 						<span class="nestform-hub__stat-value"><?php echo esc_html( number_format_i18n( $total_forms ) ); ?></span>
 						<span class="nestform-hub__stat-label"><?php esc_html_e( 'Forms', 'nestform' ); ?></span>
-					</div>
-					<div class="nestform-hub__stat">
+					</button>
+					<button type="button" class="nestform-hub__stat" data-nestform-hub-chip="publish" aria-pressed="false">
 						<span class="nestform-hub__stat-value"><?php echo esc_html( number_format_i18n( $published_n ) ); ?></span>
 						<span class="nestform-hub__stat-label"><?php esc_html_e( 'Published', 'nestform' ); ?></span>
-					</div>
-					<div class="nestform-hub__stat">
+					</button>
+					<button type="button" class="nestform-hub__stat" data-nestform-hub-chip="draft" aria-pressed="false">
 						<span class="nestform-hub__stat-value"><?php echo esc_html( number_format_i18n( $drafts_n ) ); ?></span>
 						<span class="nestform-hub__stat-label"><?php esc_html_e( 'Drafts', 'nestform' ); ?></span>
-					</div>
-					<a class="nestform-hub__stat<?php echo $with_new_n > 0 ? ' nestform-hub__stat--new' : ''; ?>" href="<?php echo esc_url( Nestform_Submissions::hub_url( array( 'nestform_status' => Nestform_Submissions::STATUS_NEW ) ) ); ?>">
+					</button>
+					<button type="button" class="nestform-hub__stat<?php echo $with_new_n > 0 ? ' nestform-hub__stat--new' : ''; ?>" data-nestform-hub-chip="new" aria-pressed="false">
 						<span class="nestform-hub__stat-value"><?php echo esc_html( number_format_i18n( $with_new_n ) ); ?></span>
 						<span class="nestform-hub__stat-label"><?php esc_html_e( 'With new', 'nestform' ); ?></span>
-					</a>
+					</button>
 					<a class="nestform-hub__stat" href="<?php echo esc_url( Nestform_Submissions::hub_url() ); ?>">
 						<span class="nestform-hub__stat-value"><?php echo esc_html( number_format_i18n( $total_entries ) ); ?></span>
 						<span class="nestform-hub__stat-label"><?php esc_html_e( 'Entries', 'nestform' ); ?></span>
@@ -502,7 +502,8 @@ class Nestform_Post_Type {
 						$fields_n  = (int) $row['fields'];
 						$last_ts   = (int) $row['last'];
 						$status    = get_post_status_object( $form->post_status );
-						$title     = $form->post_title !== '' ? $form->post_title : __( '(no title)', 'nestform' );
+						$has_title = $form->post_title !== '';
+						$title     = $has_title ? $form->post_title : __( 'Untitled form', 'nestform' );
 						$edit_url  = get_edit_post_link( (int) $form->ID, 'raw' );
 						$entry_url = $new > 0
 							? Nestform_Submissions::list_url( (int) $form->ID, Nestform_Submissions::STATUS_NEW )
@@ -536,7 +537,7 @@ class Nestform_Post_Type {
 						>
 							<div class="nestform-hub__td nestform-hub__td--form">
 								<div class="nestform-hub__heading">
-									<a class="nestform-hub__title" href="<?php echo esc_url( $edit_url ); ?>">
+									<a class="nestform-hub__title<?php echo $has_title ? '' : ' nestform-hub__title--untitled'; ?>" href="<?php echo esc_url( $edit_url ); ?>">
 										<?php echo esc_html( $title ); ?>
 									</a>
 									<?php if ( $new > 0 ) : ?>
@@ -593,9 +594,6 @@ class Nestform_Post_Type {
 								<a class="nestform-btn nestform-btn--outline" href="<?php echo esc_url( $edit_url ); ?>">
 									<?php esc_html_e( 'Edit', 'nestform' ); ?>
 								</a>
-								<a class="nestform-btn nestform-btn--outline nestform-btn--accent" href="<?php echo esc_url( $entry_url ); ?>">
-									<?php esc_html_e( 'Entries', 'nestform' ); ?>
-								</a>
 								<div class="nestform-hub__more" data-nestform-hub-more>
 									<button
 										type="button"
@@ -607,7 +605,11 @@ class Nestform_Post_Type {
 										···
 									</button>
 									<div class="nestform-hub__more-menu" hidden>
+										<a class="nestform-btn nestform-btn--ghost" href="<?php echo esc_url( $entry_url ); ?>">
+											<?php esc_html_e( 'Entries', 'nestform' ); ?>
+										</a>
 										<a class="nestform-btn nestform-btn--ghost" href="<?php echo esc_url( self::duplicate_url( (int) $form->ID ) ); ?>">
+											<?php nestform_admin_icon( 'copy' ); ?>
 											<?php esc_html_e( 'Duplicate', 'nestform' ); ?>
 										</a>
 										<?php if ( class_exists( 'Nestform_Form_IO' ) ) : ?>
@@ -620,7 +622,7 @@ class Nestform_Post_Type {
 											class="nestform-btn nestform-btn--ghost"
 											data-nestform-hub-copy="<?php echo esc_attr( $shortcode ); ?>"
 										>
-											<?php esc_html_e( 'Copy', 'nestform' ); ?>
+											<?php esc_html_e( 'Copy shortcode', 'nestform' ); ?>
 										</button>
 										<?php
 										$trash_url = get_delete_post_link( (int) $form->ID, '', false );

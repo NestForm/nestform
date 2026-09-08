@@ -23,15 +23,15 @@
         --nestform-navy-alt: #02194c;
         --nestform-ink: var(--nestform-navy);
         --nestform-ink-alt: var(--nestform-navy-alt);
-        --nestform-ok: #147a66;
-        --nestform-ok-soft: #e6f2ef;
-        --nestform-ok-border: #c5ddd6;
+        --nestform-ok: #0d9b87;
+        --nestform-ok-soft: #e8f8f5;
+        --nestform-ok-border: #b5e5dc;
         --nestform-warn: #3b82f6;
         --nestform-warn-soft: #eff6ff;
         --nestform-warn-border: #bfdbfe;
-        --nestform-danger: #b44a55;
-        --nestform-danger-soft: #f6ebee;
-        --nestform-danger-border: #e5c4c8;
+        --nestform-danger: #d14b63;
+        --nestform-danger-soft: #fdf0f3;
+        --nestform-danger-border: #f0c5ce;
         --nestform-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
         --nestform-shadow-md:
             0 4px 24px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);

@@ -134,8 +134,21 @@ body.nestform-app-screen.nestform-entries-screen.post-php
 }
 
 .nestform-app__nav {
+    display: flex;
+    flex-direction: column;
     flex-shrink: 0;
-    padding: var(--nestform-space-4) var(--nestform-space-2);
+    gap: 0;
+    padding: var(--nestform-space-2);
+}
+
+.nestform-app__nav-sep {
+    display: block;
+    flex-shrink: 0;
+    height: 1px;
+    margin: var(--nestform-space-2) var(--nestform-space-2);
+    padding: 0;
+    border: 0;
+    background: var(--nestform-border);
 }
 
 .nestform-app__nav-item {
@@ -144,10 +157,10 @@ body.nestform-app-screen.nestform-entries-screen.post-php
     align-items: center;
     gap: var(--nestform-space-2);
     width: 100%;
-    margin: 0 0 var(--nestform-space-1);
+    margin: 0;
     padding: var(--nestform-space-2) var(--nestform-space-2)
         var(--nestform-space-2) var(--nestform-space-4);
-    border-radius: 8px !important;
+    border-radius: var(--nestform-radius) !important;
     color: var(--nestform-muted);
     font-size: 14px;
     font-weight: 500;
@@ -156,8 +169,8 @@ body.nestform-app-screen.nestform-entries-screen.post-php
     transition: var(--nestform-transition);
 }
 
-.nestform-app__nav-item:last-child {
-    margin-bottom: 0;
+.nestform-app__nav-item + .nestform-app__nav-item {
+    margin-top: var(--nestform-space-1);
 }
 
 .nestform-app__nav-item:hover,
@@ -182,13 +195,26 @@ body.nestform-app-screen.nestform-entries-screen.post-php
     top: 7px;
     bottom: 7px;
     width: 3px;
-    border-radius: 0 3px 3px 0;
+    border-radius: 0 4px 4px 0;
     background: var(--nestform-accent);
 }
 
 .nestform-app__nav-icon {
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    color: inherit;
+}
+
+.nestform-app__nav-icon svg,
+.nestform-app__wp-icon svg,
+.nestform-app__sidebar-toggle-icon svg {
+    display: block;
+    width: 16px;
+    height: 16px;
 }
 
 .nestform-app__nav-count {
@@ -212,8 +238,8 @@ body.nestform-app-screen.nestform-entries-screen.post-php
     flex-direction: column;
     gap: var(--nestform-space-2);
     flex-shrink: 0;
-    margin: 0 var(--nestform-space-2) var(--nestform-space-2);
-    padding: var(--nestform-space-4) 0 0;
+    margin: auto var(--nestform-space-2) var(--nestform-space-2);
+    padding: var(--nestform-space-2) 0 0;
     border-top: 1px solid var(--nestform-border);
 }
 
@@ -221,7 +247,7 @@ body.nestform-app-screen.nestform-entries-screen.post-php
     padding: var(--nestform-space-2);
     background: var(--nestform-soft);
     border: 1px solid var(--nestform-border);
-    border-radius: 8px;
+    border-radius: var(--nestform-radius);
     box-sizing: border-box;
 }
 
@@ -271,11 +297,11 @@ body.nestform-app-screen.nestform-entries-screen.post-php
     color: var(--nestform-muted);
 }
 
+.nestform-icon-pro,
 .nestform-icon-crown,
 .nestform-app__pro-kicker svg,
 .nestform-pro-pill svg {
     color: var(--nestform-pro-gold);
-    fill: currentColor;
 }
 
 .nestform-app__pro {
@@ -283,7 +309,7 @@ body.nestform-app-screen.nestform-entries-screen.post-php
     flex-direction: column;
     gap: var(--nestform-space-2);
     padding: var(--nestform-space-4);
-    border-radius: 12px;
+    border-radius: var(--nestform-radius);
     text-decoration: none;
     background: var(--nestform-pro-bg);
     background-image: var(--nestform-pro-image);
@@ -295,7 +321,7 @@ body.nestform-app-screen.nestform-entries-screen.post-php
 .nestform-app__pro:focus {
     outline: none;
     filter: brightness(1.06);
-    border-radius: 12px;
+    border-radius: var(--nestform-radius);
     box-shadow: 0 1px 8px var(--nestform-pro-glow);
 }
 
@@ -391,6 +417,10 @@ body.nestform-app-screen.nestform-entries-screen.post-php
     gap: var(--nestform-space-2);
 }
 
+.nestform-app__foot-grid--compact {
+    margin-top: 0;
+}
+
 .nestform-app__foot-card {
     display: flex;
     flex-direction: column;
@@ -398,7 +428,7 @@ body.nestform-app-screen.nestform-entries-screen.post-php
     padding: var(--nestform-space-2);
     background: var(--nestform-surface);
     border: 1px solid var(--nestform-border);
-    border-radius: 8px;
+    border-radius: var(--nestform-radius);
     box-sizing: border-box;
 }
 
@@ -436,43 +466,44 @@ body.nestform-app-screen.nestform-entries-screen.post-php
 }
 
 .nestform-app__foot-card-link svg {
-    width: 12px;
-    height: 12px;
+    display: block;
+    width: 14px;
+    height: 14px;
 }
 
-.nestform-app__foot-alert {
+.nestform-app__foot-cta {
     display: flex;
     align-items: center;
     gap: var(--nestform-space-2);
     padding: var(--nestform-space-2) var(--nestform-space-4);
     background: var(--nestform-accent-soft);
     border: 1px solid var(--nestform-accent-line);
-    border-radius: 4px !important;
+    border-radius: var(--nestform-radius);
     text-decoration: none;
     color: var(--nestform-accent-dark);
     box-sizing: border-box;
     transition: var(--nestform-transition);
 }
 
-.nestform-app__foot-alert:hover,
-.nestform-app__foot-alert:focus {
+.nestform-app__foot-cta:hover,
+.nestform-app__foot-cta:focus {
     outline: none;
     filter: brightness(0.98);
 }
 
-.nestform-app__foot-alert-dot {
+.nestform-app__foot-cta-count {
     flex: 0 0 auto;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--nestform-accent);
-    box-shadow: 0 0 0 3px
-        color-mix(in srgb, var(--nestform-accent) 20%, transparent);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: var(--nestform-line-height);
+    font-variant-numeric: tabular-nums;
+    color: var(--nestform-accent);
 }
 
-.nestform-app__foot-alert-text {
+.nestform-app__foot-cta-text {
     min-width: 0;
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 600;
     line-height: var(--nestform-line-height);
 }
@@ -568,7 +599,6 @@ body.nestform-app-screen.nestform-entries-screen.post-php
     align-items: center;
     justify-content: center;
     gap: var(--nestform-space-2);
-    width: calc(100% - 20px);
     min-height: var(--nestform-control-h);
     margin: var(--nestform-space-2) var(--nestform-space-2)
         var(--nestform-space-2);
@@ -613,9 +643,8 @@ body.nestform-app-screen.nestform-entries-screen.post-php
     align-items: center;
     justify-content: center;
     gap: var(--nestform-space-2);
-    width: calc(100% - 20px);
     min-height: var(--nestform-control-h);
-    margin: auto var(--nestform-space-2) 0;
+    margin: 0 var(--nestform-space-2);
     padding: var(--nestform-space-2) var(--nestform-space-4);
     border: 1px solid var(--nestform-border);
     border-radius: var(--nestform-radius);
@@ -672,14 +701,22 @@ body.nestform-app-screen.nestform-entries-screen.post-php
 }
 
 .nestform-app--sidebar-collapsed .nestform-app__nav {
-    padding: var(--nestform-space-4) var(--nestform-space-2);
+    padding: var(--nestform-space-2);
+}
+
+.nestform-app--sidebar-collapsed .nestform-app__nav-sep {
+    display: none;
 }
 
 .nestform-app--sidebar-collapsed .nestform-app__nav-item {
     justify-content: center;
     gap: 0;
     padding: var(--nestform-space-2) 0;
-    margin-bottom: var(--nestform-space-1);
+    margin: 0;
+}
+
+.nestform-app--sidebar-collapsed .nestform-app__nav-item + .nestform-app__nav-item {
+    margin-top: var(--nestform-space-1);
 }
 
 .nestform-app--sidebar-collapsed .nestform-app__nav-item--active::before {
@@ -764,7 +801,7 @@ body.nestform-app-screen.nestform-entries-screen.post-php
     flex: 0 0 auto;
     width: 42px;
     height: 42px;
-    border-radius: 10px;
+    border-radius: var(--nestform-radius);
     background: var(--nestform-accent-soft);
     border: 1px solid var(--nestform-accent-line);
     color: var(--nestform-accent);
@@ -809,6 +846,52 @@ h1.nestform-page-head__title {
     overflow: visible;
 }
 
+.nestform-page-head__aside {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--nestform-space-4);
+    flex: 0 1 auto;
+    min-width: 0;
+}
+
+.nestform-page-head__meta {
+    min-width: 0;
+    max-width: min(320px, 100%);
+}
+
+.nestform-entries-insights {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    text-align: right;
+}
+
+.nestform-entries-insights__domain {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--nestform-ink);
+    line-height: var(--nestform-line-height);
+}
+
+.nestform-entries-insights__label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--nestform-faint);
+}
+
+.nestform-entries-insights__extra {
+    font-size: 11px;
+    font-weight: 500;
+    line-height: var(--nestform-line-height);
+    color: var(--nestform-muted);
+}
+
 .nestform-page-head__actions .nestform-export-menu {
     z-index: 2;
 }
@@ -820,6 +903,38 @@ h1.nestform-page-head__title {
 .nestform-hub__import {
     display: inline-flex;
     margin: 0;
+}
+
+.nestform-hub__import-menu {
+    position: relative;
+    display: inline-flex;
+}
+
+.nestform-hub__import-panel {
+    position: absolute;
+    top: calc(100% + var(--nestform-space-1));
+    right: 0;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    gap: var(--nestform-space-1);
+    min-width: 220px;
+    padding: var(--nestform-space-2);
+    background: var(--nestform-surface);
+    border: 1px solid var(--nestform-border);
+    border-radius: var(--nestform-radius);
+    box-shadow: var(--nestform-shadow-md);
+}
+
+.nestform-hub__import-panel[hidden] {
+    display: none !important;
+}
+
+.nestform-hub__import-panel .nestform-hub__import,
+.nestform-hub__import-panel .nestform-hub__import-item,
+.nestform-hub__import-panel .nestform-hub__import-label {
+    width: 100%;
+    justify-content: flex-start;
 }
 
 .nestform-hub__import-label {
@@ -1016,7 +1131,7 @@ body.nestform-admin-screen .notice-dismiss {
     width: 28px;
     height: 28px;
     border: 0;
-    border-radius: 6px;
+    border-radius: 4px;
     background: transparent;
     color: var(--nestform-faint);
     box-shadow: none;
@@ -1151,7 +1266,7 @@ body.nestform-admin-screen .notice-dismiss::before {
 .nestform-hub__row {
     display: flex;
     align-items: center;
-    padding: var(--nestform-space-4) var(--nestform-space-6);
+    padding: var(--nestform-space-2) var(--nestform-space-4);
 }
 
 .nestform-hub__row[hidden] {
@@ -1188,25 +1303,25 @@ body.nestform-admin-screen .notice-dismiss::before {
 
 .nestform-hub__th--activity,
 .nestform-hub__td--activity {
-    width: 120px;
+    width: 112px;
     flex-shrink: 0;
     text-align: left;
 }
 
 .nestform-hub__th--entries,
 .nestform-hub__td--entries {
-    width: 100px;
+    width: 72px;
     text-align: center;
     flex-shrink: 0;
 }
 
 .nestform-hub__th--actions,
 .nestform-hub__td--actions {
-    width: 220px;
+    width: 120px;
     flex-shrink: 0;
     display: flex;
     justify-content: flex-end;
-    gap: var(--nestform-space-2);
+    gap: var(--nestform-space-1);
     flex-wrap: nowrap;
     align-items: center;
 }
@@ -1217,7 +1332,7 @@ body.nestform-admin-screen .notice-dismiss::before {
     justify-content: center;
     min-width: 24px;
     padding: var(--nestform-space-1);
-    border-radius: 8px;
+    border-radius: var(--nestform-radius);
     color: var(--nestform-accent-dark);
     font-size: 12px;
     font-weight: 700;
@@ -1317,7 +1432,7 @@ a.nestform-hub__count:focus {
     align-items: center;
     width: 100%;
     padding: var(--nestform-space-2) var(--nestform-space-4);
-    border-radius: calc(var(--nestform-radius) - 2px);
+    border-radius: 4px;
     color: var(--nestform-ink-alt);
     text-decoration: none;
     font-size: 13px;
@@ -1402,6 +1517,12 @@ a.nestform-hub__count:focus {
     color: var(--nestform-ink);
     text-decoration: none;
     transition: var(--nestform-transition);
+}
+
+.nestform-hub__title--untitled {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--nestform-muted);
 }
 
 .nestform-hub__title:hover,

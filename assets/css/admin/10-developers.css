@@ -130,7 +130,7 @@ body.nestform-developers-screen .wrap.nestform-developers {
     color: var(--nestform-accent);
     background: var(--nestform-accent-soft);
     border: 1px solid var(--nestform-accent-line);
-    border-radius: 6px;
+    border-radius: 4px;
     word-break: break-all;
 }
 
@@ -225,7 +225,7 @@ body.nestform-docs-screen .wrap.nestform-docs {
 .nestform-docs__toc-link {
     display: block;
     padding: var(--nestform-space-1) var(--nestform-space-2);
-    border-radius: 6px;
+    border-radius: 4px;
     color: var(--nestform-ink);
     text-decoration: none;
     font-size: 13px;
@@ -252,7 +252,7 @@ body.nestform-docs-screen .wrap.nestform-docs {
     margin: 0;
     padding: var(--nestform-space-4) var(--nestform-space-6)
         var(--nestform-space-6);
-    scroll-margin-top: 16px;
+    scroll-margin-top: var(--nestform-space-4);
 }
 
 .nestform-docs__heading {

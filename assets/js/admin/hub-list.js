@@ -17,6 +17,9 @@
 		var result = root.querySelector('[data-nestform-hub-result]');
 		var pagerTop = root.querySelector('[data-nestform-hub-pager]');
 		var pagerBottom = root.querySelector('[data-nestform-hub-pager-bottom]');
+		var chipButtons = Array.prototype.slice.call(
+			root.querySelectorAll('[data-nestform-hub-chip]')
+		);
 		if (!list) {
 			return;
 		}
@@ -24,9 +27,20 @@
 		var rows = Array.prototype.slice.call(list.querySelectorAll('[data-nestform-hub-row]'));
 		var currentPage = 1;
 		var filterToken = '';
+		var chip = 'all';
 
-		function filterKey(q, onlyWith, mode) {
-			return [q, onlyWith ? '1' : '0', mode].join('|');
+		function filterKey(q, onlyWith, mode, chipKey) {
+			return [q, onlyWith ? '1' : '0', mode, chipKey || 'all'].join('|');
+		}
+
+		function setActiveChip(next) {
+			chip = next || 'all';
+			chipButtons.forEach(function (btn) {
+				var key = btn.getAttribute('data-nestform-hub-chip') || 'all';
+				var on = key === chip;
+				btn.classList.toggle('is-active', on);
+				btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+			});
 		}
 
 		function renderPager(pager, matched, page, pages) {
@@ -104,7 +118,7 @@
 			var q = search ? String(search.value || '').trim().toLowerCase() : '';
 			var onlyWith = hasOnly && hasOnly.checked;
 			var mode = sort ? sort.value : 'count';
-			var token = filterKey(q, onlyWith, mode);
+			var token = filterKey(q, onlyWith, mode, chip);
 			if (token !== filterToken) {
 				filterToken = token;
 				currentPage = 1;
@@ -166,9 +180,22 @@
 				var title = (row.getAttribute('data-title') || '').toLowerCase();
 				var id = row.getAttribute('data-id') || '';
 				var count = parseInt(row.getAttribute('data-count') || '0', 10);
+				var status = row.getAttribute('data-status') || '';
+				var newCount = parseInt(row.getAttribute('data-new') || '0', 10);
 				var match =
 					(!q || title.indexOf(q) !== -1 || id.indexOf(q) !== -1) &&
 					(!onlyWith || count > 0);
+
+				if (match && chip === 'publish' && status !== 'publish') {
+					match = false;
+				}
+				if (match && chip === 'draft' && status === 'publish') {
+					match = false;
+				}
+				if (match && chip === 'new' && newCount <= 0) {
+					match = false;
+				}
+
 				row.setAttribute('data-hub-match', match ? '1' : '0');
 				if (match) {
 					matchedRows.push(row);
@@ -232,24 +259,52 @@
 			});
 		}
 
-		function onDocCloseMore(event) {
-			if (event.target.closest && event.target.closest('[data-nestform-hub-more]')) {
-				return;
-			}
-			closeMoreMenus();
+		function closeImportMenus(except) {
+			document.querySelectorAll('[data-nestform-hub-import]').forEach(function (wrap) {
+				if (except && wrap === except) {
+					return;
+				}
+				var panel = wrap.querySelector('.nestform-hub__import-panel');
+				var toggle = wrap.querySelector('.nestform-hub__import-toggle');
+				if (panel) {
+					panel.hidden = true;
+				}
+				if (toggle) {
+					toggle.setAttribute('aria-expanded', 'false');
+				}
+			});
 		}
 
-		function onDocKeyCloseMore(event) {
-			if (event.key === 'Escape') {
+		function onDocCloseMenus(event) {
+			var t = event.target;
+			if (!(t.closest && t.closest('[data-nestform-hub-more]'))) {
 				closeMoreMenus();
 			}
+			if (!(t.closest && t.closest('[data-nestform-hub-import]'))) {
+				closeImportMenus();
+			}
 		}
 
-		// Capture on document so clicks outside the hub (sidebar, header, etc.) close the menu.
-		document.addEventListener('pointerdown', onDocCloseMore, true);
-		document.addEventListener('keydown', onDocKeyCloseMore);
+		function onDocKeyCloseMenus(event) {
+			if (event.key === 'Escape') {
+				closeMoreMenus();
+				closeImportMenus();
+			}
+		}
+
+		// Capture on document so clicks outside the hub (sidebar, header, etc.) close menus.
+		document.addEventListener('pointerdown', onDocCloseMenus, true);
+		document.addEventListener('keydown', onDocKeyCloseMenus);
 
 		root.addEventListener('click', function (event) {
+			var chipBtn = event.target.closest('[data-nestform-hub-chip]');
+			if (chipBtn && root.contains(chipBtn)) {
+				event.preventDefault();
+				setActiveChip(chipBtn.getAttribute('data-nestform-hub-chip') || 'all');
+				apply();
+				return;
+			}
+
 			var moreToggle = event.target.closest('.nestform-hub__more-toggle');
 			if (moreToggle && root.contains(moreToggle)) {
 				event.preventDefault();
@@ -257,6 +312,7 @@
 				var menu = wrap ? wrap.querySelector('.nestform-hub__more-menu') : null;
 				var open = menu && menu.hidden;
 				closeMoreMenus(wrap);
+				closeImportMenus();
 				if (menu) {
 					menu.hidden = !open;
 				}
@@ -344,11 +400,44 @@
 			window.location.href = editUrl;
 		});
 
+		if (chipButtons.length) {
+			setActiveChip('all');
+		}
 		apply();
+	}
+
+	function bootImportMenus() {
+		document.querySelectorAll('[data-nestform-hub-import]').forEach(function (wrap) {
+			var toggle = wrap.querySelector('.nestform-hub__import-toggle');
+			var panel = wrap.querySelector('.nestform-hub__import-panel');
+			if (!toggle || !panel) {
+				return;
+			}
+			toggle.addEventListener('click', function (event) {
+				event.preventDefault();
+				var open = panel.hidden;
+				document.querySelectorAll('[data-nestform-hub-import]').forEach(function (other) {
+					if (other === wrap) {
+						return;
+					}
+					var p = other.querySelector('.nestform-hub__import-panel');
+					var t = other.querySelector('.nestform-hub__import-toggle');
+					if (p) {
+						p.hidden = true;
+					}
+					if (t) {
+						t.setAttribute('aria-expanded', 'false');
+					}
+				});
+				panel.hidden = !open;
+				toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+			});
+		});
 	}
 
 	function boot() {
 		document.querySelectorAll('[data-nestform-hub]').forEach(bootHub);
+		bootImportMenus();
 	}
 
 	if (document.readyState === 'loading') {

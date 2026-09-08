@@ -172,27 +172,28 @@ class Nestform_Dashboard {
 			: $after;
 
 		$count_args = array(
-			'after'  => $after,
-			'before' => $before,
+			'after'        => $after,
+			'before'       => $before,
+			'exclude_spam' => true,
 		);
 		$prev_args  = array(
-			'after'  => $prev_bounds['after'],
-			'before' => $prev_bounds['before'],
-		);
-		$today_args = array(
-			'after'  => wp_date( 'Y-m-d' ) . ' 00:00:00',
-			'before' => wp_date( 'Y-m-d' ) . ' 23:59:59',
+			'after'        => $prev_bounds['after'],
+			'before'       => $prev_bounds['before'],
+			'exclude_spam' => true,
 		);
 		if ( $form_id > 0 ) {
 			$count_args['form_id'] = $form_id;
 			$prev_args['form_id']  = $form_id;
-			$today_args['form_id'] = $form_id;
 		}
 
 		$total      = Nestform_Submissions::count_entries( $count_args );
 		$prev_total = ( 'all' === $range ) ? 0 : Nestform_Submissions::count_entries( $prev_args );
-		$today      = Nestform_Submissions::count_entries( $today_args );
-		$daily      = Nestform_Submissions::daily_counts( $chart_after, $before, $form_id );
+		$daily      = Nestform_Submissions::daily_counts(
+			$chart_after,
+			$before,
+			$form_id,
+			array( 'exclude_spam' => true )
+		);
 		$top        = $form_id > 0
 			? array(
 				array(
@@ -205,16 +206,36 @@ class Nestform_Dashboard {
 		$status_new  = Nestform_Submissions::count_entries( array_merge( $count_args, array( 'status' => Nestform_Submissions::STATUS_NEW ) ) );
 		$status_read = Nestform_Submissions::count_entries( array_merge( $count_args, array( 'status' => Nestform_Submissions::STATUS_READ ) ) );
 		$status_spam = Nestform_Submissions::count_entries( array_merge( $count_args, array( 'status' => Nestform_Submissions::STATUS_SPAM ) ) );
-		$recent      = Nestform_Submissions::recent_entries( 8, $form_id );
+		$recent      = Nestform_Submissions::recent_entries(
+			6,
+			$form_id,
+			array(
+				'after'  => $after,
+				'before' => $before,
+			)
+		);
+
+		$forms_published = 0;
+		$forms_draft     = 0;
+		foreach ( $forms as $form ) {
+			if ( 'publish' === $form->post_status ) {
+				++$forms_published;
+			} else {
+				++$forms_draft;
+			}
+		}
+		if ( $form_id > 0 && isset( $form_ids[ $form_id ] ) ) {
+			$forms_published = ( 'publish' === $form_ids[ $form_id ]->post_status ) ? 1 : 0;
+			$forms_draft     = ( 'publish' === $form_ids[ $form_id ]->post_status ) ? 0 : 1;
+		}
 
 		$avg_day = round( $total / $days, 1 );
 		$delta   = $total - $prev_total;
 		$delta_pct = null;
 		if ( 'all' !== $range && $prev_total > 0 ) {
 			$delta_pct = round( ( $delta / $prev_total ) * 100 );
-		} elseif ( 'all' !== $range && 0 === $prev_total && $total > 0 ) {
-			$delta_pct = 100;
 		}
+		// Skip flashy "+100%" when the previous period was empty.
 
 		$peak_day   = '';
 		$peak_count = 0;
@@ -239,8 +260,7 @@ class Nestform_Dashboard {
 			}
 		}
 
-		$max_daily = max( 1, $peak_count );
-		$max_top   = 0;
+		$max_top = 0;
 		foreach ( $top as $row ) {
 			$max_top = max( $max_top, (int) $row['count'] );
 		}
@@ -275,7 +295,7 @@ class Nestform_Dashboard {
 			);
 			?>
 			<header class="nestform-dash__hero">
-				<form class="nestform-dash__controls" method="get" action="" data-nestform-dash-filters>
+				<form class="nestform-dash__controls" method="get" action="<?php echo esc_url( admin_url( 'edit.php' ) ); ?>" data-nestform-dash-filters>
 					<input type="hidden" name="post_type" value="<?php echo esc_attr( Nestform_Post_Type::POST_TYPE ); ?>" />
 					<input type="hidden" name="page" value="<?php echo esc_attr( self::PAGE_SLUG ); ?>" />
 					<input type="hidden" name="range" value="<?php echo esc_attr( $range ); ?>" data-nestform-dash-range />
@@ -305,101 +325,142 @@ class Nestform_Dashboard {
 			</header>
 			</div>
 
-			<nav class="nestform-dash__triage" aria-label="<?php esc_attr_e( 'Inbox by status', 'nestform' ); ?>">
-				<span class="nestform-dash__triage-title"><?php esc_html_e( 'Inbox', 'nestform' ); ?></span>
-				<div class="nestform-dash__triage-list">
+			<section class="nestform-dash__pulse" aria-label="<?php esc_attr_e( 'Work pulse', 'nestform' ); ?>">
+				<div class="nestform-dash__pulse-bar">
+					<span class="nestform-dash__pulse-title"><?php esc_html_e( 'Inbox', 'nestform' ); ?></span>
 					<?php
-					$triage_new_url  = $form_id > 0
+					$qa_new_url = admin_url( 'post-new.php?post_type=' . Nestform_Post_Type::POST_TYPE );
+					$qa_export  = ( $form_id > 0 && class_exists( 'Nestform_Form_IO' ) )
+						? Nestform_Form_IO::export_url( $form_id )
+						: admin_url( 'edit.php?post_type=' . Nestform_Post_Type::POST_TYPE );
+					$qa_integ   = class_exists( 'Nestform_Integrations' )
+						? admin_url( 'edit.php?post_type=' . Nestform_Post_Type::POST_TYPE . '&page=' . Nestform_Integrations::PAGE_SLUG )
+						: '';
+					?>
+					<nav class="nestform-dash__quick nestform-dash__quick--secondary" aria-label="<?php esc_attr_e( 'Quick actions', 'nestform' ); ?>">
+						<a class="nestform-dash__quick-item" href="<?php echo esc_url( $qa_new_url ); ?>">
+							<?php nestform_admin_icon( 'plus' ); ?>
+							<span><?php esc_html_e( 'New form', 'nestform' ); ?></span>
+						</a>
+						<a class="nestform-dash__quick-item" href="<?php echo esc_url( $qa_export ); ?>">
+							<?php nestform_admin_icon( $form_id > 0 ? 'download' : 'forms' ); ?>
+							<span><?php echo esc_html( $form_id > 0 ? __( 'Export', 'nestform' ) : __( 'Forms', 'nestform' ) ); ?></span>
+						</a>
+						<?php if ( $qa_integ !== '' ) : ?>
+							<a class="nestform-dash__quick-item" href="<?php echo esc_url( $qa_integ ); ?>">
+								<?php nestform_admin_icon( 'integrations' ); ?>
+								<span><?php esc_html_e( 'Integrations', 'nestform' ); ?></span>
+							</a>
+						<?php endif; ?>
+					</nav>
+				</div>
+				<nav class="nestform-dash__pulse-list" aria-label="<?php esc_attr_e( 'Inbox by status', 'nestform' ); ?>">
+					<?php
+					$pulse_new_url  = $form_id > 0
 						? Nestform_Submissions::list_url( $form_id, Nestform_Submissions::STATUS_NEW )
 						: Nestform_Submissions::hub_url( array( 'nestform_status' => Nestform_Submissions::STATUS_NEW ) );
-					$triage_read_url = $form_id > 0
+					$pulse_read_url = $form_id > 0
 						? Nestform_Submissions::list_url( $form_id, Nestform_Submissions::STATUS_READ )
 						: Nestform_Submissions::hub_url( array( 'nestform_status' => Nestform_Submissions::STATUS_READ ) );
-					$triage_spam_url = $form_id > 0
+					$pulse_spam_url = $form_id > 0
 						? Nestform_Submissions::list_url( $form_id, Nestform_Submissions::STATUS_SPAM )
 						: Nestform_Submissions::hub_url( array( 'nestform_status' => Nestform_Submissions::STATUS_SPAM ) );
-					$triage_all_url  = $form_id > 0
-						? Nestform_Submissions::list_url( $form_id )
-						: Nestform_Submissions::hub_url();
-					$triage_all_lbl  = $form_id > 0
-						? __( 'Form inbox', 'nestform' )
-						: __( 'All entries', 'nestform' );
 					?>
-					<a class="nestform-dash__triage-item nestform-dash__triage-item--new" href="<?php echo esc_url( $triage_new_url ); ?>">
-						<span class="nestform-dash__triage-label"><?php esc_html_e( 'New', 'nestform' ); ?></span>
-						<span class="nestform-dash__triage-value"><?php echo esc_html( number_format_i18n( $status_new ) ); ?></span>
+					<a class="nestform-dash__pulse-item nestform-dash__pulse-item--new" href="<?php echo esc_url( $pulse_new_url ); ?>">
+						<span class="nestform-dash__pulse-label"><?php esc_html_e( 'New', 'nestform' ); ?></span>
+						<span class="nestform-dash__pulse-value"><?php echo esc_html( number_format_i18n( $status_new ) ); ?></span>
 					</a>
-					<a class="nestform-dash__triage-item nestform-dash__triage-item--read" href="<?php echo esc_url( $triage_read_url ); ?>">
-						<span class="nestform-dash__triage-label"><?php esc_html_e( 'Read', 'nestform' ); ?></span>
-						<span class="nestform-dash__triage-value"><?php echo esc_html( number_format_i18n( $status_read ) ); ?></span>
+					<a class="nestform-dash__pulse-item nestform-dash__pulse-item--read" href="<?php echo esc_url( $pulse_read_url ); ?>">
+						<span class="nestform-dash__pulse-label"><?php esc_html_e( 'Read', 'nestform' ); ?></span>
+						<span class="nestform-dash__pulse-value"><?php echo esc_html( number_format_i18n( $status_read ) ); ?></span>
 					</a>
-					<a class="nestform-dash__triage-item nestform-dash__triage-item--spam" href="<?php echo esc_url( $triage_spam_url ); ?>">
-						<span class="nestform-dash__triage-label"><?php esc_html_e( 'Spam', 'nestform' ); ?></span>
-						<span class="nestform-dash__triage-value"><?php echo esc_html( number_format_i18n( $status_spam ) ); ?></span>
+					<a class="nestform-dash__pulse-item nestform-dash__pulse-item--spam" href="<?php echo esc_url( $pulse_spam_url ); ?>">
+						<span class="nestform-dash__pulse-label"><?php esc_html_e( 'Spam', 'nestform' ); ?></span>
+						<span class="nestform-dash__pulse-value"><?php echo esc_html( number_format_i18n( $status_spam ) ); ?></span>
 					</a>
-				</div>
-				<a class="nestform-btn nestform-btn--ghost nestform-dash__triage-all" href="<?php echo esc_url( $triage_all_url ); ?>">
-					<?php echo esc_html( $triage_all_lbl ); ?>
-					<?php echo nestform_admin_icon_html( 'forward' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG ?>
-				</a>
-			</nav>
+					<?php
+					/**
+					 * Extra work-pulse chips (e.g. Pro Hot leads).
+					 *
+					 * @param string $html Empty by default.
+					 * @param array  $ctx  Dashboard context.
+					 */
+					echo (string) apply_filters( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted Pro markup.
+						'nestform_dashboard_work_pulse_extra',
+						'',
+						array(
+							'form_id'     => $form_id,
+							'after'       => $after,
+							'before'      => $before,
+							'range'       => $range,
+							'status_new'  => $status_new,
+							'status_read' => $status_read,
+							'status_spam' => $status_spam,
+						)
+					);
+					?>
+				</nav>
+			</section>
 
 			<section class="nestform-dash__kpis" aria-label="<?php esc_attr_e( 'Key metrics', 'nestform' ); ?>">
+				<a class="nestform-dash__kpi nestform-dash__kpi--link" href="<?php echo esc_url( admin_url( 'edit.php?post_type=' . Nestform_Post_Type::POST_TYPE ) ); ?>">
+					<span class="nestform-dash__kpi-label"><?php esc_html_e( 'Forms', 'nestform' ); ?></span>
+					<span class="nestform-dash__kpi-value"><?php echo esc_html( number_format_i18n( $forms_published ) ); ?></span>
+					<span class="nestform-dash__kpi-meta">
+						<?php
+						if ( $form_id > 0 ) {
+							echo esc_html( $forms_published ? __( 'Published', 'nestform' ) : __( 'Draft', 'nestform' ) );
+						} else {
+							echo esc_html(
+								sprintf(
+									/* translators: %d: draft forms count */
+									_n( '%d draft', '%d drafts', $forms_draft, 'nestform' ),
+									$forms_draft
+								)
+							);
+						}
+						?>
+					</span>
+				</a>
 				<article class="nestform-dash__kpi nestform-dash__kpi--primary">
 					<span class="nestform-dash__kpi-label"><?php esc_html_e( 'Submissions', 'nestform' ); ?></span>
 					<span class="nestform-dash__kpi-value"><?php echo esc_html( number_format_i18n( $total ) ); ?></span>
 					<?php self::render_delta( $delta, $delta_pct, $range ); ?>
 				</article>
+				<?php
+				$has_conversion = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::ADVANCED_ANALYTICS );
+				if ( $has_conversion ) {
+					$conversion_kpi = (string) apply_filters(
+						'nestform_dashboard_conversion_kpi',
+						'',
+						array(
+							'form_id'     => $form_id,
+							'after'       => $after,
+							'before'      => $before,
+							'days'        => $days,
+							'total'       => $total,
+							'prev_total'  => $prev_total,
+							'range'       => $range,
+							'daily'       => $daily,
+							'status_spam' => $status_spam,
+						)
+					);
+					if ( $conversion_kpi !== '' ) {
+						echo $conversion_kpi; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by trusted Pro addon.
+					}
+				} else {
+					?>
 				<article class="nestform-dash__kpi">
-					<span class="nestform-dash__kpi-label"><?php esc_html_e( 'Avg / day', 'nestform' ); ?></span>
-					<span class="nestform-dash__kpi-value"><?php echo esc_html( number_format_i18n( $avg_day, 1 ) ); ?></span>
-					<span class="nestform-dash__kpi-meta">
-						<?php
-						echo esc_html(
-							sprintf(
-								/* translators: %d: number of days */
-								_n( '%d day', '%d days', $days, 'nestform' ),
-								$days
-							)
-						);
-						?>
-					</span>
-				</article>
-				<article class="nestform-dash__kpi">
-					<span class="nestform-dash__kpi-label"><?php esc_html_e( 'Today', 'nestform' ); ?></span>
-					<span class="nestform-dash__kpi-value"><?php echo esc_html( number_format_i18n( $today ) ); ?></span>
-					<span class="nestform-dash__kpi-meta"><?php echo esc_html( wp_date( 'j M' ) ); ?></span>
-				</article>
-				<article class="nestform-dash__kpi">
-					<span class="nestform-dash__kpi-label"><?php esc_html_e( 'Peak', 'nestform' ); ?></span>
-					<span class="nestform-dash__kpi-value"><?php echo esc_html( number_format_i18n( $peak_count ) ); ?></span>
-					<span class="nestform-dash__kpi-meta">
-						<?php
-						echo $peak_day !== ''
-							? esc_html( wp_date( 'j M', strtotime( $peak_day . ' 12:00:00' ) ) )
-							: esc_html__( '—', 'nestform' );
-						?>
-					</span>
-				</article>
-				<article class="nestform-dash__kpi">
-					<span class="nestform-dash__kpi-label"><?php esc_html_e( 'Forms', 'nestform' ); ?></span>
+					<span class="nestform-dash__kpi-label"><?php esc_html_e( 'Active forms', 'nestform' ); ?></span>
 					<span class="nestform-dash__kpi-value"><?php echo esc_html( number_format_i18n( $active_forms ) ); ?></span>
 					<span class="nestform-dash__kpi-meta">
 						<?php
 						if ( $form_id > 0 ) {
 							echo esc_html__( 'this form', 'nestform' );
-						} elseif ( $active_forms > 0 ) {
-							echo esc_html(
-								sprintf(
-									/* translators: %d: total forms on the site */
-									__( 'with submissions · %d total', 'nestform' ),
-									$forms_total
-								)
-							);
 						} else {
 							echo esc_html(
 								sprintf(
-									/* translators: %d: total forms */
+									/* translators: %d: total forms on the site */
 									__( '%d total', 'nestform' ),
 									$forms_total
 								)
@@ -408,37 +469,13 @@ class Nestform_Dashboard {
 						?>
 					</span>
 				</article>
-				<?php
-				$conversion_kpi = '';
-				if ( class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::ADVANCED_ANALYTICS ) ) {
-					/**
-					 * HTML for conversion KPI card (Pro).
-					 *
-					 * @param string $html    Empty by default.
-					 * @param array  $context Dashboard context.
-					 */
-					$conversion_kpi = (string) apply_filters(
-						'nestform_dashboard_conversion_kpi',
-						'',
-						array(
-							'form_id'    => $form_id,
-							'after'      => $after,
-							'before'     => $before,
-							'days'       => $days,
-							'total'      => $total,
-							'prev_total' => $prev_total,
-							'range'      => $range,
-							'daily'      => $daily,
-						)
-					);
-				}
-				if ( $conversion_kpi !== '' ) {
-					echo $conversion_kpi; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by trusted Pro addon.
+					<?php
 				}
 				?>
 			</section>
 
 			<div class="nestform-dash__layout">
+				<div class="nestform-dash__main">
 				<section class="nestform-dash__panel nestform-dash__panel--chart">
 					<div class="nestform-dash__panel-head">
 						<h2 class="nestform-dash__panel-title"><?php esc_html_e( 'Activity', 'nestform' ); ?></h2>
@@ -593,60 +630,55 @@ class Nestform_Dashboard {
 					<?php endif; ?>
 				</section>
 
-				<section class="nestform-dash__panel">
-					<div class="nestform-dash__panel-head">
-						<h2 class="nestform-dash__panel-title"><?php esc_html_e( 'Top forms', 'nestform' ); ?></h2>
-						<span class="nestform-dash__panel-hint"><?php esc_html_e( 'Top 5', 'nestform' ); ?></span>
-					</div>
-					<?php if ( array() === $top || 0 === $total ) : ?>
-						<div class="nestform-dash__empty">
-							<strong><?php esc_html_e( 'No leaders yet', 'nestform' ); ?></strong>
-							<span><?php esc_html_e( 'Forms with the most submissions will show up here.', 'nestform' ); ?></span>
+				<aside class="nestform-dash__aside">
+					<section class="nestform-dash__panel nestform-dash__panel--rail">
+						<div class="nestform-dash__panel-head">
+							<h2 class="nestform-dash__panel-title"><?php esc_html_e( 'Top forms', 'nestform' ); ?></h2>
+							<span class="nestform-dash__panel-hint"><?php echo esc_html( $range_labels[ $range ] ); ?></span>
 						</div>
-					<?php else : ?>
-						<ol class="nestform-dash__rank">
-							<?php foreach ( $top as $index => $row ) : ?>
-								<?php
-								$fid   = (int) $row['form_id'];
-								$count = (int) $row['count'];
-								$post  = isset( $form_ids[ $fid ] ) ? $form_ids[ $fid ] : get_post( $fid );
-								$title = ( $post && $post->post_title !== '' ) ? $post->post_title : sprintf(
-									/* translators: %d: form id */
-									__( 'Form #%d', 'nestform' ),
-									$fid
-								);
-								$share = $total > 0 ? round( ( $count / $total ) * 100 ) : 0;
-								$pct   = $max_top > 0 ? round( ( $count / $max_top ) * 100 ) : 0;
-								?>
-								<li class="nestform-dash__rank-item<?php echo 0 === $index ? ' nestform-dash__rank-item--lead' : ''; ?>">
-									<div class="nestform-dash__rank-row">
-										<div class="nestform-dash__rank-name">
-											<span class="nestform-dash__rank-index"><?php echo esc_html( (string) ( $index + 1 ) ); ?></span>
-											<a class="nestform-dash__rank-title" href="<?php echo esc_url( Nestform_Submissions::list_url( $fid ) ); ?>">
-												<?php echo esc_html( $title ); ?>
-											</a>
-										</div>
-										<span class="nestform-dash__rank-count"><?php echo esc_html( number_format_i18n( $count ) ); ?></span>
-									</div>
-									<div class="nestform-dash__rank-track" aria-hidden="true">
-										<span class="nestform-dash__rank-fill" style="width: <?php echo esc_attr( (string) $pct ); ?>%"></span>
-									</div>
-									<span class="nestform-dash__rank-share">
-										<?php
-										echo esc_html(
-											sprintf(
-												/* translators: %d: percent share */
-												__( '%d%% of period', 'nestform' ),
-												$share
-											)
-										);
-										?>
-									</span>
-								</li>
-							<?php endforeach; ?>
-						</ol>
-					<?php endif; ?>
-				</section>
+
+						<div class="nestform-dash__rail">
+							<div class="nestform-dash__rail-block nestform-dash__rail-block--forms">
+								<?php if ( array() === $top || 0 === $total ) : ?>
+									<p class="nestform-dash__rail-empty"><?php esc_html_e( 'Forms with the most submissions will show up here.', 'nestform' ); ?></p>
+								<?php else : ?>
+									<ol class="nestform-dash__rank">
+										<?php foreach ( $top as $index => $row ) : ?>
+											<?php
+											$fid   = (int) $row['form_id'];
+											$count = (int) $row['count'];
+											$post  = isset( $form_ids[ $fid ] ) ? $form_ids[ $fid ] : get_post( $fid );
+											$title = ( $post && $post->post_title !== '' ) ? $post->post_title : sprintf(
+												/* translators: %d: form id */
+												__( 'Form #%d', 'nestform' ),
+												$fid
+											);
+											$share = $total > 0 ? (int) round( ( $count / $total ) * 100 ) : 0;
+											$pct   = $max_top > 0 ? (int) round( ( $count / $max_top ) * 100 ) : 0;
+											?>
+											<li class="nestform-dash__rank-item<?php echo 0 === $index ? ' nestform-dash__rank-item--lead' : ''; ?>">
+												<div class="nestform-dash__rank-row">
+													<div class="nestform-dash__rank-name">
+														<span class="nestform-dash__rank-index"><?php echo esc_html( (string) ( $index + 1 ) ); ?></span>
+														<a class="nestform-dash__rank-title" href="<?php echo esc_url( Nestform_Submissions::list_url( $fid ) ); ?>">
+															<?php echo esc_html( $title ); ?>
+														</a>
+													</div>
+													<span class="nestform-dash__rank-count"><?php echo esc_html( number_format_i18n( $count ) ); ?></span>
+												</div>
+												<div class="nestform-dash__rank-track" aria-hidden="true">
+													<span class="nestform-dash__rank-fill" style="width: <?php echo esc_attr( (string) $pct ); ?>%"></span>
+												</div>
+												<span class="nestform-dash__rank-share"><?php echo esc_html( $share . '%' ); ?></span>
+											</li>
+										<?php endforeach; ?>
+									</ol>
+								<?php endif; ?>
+							</div>
+						</div>
+					</section>
+				</aside>
+				</div>
 
 				<?php
 				$insights_html = '';
@@ -672,9 +704,6 @@ class Nestform_Dashboard {
 						)
 					);
 				}
-				if ( '' !== $insights_html ) {
-					echo $insights_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				}
 
 				$responses_ctx = array(
 					'form_id' => $form_id,
@@ -696,14 +725,19 @@ class Nestform_Dashboard {
 				if ( $can_responses ) {
 					$responses_html = (string) apply_filters( 'nestform_dashboard_responses_panel', '', $responses_ctx );
 				}
-				if ( '' !== $responses_html ) {
+
+				if ( '' !== $insights_html || '' !== $responses_html ) {
+					echo '<div class="nestform-dash__deep">';
+					echo $insights_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					echo $responses_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo '</div>';
 				}
 				?>
 
 				<section class="nestform-dash__panel nestform-dash__panel--wide nestform-dash__panel--activity">
 					<div class="nestform-dash__panel-head">
 						<h2 class="nestform-dash__panel-title"><?php esc_html_e( 'Recent activity', 'nestform' ); ?></h2>
+						<span class="nestform-dash__panel-hint"><?php echo esc_html( $range_labels[ $range ] ); ?></span>
 						<a class="nestform-btn nestform-btn--ghost" href="<?php echo esc_url( $form_id > 0 ? Nestform_Submissions::list_url( $form_id ) : Nestform_Submissions::hub_url() ); ?>">
 							<?php echo esc_html( $form_id > 0 ? __( 'Form inbox', 'nestform' ) : __( 'All entries', 'nestform' ) ); ?>
 							<?php echo nestform_admin_icon_html( 'forward' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG ?>
@@ -711,8 +745,8 @@ class Nestform_Dashboard {
 					</div>
 					<?php if ( array() === $recent ) : ?>
 						<div class="nestform-dash__empty">
-							<strong><?php esc_html_e( 'Inbox is empty', 'nestform' ); ?></strong>
-							<span><?php esc_html_e( 'New submissions will land in this feed.', 'nestform' ); ?></span>
+							<strong><?php esc_html_e( 'No activity in this period', 'nestform' ); ?></strong>
+							<span><?php esc_html_e( 'Try another range, or wait for new submissions.', 'nestform' ); ?></span>
 						</div>
 					<?php else : ?>
 						<div class="nestform-dash__feed">

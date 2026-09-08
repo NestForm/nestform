@@ -25,6 +25,8 @@ class Nestform_Features {
 	const REPEATERS          = 'repeaters';
 	const PDF_EXPORT         = 'pdf_export';
 	const AUTOMATIONS        = 'automations';
+	const PAYMENTS           = 'payments';
+	const HUBSPOT            = 'hubspot';
 
 	/**
 	 * Registered Pro capabilities.
@@ -52,6 +54,8 @@ class Nestform_Features {
 			self::REPEATERS,
 			self::PDF_EXPORT,
 			self::AUTOMATIONS,
+			self::PAYMENTS,
+			self::HUBSPOT,
 		);
 	}
 
@@ -162,11 +166,12 @@ class Nestform_Features {
 		return array(
 			'calculated' => __( 'Calculated', 'nestform' ),
 			'repeater'   => __( 'Repeater', 'nestform' ),
+			'payment'    => __( 'Payment', 'nestform' ),
 		);
 	}
 
 	/**
-	 * Field types that require the advanced_fields capability.
+	 * Field types that require a Pro capability.
 	 *
 	 * @return array<int, string>
 	 */
@@ -193,6 +198,9 @@ class Nestform_Features {
 		}
 		if ( 'repeater' === $type ) {
 			return self::REPEATERS;
+		}
+		if ( 'payment' === $type ) {
+			return self::PAYMENTS;
 		}
 		return '';
 	}

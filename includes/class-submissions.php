@@ -35,6 +35,8 @@ class Nestform_Submissions {
 		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns', array( __CLASS__, 'columns' ) );
 		add_action( 'manage_' . self::POST_TYPE . '_posts_custom_column', array( __CLASS__, 'column_content' ), 10, 2 );
 		add_action( 'restrict_manage_posts', array( __CLASS__, 'list_toolbar' ) );
+		add_filter( 'disable_months_dropdown', array( __CLASS__, 'disable_months_dropdown' ), 10, 2 );
+		add_filter( 'the_title', array( __CLASS__, 'list_entry_title' ), 10, 2 );
 		add_action( 'pre_get_posts', array( __CLASS__, 'filter_by_form' ) );
 		add_action( 'add_meta_boxes', array( __CLASS__, 'meta_boxes' ) );
 		add_action( 'add_meta_boxes', array( __CLASS__, 'remove_default_boxes' ), 100 );
@@ -397,18 +399,22 @@ class Nestform_Submissions {
 		}
 
 		$form_id    = (int) get_post_meta( $post->ID, self::META_FORM, true );
-		$form_title = $form_id > 0 ? get_the_title( $form_id ) : '';
+		$form_post  = $form_id > 0 ? get_post( $form_id ) : null;
+		$form_title = ( $form_post && $form_post->post_title !== '' ) ? $form_post->post_title : '';
 		$status     = self::get_status( $post->ID );
 		$labels     = self::status_labels();
 		$status_lbl = $labels[ $status ] ?? $status;
 
-		$title = $post->post_title !== ''
-			? $post->post_title
-			: sprintf(
+		$payload = get_post_meta( $post->ID, self::META_DATA, true );
+		$payload = is_array( $payload ) ? $payload : array();
+		$title   = self::payload_name( $payload, (string) $post->post_title, $form_title );
+		if ( $title === '' ) {
+			$title = sprintf(
 				/* translators: %d: entry ID */
 				__( 'Entry #%d', 'nestform' ),
 				(int) $post->ID
 			);
+		}
 
 		$desc_parts = array();
 		if ( $form_title !== '' ) {
@@ -873,7 +879,7 @@ class Nestform_Submissions {
 	/**
 	 * Count entries with optional form + date range + status.
 	 *
-	 * @param array{form_id?:int,after?:string,before?:string,status?:string} $args Args.
+	 * @param array{form_id?:int,after?:string,before?:string,status?:string,exclude_spam?:bool,starred?:bool,skip_access_check?:bool} $args Args.
 	 * @return int
 	 */
 	public static function count_entries( array $args = array() ) {
@@ -931,6 +937,19 @@ class Nestform_Submissions {
 					'value' => $status,
 				);
 			}
+		} elseif ( ! empty( $args['exclude_spam'] ) ) {
+			$meta_query[] = array(
+				'relation' => 'OR',
+				array(
+					'key'     => self::META_STATUS,
+					'value'   => self::STATUS_SPAM,
+					'compare' => '!=',
+				),
+				array(
+					'key'     => self::META_STATUS,
+					'compare' => 'NOT EXISTS',
+				),
+			);
 		}
 
 		if ( ! empty( $args['starred'] ) ) {
@@ -963,12 +982,13 @@ class Nestform_Submissions {
 	/**
 	 * Daily entry counts for a date range (inclusive calendar days).
 	 *
-	 * @param string $after   Local datetime Y-m-d H:i:s.
-	 * @param string $before  Local datetime Y-m-d H:i:s.
-	 * @param int    $form_id Optional form filter.
+	 * @param string               $after   Local datetime Y-m-d H:i:s.
+	 * @param string               $before  Local datetime Y-m-d H:i:s.
+	 * @param int                  $form_id Optional form filter.
+	 * @param array<string, mixed> $args    Optional: exclude_spam, skip_access_check.
 	 * @return array<string, int> Map Y-m-d => count.
 	 */
-	public static function daily_counts( $after, $before, $form_id = 0 ) {
+	public static function daily_counts( $after, $before, $form_id = 0, array $args = array() ) {
 		global $wpdb;
 
 		$after_local  = self::normalize_local_datetime( $after, false );
@@ -977,47 +997,81 @@ class Nestform_Submissions {
 			return array();
 		}
 
-		$form_id = (int) $form_id;
+		$fill_zeros = static function () use ( $after_local, $before_local ) {
+			$start  = substr( $after_local, 0, 10 );
+			$end    = substr( $before_local, 0, 10 );
+			$filled = array();
+			try {
+				$cursor = new DateTimeImmutable( $start . ' 00:00:00' );
+				$last   = new DateTimeImmutable( $end . ' 00:00:00' );
+			} catch ( Exception $e ) {
+				return array();
+			}
+			while ( $cursor <= $last ) {
+				$filled[ $cursor->format( 'Y-m-d' ) ] = 0;
+				$cursor = $cursor->modify( '+1 day' );
+			}
+			return $filled;
+		};
+
+		$form_id      = (int) $form_id;
+		$exclude_spam = ! empty( $args['exclude_spam'] );
+		$skip_access  = ! empty( $args['skip_access_check'] );
+
+		$join_sql            = '';
+		$where_extra         = '';
+		$join_params         = array();
+		$where_extra_params  = array();
+
 		if ( $form_id > 0 ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$rows = $wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT DATE(p.post_date) AS day_key, COUNT(p.ID) AS total
-					FROM {$wpdb->posts} p
-					INNER JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = %s AND m.meta_value = %s
-					WHERE p.post_type = %s
-						AND p.post_status = 'publish'
-						AND p.post_date >= %s
-						AND p.post_date <= %s
-					GROUP BY DATE(p.post_date)
-					ORDER BY day_key ASC",
-					self::META_FORM,
-					(string) $form_id,
-					self::POST_TYPE,
-					$after_local,
-					$before_local
-				),
-				ARRAY_A
-			);
-		} else {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$rows = $wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT DATE(p.post_date) AS day_key, COUNT(p.ID) AS total
-					FROM {$wpdb->posts} p
-					WHERE p.post_type = %s
-						AND p.post_status = 'publish'
-						AND p.post_date >= %s
-						AND p.post_date <= %s
-					GROUP BY DATE(p.post_date)
-					ORDER BY day_key ASC",
-					self::POST_TYPE,
-					$after_local,
-					$before_local
-				),
-				ARRAY_A
-			);
+			if ( is_admin() && ! $skip_access && ! self::user_can_manage_form_entries( $form_id ) ) {
+				return $fill_zeros();
+			}
+			$join_sql     .= " INNER JOIN {$wpdb->postmeta} mf ON mf.post_id = p.ID AND mf.meta_key = %s AND mf.meta_value = %s ";
+			$join_params[] = self::META_FORM;
+			$join_params[] = (string) $form_id;
+		} elseif ( is_admin() && ! $skip_access ) {
+			$accessible = self::accessible_form_ids();
+			if ( is_array( $accessible ) ) {
+				if ( array() === $accessible ) {
+					return $fill_zeros();
+				}
+				$placeholders = implode( ',', array_fill( 0, count( $accessible ), '%s' ) );
+				$join_sql    .= " INNER JOIN {$wpdb->postmeta} mf ON mf.post_id = p.ID AND mf.meta_key = %s ";
+				$join_params[] = self::META_FORM;
+				$where_extra .= " AND mf.meta_value IN ({$placeholders}) ";
+				foreach ( $accessible as $fid ) {
+					$where_extra_params[] = (string) (int) $fid;
+				}
+			}
 		}
+
+		if ( $exclude_spam ) {
+			$join_sql     .= " LEFT JOIN {$wpdb->postmeta} st ON st.post_id = p.ID AND st.meta_key = %s ";
+			$join_params[] = self::META_STATUS;
+			$where_extra  .= ' AND (st.meta_id IS NULL OR st.meta_value <> %s) ';
+			$where_extra_params[] = self::STATUS_SPAM;
+		}
+
+		$sql = "SELECT DATE(p.post_date) AS day_key, COUNT(DISTINCT p.ID) AS total
+			FROM {$wpdb->posts} p
+			{$join_sql}
+			WHERE p.post_type = %s
+				AND p.post_status = 'publish'
+				AND p.post_date >= %s
+				AND p.post_date <= %s
+				{$where_extra}
+			GROUP BY DATE(p.post_date)
+			ORDER BY day_key ASC";
+
+		$prepare_args = array_merge(
+			$join_params,
+			array( self::POST_TYPE, $after_local, $before_local ),
+			$where_extra_params
+		);
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		$rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$prepare_args ), ARRAY_A );
 
 		$map = array();
 		if ( is_array( $rows ) ) {
@@ -1029,19 +1083,9 @@ class Nestform_Submissions {
 			}
 		}
 
-		$start = substr( $after_local, 0, 10 );
-		$end   = substr( $before_local, 0, 10 );
-		$filled = array();
-		try {
-			$cursor = new DateTimeImmutable( $start . ' 00:00:00' );
-			$last   = new DateTimeImmutable( $end . ' 00:00:00' );
-		} catch ( Exception $e ) {
-			return $map;
-		}
-		while ( $cursor <= $last ) {
-			$key             = $cursor->format( 'Y-m-d' );
+		$filled = $fill_zeros();
+		foreach ( $filled as $key => $_ ) {
 			$filled[ $key ] = isset( $map[ $key ] ) ? $map[ $key ] : 0;
-			$cursor          = $cursor->modify( '+1 day' );
 		}
 		return $filled;
 	}
@@ -1133,8 +1177,16 @@ class Nestform_Submissions {
 	 * @param int $form_id Optional form.
 	 * @return array<int, WP_Post>
 	 */
-	public static function recent_entries( $limit = 8, $form_id = 0 ) {
-		$args = array(
+	/**
+	 * Recent entries for activity feed.
+	 *
+	 * @param int   $limit   Max posts.
+	 * @param int   $form_id Optional form filter.
+	 * @param array $args    Optional { after?: string, before?: string } Y-m-d H:i:s.
+	 * @return array<int, WP_Post>
+	 */
+	public static function recent_entries( $limit = 8, $form_id = 0, $args = array() ) {
+		$query = array(
 			'post_type'              => self::POST_TYPE,
 			'post_status'            => 'publish',
 			'posts_per_page'         => max( 1, min( 50, (int) $limit ) ),
@@ -1145,14 +1197,28 @@ class Nestform_Submissions {
 		);
 		$form_id = (int) $form_id;
 		if ( $form_id > 0 ) {
-			$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+			$query['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 				array(
 					'key'   => self::META_FORM,
 					'value' => $form_id,
 				),
 			);
 		}
-		$posts = get_posts( $args );
+
+		$after  = isset( $args['after'] ) ? (string) $args['after'] : '';
+		$before = isset( $args['before'] ) ? (string) $args['before'] : '';
+		if ( $after !== '' || $before !== '' ) {
+			$date_query = array( 'inclusive' => true );
+			if ( $after !== '' ) {
+				$date_query['after'] = $after;
+			}
+			if ( $before !== '' ) {
+				$date_query['before'] = $before;
+			}
+			$query['date_query'] = array( $date_query );
+		}
+
+		$posts = get_posts( $query );
 		return is_array( $posts ) ? $posts : array();
 	}
 
@@ -1319,11 +1385,12 @@ class Nestform_Submissions {
 	}
 
 	/**
-	 * @param array<string, mixed> $payload Payload.
+	 * @param array<string, mixed> $payload  Payload.
 	 * @param string               $fallback Title fallback.
+	 * @param string               $exclude  Optional label to ignore from title fallback (e.g. form title).
 	 * @return string
 	 */
-	public static function payload_name( array $payload, $fallback = '' ) {
+	public static function payload_name( array $payload, $fallback = '', $exclude = '' ) {
 		foreach ( array( 'name', 'full_name', 'your_name', 'fio' ) as $key ) {
 			if ( empty( $payload[ $key ] ) || is_array( $payload[ $key ] ) ) {
 				continue;
@@ -1343,11 +1410,15 @@ class Nestform_Submissions {
 			if ( is_array( $parts ) && isset( $parts[0] ) && trim( $parts[0] ) !== '' ) {
 				$first = trim( $parts[0] );
 				if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}/', $first ) ) {
+					$exclude = trim( (string) $exclude );
+					if ( $exclude !== '' && 0 === strcasecmp( $first, $exclude ) ) {
+						return __( 'Unknown', 'nestform' );
+					}
 					return $first;
 				}
 			}
 		}
-		return __( 'Submission', 'nestform' );
+		return __( 'Unknown', 'nestform' );
 	}
 
 	/**
@@ -1423,6 +1494,26 @@ class Nestform_Submissions {
 			self::STATUS_READ => array( __( 'Read', 'nestform' ), $read_n ),
 			self::STATUS_SPAM => array( __( 'Spam', 'nestform' ), $spam_n ),
 		);
+
+		$lead_html = '';
+		if ( class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::LEAD_INSIGHTS ) ) {
+			/**
+			 * Lead insights meta HTML for Entries page head (Pro).
+			 *
+			 * @param string $html Empty.
+			 * @param array  $ctx  Counts context.
+			 */
+			$lead_html = (string) apply_filters(
+				'nestform_entries_lead_insights',
+				'',
+				array(
+					'all'  => $all_n,
+					'new'  => $new_n,
+					'read' => $read_n,
+					'spam' => $spam_n,
+				)
+			);
+		}
 		?>
 		<div class="wrap nestform-hub nestform-hub--entries">
 			<?php
@@ -1430,86 +1521,53 @@ class Nestform_Submissions {
 				array(
 					'title'       => __( 'Entries', 'nestform' ),
 					'description' => __( 'Recent submissions across all forms. Open a form name to view its full inbox.', 'nestform' ),
+					'meta_html'   => $lead_html,
 				)
 			);
 			?>
-			<div class="nestform-entries__stats">
-				<div class="nestform-entries__stat">
-					<span class="nestform-entries__stat-value"><?php echo esc_html( number_format_i18n( $all_n ) ); ?></span>
-					<span class="nestform-entries__stat-label"><?php esc_html_e( 'Total entries', 'nestform' ); ?></span>
-				</div>
-				<div class="nestform-entries__stat nestform-entries__stat--new">
-					<span class="nestform-entries__stat-value"><?php echo esc_html( number_format_i18n( $new_n ) ); ?></span>
-					<span class="nestform-entries__stat-label"><?php esc_html_e( 'New', 'nestform' ); ?></span>
-				</div>
-				<div class="nestform-entries__stat nestform-entries__stat--ok">
-					<span class="nestform-entries__stat-value"><?php echo esc_html( number_format_i18n( $read_n ) ); ?></span>
-					<span class="nestform-entries__stat-label"><?php esc_html_e( 'Read', 'nestform' ); ?></span>
-				</div>
-				<div class="nestform-entries__stat nestform-entries__stat--spam">
-					<span class="nestform-entries__stat-value"><?php echo esc_html( number_format_i18n( $spam_n ) ); ?></span>
-					<span class="nestform-entries__stat-label"><?php esc_html_e( 'Spam blocked', 'nestform' ); ?></span>
-				</div>
-				<?php
-				$lead_html = '';
-				if ( class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::LEAD_INSIGHTS ) ) {
-					/**
-					 * Lead insights stats HTML (Pro).
-					 *
-					 * @param string $html Empty.
-					 * @param array  $ctx  Counts context.
-					 */
-					$lead_html = (string) apply_filters(
-						'nestform_entries_lead_insights',
-						'',
-						array(
-							'all'  => $all_n,
-							'new'  => $new_n,
-							'read' => $read_n,
-							'spam' => $spam_n,
-						)
-					);
-				}
-				if ( $lead_html !== '' ) {
-					echo $lead_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				}
-				?>
-			</div>
-			<div class="nestform-entries__filters">
+			<div class="nestform-entries__stats" role="navigation" aria-label="<?php esc_attr_e( 'Filter entries', 'nestform' ); ?>">
 				<?php foreach ( $filters as $key => $meta ) : ?>
 					<?php
-					$url   = '' === $key ? self::hub_url() : self::hub_url( array( 'nestform_status' => $key ) );
-					$class = 'nestform-btn ' . ( $status === (string) $key ? 'nestform-btn--primary' : 'nestform-btn--outline' );
-					$count = (int) $meta[1];
+					$url     = '' === $key ? self::hub_url() : self::hub_url( array( 'nestform_status' => $key ) );
+					$active  = $status === (string) $key;
+					$mod     = '';
 					if ( self::STATUS_NEW === $key ) {
-						$class .= ' nestform-entries__filter nestform-entries__filter--new';
+						$mod = ' nestform-entries__stat--new';
+					} elseif ( self::STATUS_READ === $key ) {
+						$mod = ' nestform-entries__stat--ok';
+					} elseif ( self::STATUS_SPAM === $key ) {
+						$mod = ' nestform-entries__stat--spam';
 					}
+					$label = '' === $key ? __( 'Total entries', 'nestform' ) : (string) $meta[0];
+					if ( self::STATUS_SPAM === $key ) {
+						$label = __( 'Spam blocked', 'nestform' );
+					}
+					$class = 'nestform-entries__stat' . $mod . ( $active ? ' is-active' : '' );
 					?>
-					<a class="<?php echo esc_attr( $class ); ?>" href="<?php echo esc_url( $url ); ?>">
-						<?php if ( self::STATUS_NEW === $key ) : ?>
-							<?php echo esc_html( $meta[0] ); ?>
-							<?php if ( $count > 0 ) : ?>
-								<span class="nestform-entries__filter-count"><?php echo esc_html( number_format_i18n( $count ) ); ?></span>
-							<?php endif; ?>
-						<?php else : ?>
-							<?php
-							echo esc_html(
-								sprintf(
-									/* translators: 1: filter label, 2: count */
-									__( '%1$s (%2$s)', 'nestform' ),
-									$meta[0],
-									number_format_i18n( $count )
-								)
-							);
-							?>
-						<?php endif; ?>
+					<a
+						class="<?php echo esc_attr( $class ); ?>"
+						href="<?php echo esc_url( $url ); ?>"
+						<?php echo $active ? ' aria-current="page"' : ''; ?>
+					>
+						<span class="nestform-entries__stat-value"><?php echo esc_html( number_format_i18n( (int) $meta[1] ) ); ?></span>
+						<span class="nestform-entries__stat-label"><?php echo esc_html( $label ); ?></span>
 					</a>
 				<?php endforeach; ?>
 			</div>
 			<?php if ( array() === $entries ) : ?>
 				<div class="nestform-hub__empty-state">
-					<p class="nestform-hub__empty-state-title"><?php esc_html_e( 'No entries yet', 'nestform' ); ?></p>
-					<p class="nestform-hub__empty-state-text"><?php esc_html_e( 'Submissions will show up here as soon as a form is sent. You can also open a form inbox from All Forms.', 'nestform' ); ?></p>
+					<?php if ( $status !== '' ) : ?>
+						<p class="nestform-hub__empty-state-title"><?php esc_html_e( 'No matching entries', 'nestform' ); ?></p>
+						<p class="nestform-hub__empty-state-text"><?php esc_html_e( 'Try another status filter, or open a form inbox from All Forms.', 'nestform' ); ?></p>
+						<p>
+							<a class="nestform-btn nestform-btn--outline" href="<?php echo esc_url( self::hub_url() ); ?>">
+								<?php esc_html_e( 'Show all entries', 'nestform' ); ?>
+							</a>
+						</p>
+					<?php else : ?>
+						<p class="nestform-hub__empty-state-title"><?php esc_html_e( 'No entries yet', 'nestform' ); ?></p>
+						<p class="nestform-hub__empty-state-text"><?php esc_html_e( 'Submissions will show up here as soon as a form is sent. You can also open a form inbox from All Forms.', 'nestform' ); ?></p>
+					<?php endif; ?>
 				</div>
 			<?php else : ?>
 				<?php self::render_hub_pagination( $total, $paged, $pages, $per_page, $url_args ); ?>
@@ -1527,33 +1585,37 @@ class Nestform_Submissions {
 						$efid    = (int) get_post_meta( $eid, self::META_FORM, true );
 						$payload = get_post_meta( $eid, self::META_DATA, true );
 						$payload = is_array( $payload ) ? $payload : array();
-						$who     = self::payload_name( $payload, (string) $entry->post_title );
-						$email   = self::payload_email( $payload );
 						$eform   = $efid > 0 ? get_post( $efid ) : null;
 						$ftitle  = ( $eform && $eform->post_title !== '' ) ? $eform->post_title : ( $efid ? '#' . $efid : '—' );
+						$who     = self::payload_name( $payload, (string) $entry->post_title, $ftitle );
+						$email   = self::payload_email( $payload );
 						$estatus = self::get_status( $eid );
 						$ago     = human_time_diff( get_post_time( 'U', true, $entry ), current_time( 'timestamp', true ) );
 						$view    = get_edit_post_link( $eid, 'raw' );
 						$badge   = self::badge_modifier( $estatus );
 						$row_mod = 'new' === $estatus ? ' nestform-entries__row--new' : '';
+						$who_unknown = 0 === strcasecmp( $who, __( 'Unknown', 'nestform' ) );
 						?>
 						<div class="nestform-entries__row<?php echo esc_attr( $row_mod ); ?>">
 							<div class="nestform-entries__td nestform-entries__td--status">
 								<span class="nestform-badge nestform-badge--<?php echo esc_attr( $badge ); ?>"><?php echo esc_html( strtoupper( $estatus ) ); ?></span>
 							</div>
 							<div class="nestform-entries__td nestform-entries__td--from">
-								<div class="nestform-entries__who"><?php echo esc_html( $who ); ?></div>
+								<?php if ( $view ) : ?>
+									<a class="nestform-entries__who<?php echo $who_unknown ? ' nestform-entries__who--muted' : ''; ?>" href="<?php echo esc_url( $view ); ?>">
+										<?php echo esc_html( $who ); ?>
+									</a>
+								<?php else : ?>
+									<div class="nestform-entries__who<?php echo $who_unknown ? ' nestform-entries__who--muted' : ''; ?>"><?php echo esc_html( $who ); ?></div>
+								<?php endif; ?>
 								<?php if ( $email !== '' && 0 !== strcasecmp( $email, $who ) ) : ?>
-									<div class="nestform-entries__email"><?php echo esc_html( $email ); ?></div>
-								<?php elseif ( $email !== '' ) : ?>
 									<div class="nestform-entries__email"><?php echo esc_html( $email ); ?></div>
 								<?php endif; ?>
 							</div>
 							<div class="nestform-entries__td nestform-entries__td--form">
 								<?php if ( $efid > 0 ) : ?>
-									<a class="nestform-entries__form-link" href="<?php echo esc_url( self::list_url( $efid ) ); ?>">
-										<span class="nestform-entries__form-link-title"><?php echo esc_html( $ftitle ); ?></span>
-										<span class="nestform-entries__form-link-hint"><?php esc_html_e( 'Inbox', 'nestform' ); ?></span>
+									<a class="nestform-entries__form-link" href="<?php echo esc_url( self::list_url( $efid ) ); ?>" title="<?php esc_attr_e( 'Open form inbox', 'nestform' ); ?>">
+										<?php echo esc_html( $ftitle ); ?>
 									</a>
 								<?php else : ?>
 									<?php echo esc_html( $ftitle ); ?>
@@ -1572,7 +1634,7 @@ class Nestform_Submissions {
 							</div>
 							<div class="nestform-entries__td nestform-entries__td--actions">
 								<?php if ( $view ) : ?>
-									<a class="nestform-btn nestform-btn--ghost" href="<?php echo esc_url( $view ); ?>"><?php esc_html_e( 'View', 'nestform' ); ?></a>
+									<a class="nestform-btn nestform-btn--outline" href="<?php echo esc_url( $view ); ?>"><?php esc_html_e( 'View', 'nestform' ); ?></a>
 								<?php endif; ?>
 							</div>
 						</div>
@@ -1659,14 +1721,11 @@ class Nestform_Submissions {
 	 */
 	public static function columns( $columns ) {
 		return array(
-			'cb'                  => $columns['cb'] ?? '',
-			'title'               => __( 'Entry', 'nestform' ),
-			'nestform_status'   => __( 'Status', 'nestform' ),
-			'nestform_preview'  => __( 'Preview', 'nestform' ),
-			'nestform_email'    => __( 'Email', 'nestform' ),
-			'nestform_phone'    => __( 'Phone', 'nestform' ),
-			'nestform_ip'       => __( 'IP', 'nestform' ),
-			'date'                => __( 'Date', 'nestform' ),
+			'cb'                 => $columns['cb'] ?? '',
+			'title'              => __( 'Entry', 'nestform' ),
+			'nestform_status'    => __( 'Status', 'nestform' ),
+			'nestform_preview'   => __( 'Preview', 'nestform' ),
+			'nestform_date'      => __( 'Date', 'nestform' ),
 		);
 	}
 
@@ -1702,25 +1761,27 @@ class Nestform_Submissions {
 			return;
 		}
 
-		if ( 'nestform_email' === $column ) {
-			$email = self::find_value( $data, array( 'email', 'e-mail', 'mail' ) );
-			if ( $email !== '' && is_email( $email ) ) {
-				echo '<a href="mailto:' . esc_attr( $email ) . '">' . esc_html( $email ) . '</a>';
-			} else {
-				echo $email !== '' ? esc_html( $email ) : '—';
+		if ( 'nestform_date' === $column ) {
+			$post = get_post( $post_id );
+			if ( ! $post ) {
+				echo '—';
+				return;
 			}
-			return;
-		}
-
-		if ( 'nestform_phone' === $column ) {
-			$phone = self::find_value( $data, array( 'phone', 'tel', 'telephone', 'mobile' ) );
-			echo $phone !== '' ? esc_html( $phone ) : '—';
-			return;
-		}
-
-		if ( 'nestform_ip' === $column ) {
-			$ip = (string) get_post_meta( $post_id, self::META_IP, true );
-			echo $ip !== '' ? esc_html( $ip ) : '—';
+			$formatted = class_exists( 'Nestform_Settings' )
+				? Nestform_Settings::format_entry_datetime( $post )
+				: get_the_date( 'Y-m-d H:i', $post );
+			$ago = human_time_diff( get_post_time( 'U', true, $post ), current_time( 'timestamp', true ) );
+			printf(
+				'<span class="nestform-entry-date" title="%1$s">%2$s</span>',
+				esc_attr( $formatted ),
+				esc_html(
+					sprintf(
+						/* translators: %s: relative time */
+						__( '%s ago', 'nestform' ),
+						$ago
+					)
+				)
+			);
 		}
 	}
 
@@ -1815,6 +1876,25 @@ class Nestform_Submissions {
 			$name = ! empty( $value['name'] ) ? (string) $value['name'] : basename( (string) $value['url'] );
 			return $name;
 		}
+		/* Payment payloads from Nestform Pro (even if type metadata is missing). */
+		if ( is_array( $value ) && isset( $value['intent_id'], $value['amount'], $value['currency'] ) ) {
+			$line = sprintf(
+				/* translators: 1: amount, 2: currency */
+				__( 'Paid %1$s %2$s', 'nestform' ),
+				(string) $value['amount'],
+				(string) $value['currency']
+			);
+			if ( ! empty( $value['mode'] ) && 'test' === (string) $value['mode'] ) {
+				$line .= ' · ' . __( 'test', 'nestform' );
+			}
+			if ( ! empty( $value['intent_id'] ) ) {
+				$line .= ' (' . (string) $value['intent_id'] . ')';
+			}
+			if ( $truncate && strlen( $line ) > 80 ) {
+				$line = substr( $line, 0, 77 ) . '…';
+			}
+			return $line;
+		}
 		if ( is_array( $value ) ) {
 			// Repeater rows.
 			if ( isset( $value[0] ) && is_array( $value[0] ) && ! isset( $value[0]['url'] ) ) {
@@ -1856,48 +1936,82 @@ class Nestform_Submissions {
 			return;
 		}
 		$selected = isset( $_GET['nestform_form_id'] ) ? (int) $_GET['nestform_form_id'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$forms    = self::get_forms();
+		if ( $selected <= 0 ) {
+			return;
+		}
+
+		$status_filter = isset( $_GET['nestform_status'] ) ? sanitize_key( wp_unslash( $_GET['nestform_status'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$starred       = isset( $_GET['starred'] ) && '1' === (string) wp_unslash( $_GET['starred'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		echo '<span class="nestform-entries-toolbar">';
-		echo '<label class="nestform-entries-toolbar__pick" for="nestform_form_id"><span class="screen-reader-text">' . esc_html__( 'Form', 'nestform' ) . '</span>';
-		echo '<select name="nestform_form_id" id="nestform_form_id" class="nestform-entries-toolbar__select">';
-		foreach ( $forms as $form ) {
+		printf(
+			'<input type="hidden" name="nestform_form_id" value="%d" />',
+			$selected
+		);
+		if ( $status_filter !== '' && isset( self::status_labels()[ $status_filter ] ) ) {
 			printf(
-				'<option value="%d"%s>%s</option>',
-				(int) $form->ID,
-				selected( $selected, (int) $form->ID, false ),
-				esc_html( $form->post_title !== '' ? $form->post_title : __( '(no title)', 'nestform' ) )
+				'<input type="hidden" name="nestform_status" value="%s" />',
+				esc_attr( $status_filter )
 			);
 		}
-		echo '</select></label>';
-
-		if ( $selected > 0 ) {
-			$count = self::count_for_form( $selected );
-			echo '<span class="nestform-entries-toolbar__meta">';
-			echo esc_html(
-				sprintf(
-					/* translators: %d: entry count */
-					_n( '%d entry', '%d entries', $count, 'nestform' ),
-					$count
-				)
-			);
-			echo '</span>';
-
-			$status_filter = isset( $_GET['nestform_status'] ) ? sanitize_key( wp_unslash( $_GET['nestform_status'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			echo '<label class="nestform-entries-toolbar__pick" for="nestform_status"><span class="screen-reader-text">' . esc_html__( 'Status', 'nestform' ) . '</span>';
-			echo '<select name="nestform_status" id="nestform_status" class="nestform-entries-toolbar__select">';
-			echo '<option value="">' . esc_html__( 'All statuses', 'nestform' ) . '</option>';
-			foreach ( self::status_labels() as $key => $label ) {
-				printf(
-					'<option value="%1$s"%2$s>%3$s</option>',
-					esc_attr( $key ),
-					selected( $status_filter, $key, false ),
-					esc_html( $label )
-				);
-			}
-			echo '</select></label>';
+		if ( $starred ) {
+			echo '<input type="hidden" name="starred" value="1" />';
 		}
+
+		$count = self::count_for_form( $selected );
+		echo '<span class="nestform-entries-toolbar__meta">';
+		echo esc_html(
+			sprintf(
+				/* translators: %d: entry count */
+				_n( '%d entry', '%d entries', $count, 'nestform' ),
+				$count
+			)
+		);
 		echo '</span>';
+		echo '</span>';
+	}
+
+	/**
+	 * Hide the core months dropdown on the form inbox list.
+	 *
+	 * @param bool   $disable   Whether to disable.
+	 * @param string $post_type Post type.
+	 * @return bool
+	 */
+	public static function disable_months_dropdown( $disable, $post_type ) {
+		if ( self::POST_TYPE === $post_type ) {
+			return true;
+		}
+		return (bool) $disable;
+	}
+
+	/**
+	 * Short contact-only title in the form inbox list table.
+	 *
+	 * @param string $title   Post title.
+	 * @param int    $post_id Post ID.
+	 * @return string
+	 */
+	public static function list_entry_title( $title, $post_id = 0 ) {
+		if ( ! self::is_entries_list_screen() ) {
+			return $title;
+		}
+		$post_id = (int) $post_id;
+		if ( $post_id <= 0 ) {
+			return $title;
+		}
+		$post = get_post( $post_id );
+		if ( ! $post || self::POST_TYPE !== $post->post_type ) {
+			return $title;
+		}
+
+		$payload = get_post_meta( $post_id, self::META_DATA, true );
+		$payload = is_array( $payload ) ? $payload : array();
+		$form_id = (int) get_post_meta( $post_id, self::META_FORM, true );
+		$form    = $form_id > 0 ? get_post( $form_id ) : null;
+		$exclude = ( $form && $form->post_title !== '' ) ? $form->post_title : '';
+
+		return self::payload_name( $payload, (string) $post->post_title, $exclude );
 	}
 
 	/**
@@ -2340,46 +2454,41 @@ class Nestform_Submissions {
 					<?php endif; ?>
 				</div>
 			</div>
-			<p>
-				<strong><?php esc_html_e( 'Entry ID', 'nestform' ); ?></strong>
-				<?php echo (int) $post->ID; ?>
-			</p>
-			<p>
-				<strong><?php esc_html_e( 'Submitted', 'nestform' ); ?></strong>
-				<?php echo esc_html( class_exists( 'Nestform_Settings' ) ? Nestform_Settings::format_entry_datetime( $post ) : get_the_date( 'Y-m-d H:i:s', $post ) ); ?>
-			</p>
-			<?php if ( $form_id > 0 ) : ?>
-				<p>
-					<strong><?php esc_html_e( 'Form', 'nestform' ); ?></strong>
-					<?php
-					$link  = get_edit_post_link( $form_id );
-					$title = get_the_title( $form_id );
-					if ( $link ) {
-						echo '<a href="' . esc_url( $link ) . '">' . esc_html( $title ) . '</a>';
-					} else {
-						echo esc_html( $title );
-					}
-					?>
-				</p>
-				<p class="nestform-entry-meta__inbox">
-					<a class="nestform-btn nestform-btn--outline nestform-btn--accent" href="<?php echo esc_url( self::list_url( $form_id ) ); ?>">
-						<?php nestform_admin_icon( 'entries' ); ?>
-						<?php esc_html_e( 'Form inbox', 'nestform' ); ?>
-					</a>
-				</p>
-			<?php endif; ?>
-			<?php if ( $ip !== '' ) : ?>
-				<p>
-					<strong><?php esc_html_e( 'IP address', 'nestform' ); ?></strong>
-					<code><?php echo esc_html( $ip ); ?></code>
-				</p>
-			<?php endif; ?>
-			<p>
-				<a class="nestform-entry-meta__back" href="<?php echo esc_url( self::hub_url() ); ?>">
-					<?php echo nestform_admin_icon_html( 'back' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG ?>
-					<?php esc_html_e( 'Choose another form', 'nestform' ); ?>
-				</a>
-			</p>
+			<div class="nestform-entry-meta__rows">
+				<div class="nestform-entry-meta__row">
+					<span class="nestform-entry-meta__label"><?php esc_html_e( 'Entry ID', 'nestform' ); ?></span>
+					<span class="nestform-entry-meta__value"><?php echo (int) $post->ID; ?></span>
+				</div>
+				<div class="nestform-entry-meta__row">
+					<span class="nestform-entry-meta__label"><?php esc_html_e( 'Submitted', 'nestform' ); ?></span>
+					<span class="nestform-entry-meta__value"><?php echo esc_html( class_exists( 'Nestform_Settings' ) ? Nestform_Settings::format_entry_datetime( $post ) : get_the_date( 'Y-m-d H:i:s', $post ) ); ?></span>
+				</div>
+				<?php if ( $form_id > 0 ) : ?>
+					<div class="nestform-entry-meta__row">
+						<span class="nestform-entry-meta__label"><?php esc_html_e( 'Form', 'nestform' ); ?></span>
+						<span class="nestform-entry-meta__value">
+							<?php
+							$edit_link = get_edit_post_link( $form_id );
+							$title     = get_the_title( $form_id );
+							$inbox     = self::list_url( $form_id );
+							if ( $inbox ) {
+								echo '<a href="' . esc_url( $inbox ) . '">' . esc_html( $title ) . '</a>';
+							} elseif ( $edit_link ) {
+								echo '<a href="' . esc_url( $edit_link ) . '">' . esc_html( $title ) . '</a>';
+							} else {
+								echo esc_html( $title );
+							}
+							?>
+						</span>
+					</div>
+				<?php endif; ?>
+				<?php if ( $ip !== '' ) : ?>
+					<div class="nestform-entry-meta__row">
+						<span class="nestform-entry-meta__label"><?php esc_html_e( 'IP address', 'nestform' ); ?></span>
+						<span class="nestform-entry-meta__value"><code><?php echo esc_html( $ip ); ?></code></span>
+					</div>
+				<?php endif; ?>
+			</div>
 		</div>
 		<?php
 	}
@@ -2437,20 +2546,18 @@ class Nestform_Submissions {
 		$notes_id = 'nestform_notes_' . (int) $post->ID;
 		?>
 		<div class="nestform-entry-notes">
-			<p>
-				<label class="nestform-admin__check" for="<?php echo esc_attr( $star_id ); ?>">
-					<input
-						type="checkbox"
-						id="<?php echo esc_attr( $star_id ); ?>"
-						name="nestform_starred"
-						value="1"
-						form="<?php echo esc_attr( $form_id ); ?>"
-						<?php checked( $starred ); ?>
-					/>
-					<span><?php esc_html_e( 'Starred', 'nestform' ); ?></span>
-				</label>
-			</p>
-			<p>
+			<label class="nestform-admin__check nestform-entry-notes__star" for="<?php echo esc_attr( $star_id ); ?>">
+				<input
+					type="checkbox"
+					id="<?php echo esc_attr( $star_id ); ?>"
+					name="nestform_starred"
+					value="1"
+					form="<?php echo esc_attr( $form_id ); ?>"
+					<?php checked( $starred ); ?>
+				/>
+				<span><?php esc_html_e( 'Starred', 'nestform' ); ?></span>
+			</label>
+			<div class="nestform-entry-notes__field">
 				<label class="nestform-admin__label" for="<?php echo esc_attr( $notes_id ); ?>"><?php esc_html_e( 'Internal notes', 'nestform' ); ?></label>
 				<textarea
 					class="nestform-admin__input nestform-admin__textarea nestform-entry-notes__textarea"
@@ -2459,13 +2566,11 @@ class Nestform_Submissions {
 					name="nestform_notes"
 					form="<?php echo esc_attr( $form_id ); ?>"
 				><?php echo esc_textarea( $notes ); ?></textarea>
-			</p>
-			<p>
-				<button type="submit" class="nestform-btn nestform-btn--primary" form="<?php echo esc_attr( $form_id ); ?>">
-					<?php nestform_admin_icon( 'save' ); ?>
-					<?php esc_html_e( 'Save notes', 'nestform' ); ?>
-				</button>
-			</p>
+			</div>
+			<button type="submit" class="nestform-btn nestform-btn--primary" form="<?php echo esc_attr( $form_id ); ?>">
+				<?php nestform_admin_icon( 'save' ); ?>
+				<?php esc_html_e( 'Save notes', 'nestform' ); ?>
+			</button>
 		</div>
 		<?php
 	}
@@ -2523,9 +2628,9 @@ class Nestform_Submissions {
 				$display = self::format_value( $value, false, $ftype );
 			}
 			echo '<tr>';
-			echo '<th scope="row"><span class="nestform-entry-payload__label">' . esc_html( $label ) . '</span>';
+			echo '<th scope="row"><span class="nestform-entry-payload__label" title="' . esc_attr( $key_s ) . '">' . esc_html( $label ) . '</span>';
 			if ( $label !== $key_s ) {
-				echo '<code class="nestform-entry-payload__name">{' . esc_html( $key_s ) . '}</code>';
+				echo '<span class="screen-reader-text"> (' . esc_html( $key_s ) . ')</span>';
 			}
 			echo '</th><td>';
 			if ( 'password' === $ftype || ( is_string( $value ) && '[redacted]' === $value ) ) {

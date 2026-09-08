@@ -258,25 +258,61 @@ class Nestform_Form_IO {
 	}
 
 	/**
-	 * Compact import control for the Forms hub header.
+	 * Compact import control for the Forms hub header (JSON file).
 	 *
+	 * @param string $label Optional button label.
+	 * @param string $class Optional extra label classes.
 	 * @return string
 	 */
-	public static function hub_import_html() {
+	public static function hub_import_html( $label = '', $class = '' ) {
 		if ( ! current_user_can( 'publish_posts' ) ) {
 			return '';
 		}
+		$label = $label !== '' ? (string) $label : __( 'Nestform JSON', 'nestform' );
+		$class = trim( 'nestform-btn nestform-btn--ghost nestform-hub__import-label ' . (string) $class );
 		ob_start();
 		?>
 		<form class="nestform-hub__import" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data">
 			<input type="hidden" name="action" value="<?php echo esc_attr( self::ACTION_IMPORT ); ?>" />
 			<?php wp_nonce_field( self::ACTION_IMPORT ); ?>
-			<label class="nestform-btn nestform-btn--outline nestform-hub__import-label">
+			<label class="<?php echo esc_attr( $class ); ?>">
 				<?php echo nestform_admin_icon_html( 'download' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				<span><?php esc_html_e( 'Import', 'nestform' ); ?></span>
+				<span><?php echo esc_html( $label ); ?></span>
 				<input type="file" name="nestform_import_file" accept="application/json,.json" required class="nestform-hub__import-file" onchange="this.form.submit()" />
 			</label>
 		</form>
+		<?php
+		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Combined Import dropdown for the Forms hub (JSON + CF7/WPForms).
+	 *
+	 * @return string
+	 */
+	public static function hub_import_menu_html() {
+		$json = self::hub_import_html();
+		$ext  = class_exists( 'Nestform_Importer' ) ? Nestform_Importer::hub_link_html( true ) : '';
+		if ( $json === '' && $ext === '' ) {
+			return '';
+		}
+		ob_start();
+		?>
+		<div class="nestform-hub__import-menu" data-nestform-hub-import>
+			<button
+				type="button"
+				class="nestform-btn nestform-btn--outline nestform-hub__import-toggle"
+				aria-expanded="false"
+				aria-haspopup="true"
+			>
+				<?php echo nestform_admin_icon_html( 'download' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php esc_html_e( 'Import', 'nestform' ); ?>
+			</button>
+			<div class="nestform-hub__import-panel" hidden>
+				<?php echo $json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php echo $ext; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			</div>
+		</div>
 		<?php
 		return (string) ob_get_clean();
 	}

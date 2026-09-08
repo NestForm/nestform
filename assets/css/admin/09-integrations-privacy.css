@@ -1,7 +1,11 @@
 /* Captcha provider tabs (Integrations) */
 .nestform-captcha-integ__tabs {
-    margin: var(--nestform-space-1) 0 var(--nestform-space-4);
+    margin: var(--nestform-space-1) 0 var(--nestform-space-2);
     flex-wrap: wrap;
+}
+
+.nestform-captcha-integ__tabs-hint {
+    margin: 0 0 var(--nestform-space-4);
 }
 
 .nestform-captcha-integ__tabs button.nestform-settings__subnav-item {
@@ -18,6 +22,16 @@
 
 .nestform-captcha-integ__tab-badge {
     flex-shrink: 0;
+}
+
+.nestform-settings__card-foot {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin-top: var(--nestform-space-4);
+    padding-top: var(--nestform-space-4);
+    border-top: 1px solid var(--nestform-border);
+    background: var(--nestform-surface);
 }
 
 .nestform-captcha-integ__panel-lead {
@@ -120,7 +134,7 @@ body.nestform-settings-screen
     margin-right: var(--nestform-space-2);
     padding: var(--nestform-space-2) var(--nestform-space-4);
     border: 1px solid var(--nestform-border);
-    border-radius: 6px;
+    border-radius: 4px;
     background: var(--nestform-soft);
     color: var(--nestform-ink);
     font-size: 12px;
@@ -204,8 +218,11 @@ body.nestform-settings-screen .nestform-settings__card {
     padding: var(--nestform-space-4) var(--nestform-space-4);
 }
 
-body.nestform-settings-screen .nestform-settings__card .description + .nestform-btn {
-    margin-top:  var(--nestform-space-6);
+body.nestform-settings-screen
+    .nestform-settings__card
+    .description
+    + .nestform-btn {
+    margin-top: var(--nestform-space-6);
 }
 
 body.nestform-settings-screen .nestform-settings__table {
@@ -213,20 +230,22 @@ body.nestform-settings-screen .nestform-settings__table {
 }
 
 body.nestform-settings-screen .nestform-settings__table th {
-    padding: var(--nestform-space-4) var(--nestform-space-2)
-        var(--nestform-space-2) 0;
+    padding: var(--nestform-space-4) var(--nestform-space-4)
+        var(--nestform-space-4) 0;
     width: 180px;
     color: var(--nestform-ink);
     font-weight: 600;
+    vertical-align: top;
 }
 
 body.nestform-settings-screen .nestform-settings__table tr:last-child th,
-body.nestform-settings-screen .nestform-settings__table tr:last-child td{
-   padding-bottom: 0;
+body.nestform-settings-screen .nestform-settings__table tr:last-child td {
+    padding-bottom: 0;
 }
 
 body.nestform-settings-screen .nestform-settings__table td {
     padding: var(--nestform-space-4) 0;
+    vertical-align: top;
 }
 
 body.nestform-settings-screen .nestform-settings__table .nestform-admin__input {
@@ -314,4 +333,43 @@ body.nestform-settings-screen .wrap.nestform-admin {
 body.nestform-settings-screen .nestform-settings .nestform-admin__check {
     margin-top: 0 !important;
     display: flex;
+}
+
+.nestform-stripe-integ .nestform-admin__panel-head,
+.nestform-hubspot-integ .nestform-admin__panel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--nestform-space-3);
+}
+
+.nestform-stripe-integ .form-table th,
+.nestform-hubspot-integ .form-table th {
+    width: 160px;
+}
+
+/* Stacked keys in one cell — gap owns rhythm (input margin:0 elsewhere). */
+.nestform-integ-keys {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nestform-space-4);
+}
+
+.nestform-integ-keys__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nestform-space-1);
+}
+
+.nestform-integ-keys__field label {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: var(--nestform-line-height);
+    color: var(--nestform-ink);
+}
+
+.nestform-integ-keys__field .nestform-admin__input {
+    width: 100%;
+    max-width: 100%;
 }

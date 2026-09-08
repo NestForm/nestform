@@ -23,6 +23,46 @@
 	}
 
 	/**
+	 * Toggle submit loader UI (spinner + aria-busy + disabled actions).
+	 *
+	 * @param {HTMLFormElement} form
+	 * @param {boolean} on
+	 */
+	function setSubmitting(form, on) {
+		var busy = !!on;
+		form.classList.toggle('is-submitting', busy);
+		form.setAttribute('aria-busy', busy ? 'true' : 'false');
+
+		var i18n = (window.nestform && window.nestform.i18n) || {};
+		var submit = form.querySelector('.nest-form__submit');
+		if (submit) {
+			submit.disabled = busy;
+			submit.setAttribute('aria-busy', busy ? 'true' : 'false');
+			if (busy) {
+				if (!submit.getAttribute('data-nest-form-label-idle')) {
+					submit.setAttribute(
+						'data-nest-form-label-idle',
+						submit.getAttribute('aria-label') || ''
+					);
+				}
+				submit.setAttribute('aria-label', i18n.submitting || 'Sending…');
+			} else {
+				var idle = submit.getAttribute('data-nest-form-label-idle');
+				if (idle) {
+					submit.setAttribute('aria-label', idle);
+				} else {
+					submit.removeAttribute('aria-label');
+				}
+				submit.removeAttribute('data-nest-form-label-idle');
+			}
+		}
+
+		form.querySelectorAll('.nest-form__next, .nest-form__prev').forEach(function (btn) {
+			btn.disabled = busy;
+		});
+	}
+
+	/**
 	 * Plain object snapshot of FormData (multi-value keys become arrays).
 	 *
 	 * @param {HTMLFormElement} form
@@ -309,6 +349,10 @@
 				return;
 			}
 			if (wrap.classList.contains('nest-form__field--condition-hidden')) {
+				return;
+			}
+			/* Stripe Payment Element fills the intent after clientHints — validate in nestformEnsurePayments. */
+			if (wrap.hasAttribute('data-nestform-payment') || wrap.getAttribute('data-field-type') === 'payment') {
 				return;
 			}
 			var name = wrap.getAttribute('data-field-name');
@@ -1062,9 +1106,15 @@
 			return;
 		}
 
-		form.classList.add('is-submitting');
+		setSubmitting(form, true);
 
 		ensureCaptchaToken(form)
+			.then(function () {
+				if (typeof window.nestformEnsurePayments === 'function') {
+					return window.nestformEnsurePayments(form);
+				}
+				return null;
+			})
 			.then(function () {
 				var body = new FormData(form);
 				if (
@@ -1077,7 +1127,7 @@
 						true
 					)
 				) {
-					form.classList.remove('is-submitting');
+					setSubmitting(form, false);
 					return null;
 				}
 
@@ -1098,7 +1148,7 @@
 				if (!result) {
 					return;
 				}
-				form.classList.remove('is-submitting');
+				setSubmitting(form, false);
 				var json = result.json || {};
 				var data = json.data || {};
 
@@ -1179,7 +1229,11 @@
 				});
 			})
 			.catch(function (err) {
-				form.classList.remove('is-submitting');
+				setSubmitting(form, false);
+				if (err && err.nestformPayment) {
+					setStatus(form, (err && err.message) || 'Payment failed', 'error');
+					return;
+				}
 				var netMsg = (err && err.message) || 'Network error. Please try again.';
 				setStatus(form, netMsg, 'error');
 				emit(form, 'nestform:network-error', {

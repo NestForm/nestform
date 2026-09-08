@@ -35,6 +35,7 @@ Free = strong lead capture. Pro = interactive conversion flows.
 | Dashboard, response summary | Advanced fields (rating, signature, NPS, scale, ranking, matrix) |
 | Webhooks | HTML email designer + PDF |
 | Light / dark admin, Developers screen | Calculated fields, repeaters |
+| Stripe keys in Integrations | Stripe Payment field on forms |
 
 Capabilities are registered only by **nestform-pro** after a valid license from nestform.app. Filtering `nestform_is_pro` alone does not unlock gated runtime.
 

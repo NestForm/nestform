@@ -79,11 +79,12 @@ body.nestform-entries-screen.edit-php .wrap > hr.wp-header-end {
     flex-wrap: wrap;
     align-items: center;
     gap: var(--nestform-space-2);
-    margin: 0 0 var(--nestform-space-2);
+    margin: 0;
     padding: var(--nestform-space-2) var(--nestform-space-4);
     background: var(--nestform-surface);
     border: 1px solid var(--nestform-border);
-    border-radius: var(--nestform-radius);
+    border-bottom: 0;
+    border-radius: var(--nestform-radius) var(--nestform-radius) 0 0;
     box-sizing: border-box;
 }
 
@@ -150,13 +151,26 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     gap: var(--nestform-space-2) var(--nestform-space-2);
     height: auto;
     min-height: 0;
-    margin: var(--nestform-space-4) 0 var(--nestform-space-4);
+    margin: 0 0 var(--nestform-space-4);
     padding: var(--nestform-space-2) var(--nestform-space-4);
     clear: both;
     background: var(--nestform-surface);
     border: 1px solid var(--nestform-border);
-    border-radius: var(--nestform-radius);
+    border-radius: 0 0 var(--nestform-radius) var(--nestform-radius);
     box-sizing: border-box;
+}
+
+.nestform-entries-screen.edit-php .tablenav.bottom {
+    margin-top: var(--nestform-space-4);
+    margin-bottom: 0;
+    border-radius: var(--nestform-radius);
+}
+
+/* Status/form filters live in subsubsub tabs; hide empty Filter submit. */
+body.wp-core-ui.nestform-entries-screen.edit-php
+    .tablenav
+    #post-query-submit {
+    display: none !important;
 }
 
 .nestform-entries-screen.edit-php .tablenav .alignleft.actions {
@@ -200,7 +214,7 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     margin: 0;
     padding: 0 var(--nestform-space-2);
     border: 1px solid var(--nestform-border);
-    border-radius: 8px;
+    border-radius: var(--nestform-radius);
     background: var(--nestform-surface);
     color: var(--nestform-muted);
     font-size: 13px;
@@ -294,7 +308,7 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     margin: 0;
     padding: 0 !important;
     border: 1px solid var(--nestform-border);
-    border-radius: 8px;
+    border-radius: var(--nestform-radius);
     background: var(--nestform-surface);
     color: var(--nestform-muted);
     font-size: 16px;
@@ -766,6 +780,12 @@ body.wp-core-ui.nestform-entries-screen.edit-php .wp-list-table td a:hover,
 body.wp-core-ui.nestform-entries-screen.edit-php .wp-list-table td a.row-title,
 .nestform-entries-screen.edit-php .wp-list-table td a.row-title {
     color: var(--nestform-ink);
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
 }
 
 body.wp-core-ui.nestform-entries-screen.edit-php
@@ -777,20 +797,39 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     .column-nestform_status
     .nestform-entry-status {
     padding: var(--nestform-space-1) var(--nestform-space-2);
-    border-radius: 6px;
+    border-radius: var(--nestform-radius);
     font-size: 12px;
 }
 
-#nestform_status {
-    width: 60px;
+body.wp-core-ui.nestform-entries-screen.edit-php
+    .wp-list-table
+    .column-nestform_status,
+.nestform-entries-screen.edit-php .wp-list-table .column-nestform_status {
+    width: 88px;
 }
 
-#nestform_ip {
-    width: 100px;
-}
-
-#date {
+body.wp-core-ui.nestform-entries-screen.edit-php
+    .wp-list-table
+    .column-nestform_date,
+.nestform-entries-screen.edit-php .wp-list-table .column-nestform_date {
     width: 120px;
+    white-space: nowrap;
+}
+
+body.wp-core-ui.nestform-entries-screen.edit-php
+    .wp-list-table
+    .column-nestform_preview,
+.nestform-entries-screen.edit-php .wp-list-table .column-nestform_preview {
+    width: 36%;
+}
+
+body.wp-core-ui.nestform-entries-screen.edit-php
+    .wp-list-table
+    .nestform-entry-date,
+.nestform-entries-screen.edit-php .wp-list-table .nestform-entry-date {
+    color: var(--nestform-muted);
+    font-size: 12px;
+    white-space: nowrap;
 }
 
 body.wp-core-ui.nestform-entries-screen.edit-php .wp-list-table .check-column,
@@ -802,6 +841,16 @@ body.wp-core-ui.nestform-entries-screen.edit-php .wp-list-table .check-column,
 
 .nestform-entries-screen .tablenav {
     margin: 0 0 var(--nestform-space-2);
+}
+
+.nestform-entries-toolbar__meta {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    color: var(--nestform-muted);
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
 }
 
 /* Single entry view (post.php) */
@@ -830,9 +879,13 @@ body.nestform-entries-screen.post-php #poststuff {
 /* Two columns via grid — WP float layout breaks inside app shell */
 body.nestform-entries-screen.post-php #poststuff #post-body.columns-2 {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 280px;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
     gap: var(--nestform-space-4);
     margin-right: 0 !important;
+}
+
+body.nestform-entries-screen.post-php  #post-body.columns-2 #side-sortables {
+  width: auto !important;
 }
 
 body.nestform-entries-screen.post-php #post-body.columns-2 #post-body-content {
@@ -885,16 +938,16 @@ body.nestform-entries-screen.post-php
 .nestform-entry-main__head {
     display: flex;
     align-items: center;
-    min-height: 36px;
-    padding: var(--nestform-space-2) var(--nestform-space-4);
+    min-height: 48px;
+    padding: var(--nestform-space-4) var(--nestform-space-6);
     border-bottom: 1px solid var(--nestform-border);
     box-sizing: border-box;
 }
 
 .nestform-entry-main__title {
     margin: 0;
-    padding: 0;
-    font-size: 13px;
+    padding: 0 !important;
+    font-size: 14px;
     font-weight: 700;
     color: var(--nestform-ink);
     letter-spacing: -0.01em;
@@ -902,7 +955,7 @@ body.nestform-entries-screen.post-php
 }
 
 .nestform-entry-main__body {
-    padding: var(--nestform-space-4);
+    padding: var(--nestform-space-6);
 }
 
 .nestform-entries-screen.post-php #poststuff .postbox {
@@ -915,10 +968,13 @@ body.nestform-entries-screen.post-php
 .nestform-entries-screen.post-php #poststuff .postbox .postbox-header {
     border-bottom: 1px solid var(--nestform-border);
     background: var(--nestform-surface);
+    min-height: 48px;
+    box-sizing: border-box;
 }
 
 .nestform-entries-screen.post-php #poststuff .postbox .hndle {
-    font-size: 13px;
+    padding: var(--nestform-space-4) var(--nestform-space-6);
+    font-size: 14px;
     font-weight: 700;
     color: var(--nestform-ink);
     letter-spacing: -0.01em;
@@ -926,7 +982,7 @@ body.nestform-entries-screen.post-php
 
 .nestform-entries-screen.post-php #poststuff .postbox .inside {
     margin: 0;
-    padding: var(--nestform-space-4);
+    padding: var(--nestform-space-6);
 }
 
 .nestform-entries-screen.post-php #poststuff .postbox .handlediv {
@@ -939,7 +995,7 @@ body.nestform-entries-screen.post-php
     border: 1px solid var(--nestform-border);
     border-collapse: separate;
     border-spacing: 0;
-    border-radius: var(--nestform-radius-sm);
+    border-radius: var(--nestform-radius);
     overflow: hidden;
     background: var(--nestform-surface);
     box-shadow: none;
@@ -967,8 +1023,8 @@ body.nestform-entries-screen.post-php
 
 .nestform-entry-payload tbody th,
 .nestform-entry-payload tbody td {
-    padding: var(--nestform-space-2) var(--nestform-space-4);
-    vertical-align: middle;
+    padding: var(--nestform-space-4);
+    vertical-align: top;
     border-bottom: 1px solid var(--nestform-border);
     background: var(--nestform-surface);
 }
@@ -985,7 +1041,8 @@ body.nestform-entries-screen.post-php
 
 .nestform-entry-payload tbody th {
     width: 32%;
-    white-space: nowrap;
+    max-width: 280px;
+    white-space: normal;
     font-weight: 400;
     text-align: left;
 }
@@ -1016,20 +1073,6 @@ body.nestform-entries-screen.post-php
     letter-spacing: -0.01em;
 }
 
-.nestform-entry-payload__name {
-    display: inline-block;
-    margin: 0 0 0 var(--nestform-space-2);
-    padding: 1px var(--nestform-space-1);
-    vertical-align: middle;
-    font-size: 11px;
-    font-family: Consolas, Monaco, monospace;
-    color: var(--nestform-faint);
-    background: var(--nestform-surface);
-    border: 1px solid var(--nestform-border);
-    border-radius: 999px;
-    white-space: nowrap;
-}
-
 .nestform-entry-meta {
     font-size: 13px;
     color: var(--nestform-ink);
@@ -1039,39 +1082,42 @@ body.nestform-entries-screen.post-php
 .nestform-admin__chip svg {
     flex-shrink: 0;
     display: block;
+    width: 16px;
+    height: 16px;
 }
 
-.nestform-entry-meta__back {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--nestform-space-2);
+.nestform-entry-meta__rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nestform-space-4);
 }
 
-.nestform-entry-meta__back svg {
-    flex-shrink: 0;
-    display: block;
-}
-
-.nestform-entry-meta p {
-    margin: 0 0 var(--nestform-space-2);
-    padding: 0 0 var(--nestform-space-2);
+.nestform-entry-meta__row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nestform-space-1);
+    margin: 0;
+    padding: 0 0 var(--nestform-space-4);
     border-bottom: 1px solid var(--nestform-border);
 }
 
-.nestform-entry-meta p:last-child {
-    margin-bottom: 0;
+.nestform-entry-meta__row:last-child {
     padding-bottom: 0;
     border-bottom: 0;
 }
 
-.nestform-entry-meta strong {
+.nestform-entry-meta__label {
     display: block;
-    margin-bottom: var(--nestform-space-1);
     font-size: 10px;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--nestform-faint);
+}
+
+.nestform-entry-meta__value {
+    color: var(--nestform-ink);
+    word-break: break-word;
 }
 
 .nestform-entry-meta a:not(.nestform-btn) {
@@ -1079,15 +1125,28 @@ body.nestform-entries-screen.post-php
     text-decoration: none;
 }
 
-.nestform-entry-meta a:hover {
-    opacity: 0.72;
-}
-
 .nestform-entry-meta code {
     display: inline-block;
-    padding: 2px var(--nestform-space-1);
-    background: transparent;
+    padding: 2px var(--nestform-space-2);
+    background: var(--nestform-soft);
     border: 1px solid var(--nestform-border);
-    border-radius: 999px;
+    border-radius: var(--nestform-radius);
     font-size: 12px;
+}
+
+.nestform-entry-notes {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--nestform-space-4);
+}
+
+.nestform-entry-notes__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nestform-space-2);
+}
+
+.nestform-entry-notes__star {
+    margin: 0;
 }

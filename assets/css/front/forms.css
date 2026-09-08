@@ -429,11 +429,50 @@
 }
 
 
+.nest-form__submit {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5em;
+}
+
+.nest-form__submit-spinner {
+	display: none;
+	box-sizing: border-box;
+	width: 1em;
+	height: 1em;
+	flex-shrink: 0;
+	border: 2px solid currentColor;
+	border-right-color: transparent;
+	border-radius: 50%;
+	opacity: 0.95;
+}
+
+.nest-form.is-submitting .nest-form__submit-spinner {
+	display: inline-block;
+	animation: nest-form-submit-spin 0.65s linear infinite;
+}
+
 .nest-form.is-submitting .nest-form__submit,
 .nest-form.is-submitting .nest-form__next,
 .nest-form.is-submitting .nest-form__prev {
-	opacity: 0.7;
+	opacity: 0.85;
 	pointer-events: none;
+	cursor: wait;
+}
+
+@keyframes nest-form-submit-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.nest-form.is-submitting .nest-form__submit-spinner {
+		animation: none;
+		border-right-color: currentColor;
+		opacity: 0.55;
+	}
 }
 
 /* Custom select — trigger uses theme .input/.select; dropdown is plugin-owned */

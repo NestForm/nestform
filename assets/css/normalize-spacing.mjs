@@ -70,14 +70,19 @@ function transformSpacingPart(part) {
 	if (pxMatch) {
 		const px = Math.round(Number(pxMatch[1]));
 		const suffix = pxMatch[2] || '';
-		return `${normalizePx(Math.abs(px))}${suffix}`;
+		// Optical tweaks (negative margins) stay as raw px — do not flip sign or token-map.
+		if (px < 0) {
+			return `${px}px${suffix}`;
+		}
+		return `${normalizePx(px)}${suffix}`;
 	}
 
 	const remMatch = part.match(/^(-?\d+(?:\.\d+)?)rem(!important)?$/i);
 	if (remMatch) {
-		const px = Math.round(Math.abs(Number(remMatch[1])) * 16);
+		const raw = Number(remMatch[1]);
+		const px = Math.round(Math.abs(raw) * 16);
 		const suffix = remMatch[2] || '';
-		if (px <= 3) {
+		if (raw < 0 || px <= 3) {
 			return part;
 		}
 		const snapped = nearestGrid(px);

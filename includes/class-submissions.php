@@ -407,7 +407,7 @@ class Nestform_Submissions {
 
 		$payload = get_post_meta( $post->ID, self::META_DATA, true );
 		$payload = is_array( $payload ) ? $payload : array();
-		$title   = self::payload_name( $payload, (string) $post->post_title, $form_title );
+		$title   = self::payload_name( $payload, (string) $post->post_title, $form_title, $form_id );
 		if ( $title === '' ) {
 			$title = sprintf(
 				/* translators: %d: entry ID */
@@ -1482,17 +1482,13 @@ class Nestform_Submissions {
 	 * @param array<string, mixed> $payload  Payload.
 	 * @param string               $fallback Title fallback.
 	 * @param string               $exclude  Optional label to ignore from title fallback (e.g. form title).
+	 * @param int                  $form_id  Optional form ID to resolve name fields by label.
 	 * @return string
 	 */
-	public static function payload_name( array $payload, $fallback = '', $exclude = '' ) {
-		foreach ( array( 'name', 'full_name', 'your_name', 'fio' ) as $key ) {
-			if ( empty( $payload[ $key ] ) || is_array( $payload[ $key ] ) ) {
-				continue;
-			}
-			$text = trim( wp_strip_all_tags( (string) $payload[ $key ] ) );
-			if ( $text !== '' ) {
-				return $text;
-			}
+	public static function payload_name( array $payload, $fallback = '', $exclude = '', $form_id = 0 ) {
+		$person = self::payload_person_name( $payload, (int) $form_id );
+		if ( $person !== '' ) {
+			return $person;
 		}
 		$email = self::payload_email( $payload );
 		if ( $email !== '' ) {
@@ -1516,15 +1512,202 @@ class Nestform_Submissions {
 	}
 
 	/**
+	 * Person name from submission payload (Name / Full name / first+last / label match).
+	 *
+	 * @param array<string, mixed> $payload Payload.
+	 * @param int                  $form_id Optional form ID for label-based lookup.
+	 * @return string
+	 */
+	public static function payload_person_name( array $payload, $form_id = 0 ) {
+		foreach ( self::person_name_keys() as $key ) {
+			$text = self::payload_scalar_text( $payload, $key );
+			if ( $text !== '' ) {
+				return $text;
+			}
+		}
+
+		$composed = self::payload_composed_name( $payload );
+		if ( $composed !== '' ) {
+			return $composed;
+		}
+
+		foreach ( $payload as $key => $value ) {
+			if ( ! is_string( $key ) || is_array( $value ) ) {
+				continue;
+			}
+			if ( ! self::is_person_name_key( $key ) ) {
+				continue;
+			}
+			$text = self::payload_scalar_text( $payload, $key );
+			if ( $text !== '' ) {
+				return $text;
+			}
+		}
+
+		$form_id = (int) $form_id;
+		if ( $form_id > 0 && class_exists( 'Nestform_Form_Config' ) ) {
+			$fields = Nestform_Form_Config::get_fields( $form_id );
+			if ( is_array( $fields ) ) {
+				foreach ( $fields as $field ) {
+					if ( ! is_array( $field ) ) {
+						continue;
+					}
+					$name  = isset( $field['name'] ) ? (string) $field['name'] : '';
+					$label = isset( $field['label'] ) ? strtolower( trim( wp_strip_all_tags( (string) $field['label'] ) ) ) : '';
+					$type  = isset( $field['type'] ) ? (string) $field['type'] : '';
+					if ( $name === '' || Nestform_Form_Config::is_layout_field( $type ) ) {
+						continue;
+					}
+					if ( ! self::is_person_name_label( $label ) && ! self::is_person_name_key( $name ) ) {
+						continue;
+					}
+					$text = self::payload_scalar_text( $payload, $name );
+					if ( $text !== '' ) {
+						return $text;
+					}
+				}
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * @return array<int, string>
+	 */
+	private static function person_name_keys() {
+		return array(
+			'name',
+			'full_name',
+			'fullname',
+			'your_name',
+			'contact_name',
+			'applicant_name',
+			'candidate_name',
+			'person_name',
+			'client_name',
+			'fio',
+		);
+	}
+
+	/**
+	 * @param string $key Field name.
+	 * @return bool
+	 */
+	private static function is_person_name_key( $key ) {
+		$key = strtolower( str_replace( '-', '_', (string) $key ) );
+		if ( in_array( $key, self::person_name_keys(), true ) ) {
+			return true;
+		}
+		if ( in_array(
+			$key,
+			array(
+				'first_name',
+				'firstname',
+				'given_name',
+				'last_name',
+				'lastname',
+				'surname',
+				'family_name',
+			),
+			true
+		) ) {
+			return true;
+		}
+		if ( preg_match( '/^(company|business|file|user|form|brand|product|org|organization|site|page)_name$/', $key ) ) {
+			return false;
+		}
+		return (bool) preg_match( '/(^|_)(full_)?name$|(^|_)fio$/', $key );
+	}
+
+	/**
+	 * @param string $label Normalized lowercase label.
+	 * @return bool
+	 */
+	private static function is_person_name_label( $label ) {
+		$label = preg_replace( '/\s+/u', ' ', (string) $label );
+		$label = is_string( $label ) ? trim( $label ) : '';
+		if ( $label === '' ) {
+			return false;
+		}
+		$known = array(
+			'name',
+			'full name',
+			'your name',
+			'contact name',
+			'applicant name',
+			'candidate name',
+			'person name',
+			'client name',
+			'first name',
+			'last name',
+			'fio',
+			'имя',
+			'фио',
+			'полное имя',
+			'ваше имя',
+		);
+		return in_array( $label, $known, true );
+	}
+
+	/**
+	 * @param array<string, mixed> $payload Payload.
+	 * @return string
+	 */
+	private static function payload_composed_name( array $payload ) {
+		$first = '';
+		foreach ( array( 'first_name', 'firstname', 'given_name', 'first' ) as $key ) {
+			$first = self::payload_scalar_text( $payload, $key );
+			if ( $first !== '' ) {
+				break;
+			}
+		}
+		$last = '';
+		foreach ( array( 'last_name', 'lastname', 'surname', 'family_name', 'last' ) as $key ) {
+			$last = self::payload_scalar_text( $payload, $key );
+			if ( $last !== '' ) {
+				break;
+			}
+		}
+		$parts = array_filter( array( $first, $last ) );
+		return array() === $parts ? '' : implode( ' ', $parts );
+	}
+
+	/**
+	 * @param array<string, mixed> $payload Payload.
+	 * @param string               $key     Field key.
+	 * @return string
+	 */
+	private static function payload_scalar_text( array $payload, $key ) {
+		if ( ! isset( $payload[ $key ] ) || is_array( $payload[ $key ] ) || is_bool( $payload[ $key ] ) ) {
+			return '';
+		}
+		return trim( wp_strip_all_tags( (string) $payload[ $key ] ) );
+	}
+
+	/**
 	 * @param array<string, mixed> $payload Payload.
 	 * @return string
 	 */
 	public static function payload_email( array $payload ) {
-		foreach ( array( 'email', 'e-mail', 'mail', 'your_email' ) as $key ) {
+		foreach ( array( 'email', 'e-mail', 'mail', 'your_email', 'work_email', 'email_address' ) as $key ) {
 			if ( empty( $payload[ $key ] ) || is_array( $payload[ $key ] ) ) {
 				continue;
 			}
 			$text = trim( wp_strip_all_tags( (string) $payload[ $key ] ) );
+			if ( $text !== '' && false !== strpos( $text, '@' ) ) {
+				return $text;
+			}
+		}
+		foreach ( $payload as $key => $value ) {
+			if ( ! is_string( $key ) || is_array( $value ) ) {
+				continue;
+			}
+			$norm = strtolower( str_replace( '-', '_', $key ) );
+			if ( ! preg_match( '/(^|_)e?mail(_|$)|(^|_)email_address$/', $norm ) ) {
+				continue;
+			}
+			$text = trim( wp_strip_all_tags( (string) $value ) );
 			if ( $text !== '' && false !== strpos( $text, '@' ) ) {
 				return $text;
 			}
@@ -1748,7 +1931,7 @@ class Nestform_Submissions {
 						$payload = is_array( $payload ) ? $payload : array();
 						$eform   = $efid > 0 ? get_post( $efid ) : null;
 						$ftitle  = ( $eform && $eform->post_title !== '' ) ? $eform->post_title : ( $efid ? '#' . $efid : '—' );
-						$who     = self::payload_name( $payload, (string) $entry->post_title, $ftitle );
+						$who     = self::payload_name( $payload, (string) $entry->post_title, $ftitle, $efid );
 						$email   = self::payload_email( $payload );
 						$estatus = self::get_status( $eid );
 						$ago     = human_time_diff( get_post_time( 'U', true, $entry ), current_time( 'timestamp', true ) );
@@ -1816,7 +1999,7 @@ class Nestform_Submissions {
 	public static function create( $form_id, array $data, $ip = '' ) {
 		$form_id = (int) $form_id;
 		$form    = get_post( $form_id );
-		$who     = self::guess_contact( $data );
+		$who     = self::guess_contact( $data, $form_id );
 		$when    = wp_date( 'Y-m-d H:i:s' );
 		if ( $who !== '' && $form ) {
 			$title = sprintf(
@@ -1861,16 +2044,23 @@ class Nestform_Submissions {
 	}
 
 	/**
-	 * @param array<string, mixed> $data Payload.
+	 * @param array<string, mixed> $data    Payload.
+	 * @param int                  $form_id Form ID for label-based name lookup.
 	 * @return string
 	 */
-	private static function guess_contact( array $data ) {
-		foreach ( array( 'name', 'full_name', 'fullname', 'fio', 'email', 'e-mail', 'mail', 'phone', 'tel' ) as $key ) {
-			if ( ! empty( $data[ $key ] ) && is_scalar( $data[ $key ] ) ) {
-				$val = trim( (string) $data[ $key ] );
-				if ( $val !== '' && ! is_bool( $data[ $key ] ) ) {
-					return $val;
-				}
+	private static function guess_contact( array $data, $form_id = 0 ) {
+		$person = self::payload_person_name( $data, (int) $form_id );
+		if ( $person !== '' ) {
+			return $person;
+		}
+		$email = self::payload_email( $data );
+		if ( $email !== '' ) {
+			return $email;
+		}
+		foreach ( array( 'phone', 'tel', 'mobile', 'telephone' ) as $key ) {
+			$text = self::payload_scalar_text( $data, $key );
+			if ( $text !== '' ) {
+				return $text;
 			}
 		}
 		return '';
@@ -2172,7 +2362,7 @@ class Nestform_Submissions {
 		$form    = $form_id > 0 ? get_post( $form_id ) : null;
 		$exclude = ( $form && $form->post_title !== '' ) ? $form->post_title : '';
 
-		return self::payload_name( $payload, (string) $post->post_title, $exclude );
+		return self::payload_name( $payload, (string) $post->post_title, $exclude, $form_id );
 	}
 
 	/**

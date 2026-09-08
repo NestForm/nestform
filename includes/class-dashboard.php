@@ -760,7 +760,7 @@ class Nestform_Dashboard {
 								$ftitle   = ( $eform && $eform->post_title !== '' ) ? $eform->post_title : ( $efid ? '#' . $efid : '—' );
 								$edit_url = get_edit_post_link( $eid, 'raw' );
 								$when     = human_time_diff( get_post_time( 'U', true, $entry ), current_time( 'timestamp', true ) );
-								$who      = Nestform_Submissions::payload_name( $payload, (string) $entry->post_title );
+								$who      = Nestform_Submissions::payload_name( $payload, (string) $entry->post_title, $ftitle, $efid );
 								$email    = Nestform_Submissions::payload_email( $payload );
 								$estatus  = Nestform_Submissions::get_status( $eid );
 								$badge    = Nestform_Submissions::badge_modifier( $estatus );

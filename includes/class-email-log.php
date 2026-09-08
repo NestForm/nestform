@@ -330,14 +330,11 @@ class Nestform_Email_Log {
 	public static function cleanup() {
 		global $wpdb;
 		self::maybe_install();
-		$days = self::retention_days();
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->query(
-			$wpdb->prepare(
-				'DELETE FROM ' . self::table() . ' WHERE created_at < %s',
-				gmdate( 'Y-m-d H:i:s', time() - ( $days * DAY_IN_SECONDS ) )
-			)
-		);
+		$days   = self::retention_days();
+		$table  = self::table();
+		$cutoff = gmdate( 'Y-m-d H:i:s', time() - ( $days * DAY_IN_SECONDS ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix.
+		$wpdb->query( $wpdb->prepare( "DELETE FROM `{$table}` WHERE created_at < %s", $cutoff ) );
 	}
 
 	public static function schedule_cleanup() {

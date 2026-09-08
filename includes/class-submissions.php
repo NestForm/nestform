@@ -254,14 +254,25 @@ class Nestform_Submissions {
 		$trashed   = isset( $bulk_counts['trashed'] ) ? (int) $bulk_counts['trashed'] : 0;
 		$untrashed = isset( $bulk_counts['untrashed'] ) ? (int) $bulk_counts['untrashed'] : 0;
 
+		/* translators: %s: Number of entries. */
+		$updated_msg = _n( '%s entry updated.', '%s entries updated.', $updated, 'nestform' );
+		/* translators: %s: Number of entries. */
+		$locked_msg = _n( '%s entry not updated, somebody is editing it.', '%s entries not updated, somebody is editing them.', $locked, 'nestform' );
+		/* translators: %s: Number of entries. */
+		$deleted_msg = _n( '%s entry permanently deleted.', '%s entries permanently deleted.', $deleted, 'nestform' );
+		/* translators: %s: Number of entries. */
+		$trashed_msg = _n( '%s entry moved to the Trash.', '%s entries moved to the Trash.', $trashed, 'nestform' );
+		/* translators: %s: Number of entries. */
+		$untrashed_msg = _n( '%s entry restored from the Trash.', '%s entries restored from the Trash.', $untrashed, 'nestform' );
+
 		$bulk_messages[ self::POST_TYPE ] = array(
-			'updated'   => _n( '%s entry updated.', '%s entries updated.', $updated, 'nestform' ),
+			'updated'   => $updated_msg,
 			'locked'    => ( 1 === $locked )
 				? __( '1 entry not updated, somebody is editing it.', 'nestform' )
-				: _n( '%s entry not updated, somebody is editing it.', '%s entries not updated, somebody is editing them.', $locked, 'nestform' ),
-			'deleted'   => _n( '%s entry permanently deleted.', '%s entries permanently deleted.', $deleted, 'nestform' ),
-			'trashed'   => _n( '%s entry moved to the Trash.', '%s entries moved to the Trash.', $trashed, 'nestform' ),
-			'untrashed' => _n( '%s entry restored from the Trash.', '%s entries restored from the Trash.', $untrashed, 'nestform' ),
+				: $locked_msg,
+			'deleted'   => $deleted_msg,
+			'trashed'   => $trashed_msg,
+			'untrashed' => $untrashed_msg,
 		);
 
 		return $bulk_messages;
@@ -2367,8 +2378,8 @@ class Nestform_Submissions {
 
 		echo '<span class="nestform-entries-toolbar">';
 		printf(
-			'<input type="hidden" name="nestform_form_id" value="%d" />',
-			$selected
+			'<input type="hidden" name="nestform_form_id" value="%s" />',
+			esc_attr( (string) $selected )
 		);
 		if ( $status_filter !== '' && isset( self::status_labels()[ $status_filter ] ) ) {
 			printf(

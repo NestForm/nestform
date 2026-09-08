@@ -151,10 +151,12 @@ class Nestform_Admin_UI {
 					'fieldHiddenChip'=> __( 'Hidden', 'nestform' ),
 					'confirmDel'           => __( 'Remove this field?', 'nestform' ),
 					'confirmDelStep'       => __( 'Remove this step?', 'nestform' ),
+					/* translators: %d: Number of fields in the step. */
 					'confirmDelStepFields' => __( 'Remove this step and its %d field(s)?', 'nestform' ),
 					'copied'         => __( 'Copied', 'nestform' ),
 					'duplicate'      => __( 'copy', 'nestform' ),
 					'step'           => __( 'Step', 'nestform' ),
+					/* translators: %d: Step number. */
 					'stepTitle'      => __( 'Step %d title', 'nestform' ),
 					'layout'         => __( 'Layout', 'nestform' ),
 					'pickImage'      => __( 'Select image', 'nestform' ),
@@ -220,6 +222,7 @@ class Nestform_Admin_UI {
 					'optionsTipPayment'   => __( 'Fixed charge for this field. Currency must be a 3-letter ISO code supported by Stripe.', 'nestform' ),
 					'fieldPreviewPayment' => __( 'Card payment', 'nestform' ),
 					'subUntitled'       => __( 'Untitled', 'nestform' ),
+					/* translators: %d: Column number. */
 					'subColFallback'    => __( 'Column %d', 'nestform' ),
 					'helpText'          => __( 'Help text', 'nestform' ),
 					'altText'           => __( 'Alt text', 'nestform' ),

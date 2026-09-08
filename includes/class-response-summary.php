@@ -632,10 +632,12 @@ class Nestform_Response_Summary {
 					<h3 class="nestform-summary__card-title"><?php echo esc_html( $label ); ?></h3>
 					<p class="nestform-summary__card-meta">
 						<?php
-						printf(
-							/* translators: %d: answered count */
-							esc_html( _n( '%d answer', '%d answers', $answered, 'nestform' ) ),
-							$answered
+						echo esc_html(
+							sprintf(
+								/* translators: %d: answered count */
+								_n( '%d answer', '%d answers', $answered, 'nestform' ),
+								(int) $answered
+							)
 						);
 						?>
 					</p>
@@ -718,10 +720,12 @@ class Nestform_Response_Summary {
 					<?php if ( $unique > 0 ) : ?>
 						<p class="nestform-summary__unique">
 							<?php
-							printf(
-								/* translators: %d: distinct answers */
-								esc_html( _n( '%d unique answer', '%d unique answers', $unique, 'nestform' ) ),
-								$unique
+							echo esc_html(
+								sprintf(
+									/* translators: %d: distinct answers */
+									_n( '%d unique answer', '%d unique answers', $unique, 'nestform' ),
+									(int) $unique
+								)
 							);
 							?>
 						</p>

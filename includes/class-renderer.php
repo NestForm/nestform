@@ -381,7 +381,8 @@ class Nestform_Renderer {
 			return (string) apply_filters( 'nestform_field_html', $html, $field, $uid );
 		}
 
-		echo '<div class="' . esc_attr( implode( ' ', $classes ) ) . '" data-field-name="' . esc_attr( $name ) . '" data-field-step="' . esc_attr( (string) $step ) . '"' . self::condition_data_attrs( $field ) . ( $start_hidden ? ' hidden' : '' ) . '>';
+		$condition_attrs = self::condition_data_attrs( $field );
+		echo '<div class="' . esc_attr( implode( ' ', $classes ) ) . '" data-field-name="' . esc_attr( $name ) . '" data-field-step="' . esc_attr( (string) $step ) . '"' . $condition_attrs . ( $start_hidden ? ' hidden' : '' ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- condition_data_attrs() returns esc_attr()'d attributes.
 
 		if ( in_array( $type, array( 'checkbox', 'acceptance' ), true ) ) {
 			$check_label_class = 'checkbox-field nest-form__check';
@@ -672,7 +673,7 @@ class Nestform_Renderer {
 			$text = $label !== '' ? $label : $name;
 			printf(
 				'<%1$s class="nest-form__heading nest-form__heading--%2$s">%3$s</%1$s>',
-				$level,
+				tag_escape( $level ),
 				esc_attr( str_replace( 'h', '', $level ) ),
 				esc_html( $text )
 			);

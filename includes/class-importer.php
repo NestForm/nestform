@@ -274,7 +274,7 @@ class Nestform_Importer {
 		} elseif ( 'wpforms' === $source ) {
 			$definition = self::wpforms_to_definition( $reference );
 		} else {
-			throw new Exception( __( 'Unknown import source.', 'nestform' ) );
+			throw new Exception( esc_html__(  'Unknown import source.', 'nestform' ) );
 		}
 
 		$fields = self::normalize_fields( isset( $definition['fields'] ) ? $definition['fields'] : array() );
@@ -285,7 +285,7 @@ class Nestform_Importer {
 			}
 		}
 		if ( $count < 1 ) {
-			throw new Exception( __( 'No Nestform-compatible questions were found in that form.', 'nestform' ) );
+			throw new Exception( esc_html__(  'No Nestform-compatible questions were found in that form.', 'nestform' ) );
 		}
 
 		$title = isset( $definition['title'] ) ? sanitize_text_field( (string) $definition['title'] ) : '';
@@ -302,7 +302,7 @@ class Nestform_Importer {
 			true
 		);
 		if ( is_wp_error( $new_id ) || ! $new_id ) {
-			throw new Exception( __( 'Could not create the imported form.', 'nestform' ) );
+			throw new Exception( esc_html__(  'Could not create the imported form.', 'nestform' ) );
 		}
 
 		$config = array(
@@ -371,12 +371,12 @@ class Nestform_Importer {
 		$post_id = absint( $reference );
 		$post    = $post_id ? get_post( $post_id ) : null;
 		if ( ! $post || 'wpcf7_contact_form' !== $post->post_type ) {
-			throw new Exception( __( 'That Contact Form 7 form could not be found.', 'nestform' ) );
+			throw new Exception( esc_html__(  'That Contact Form 7 form could not be found.', 'nestform' ) );
 		}
 
 		$template = (string) get_post_meta( $post_id, '_form', true );
 		if ( '' === trim( $template ) ) {
-			throw new Exception( __( 'That Contact Form 7 form has no questions in it.', 'nestform' ) );
+			throw new Exception( esc_html__(  'That Contact Form 7 form has no questions in it.', 'nestform' ) );
 		}
 
 		$type_map = array(
@@ -401,7 +401,7 @@ class Nestform_Importer {
 		$submit = '';
 
 		if ( ! preg_match_all( self::CF7_TAG_PATTERN, $template, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE ) ) {
-			throw new Exception( __( 'No Contact Form 7 tags were found in that form.', 'nestform' ) );
+			throw new Exception( esc_html__(  'No Contact Form 7 tags were found in that form.', 'nestform' ) );
 		}
 
 		$cursor = 0;
@@ -559,7 +559,7 @@ class Nestform_Importer {
 		$post_id = absint( $reference );
 		$post    = $post_id ? get_post( $post_id ) : null;
 		if ( ! $post || 'wpforms' !== $post->post_type ) {
-			throw new Exception( __( 'That WPForms form could not be found.', 'nestform' ) );
+			throw new Exception( esc_html__(  'That WPForms form could not be found.', 'nestform' ) );
 		}
 
 		$data = json_decode( (string) $post->post_content, true );
@@ -567,7 +567,7 @@ class Nestform_Importer {
 			$data = json_decode( (string) wp_unslash( $post->post_content ), true );
 		}
 		if ( ! is_array( $data ) || empty( $data['fields'] ) || ! is_array( $data['fields'] ) ) {
-			throw new Exception( __( 'That WPForms form has no questions in it.', 'nestform' ) );
+			throw new Exception( esc_html__(  'That WPForms form has no questions in it.', 'nestform' ) );
 		}
 
 		$notes    = array();

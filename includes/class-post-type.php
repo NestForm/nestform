@@ -81,9 +81,9 @@ class Nestform_Post_Type {
 		if ( $post instanceof WP_Post ) {
 			$scheduled_date = sprintf(
 				/* translators: Publish box date string. 1: Date, 2: Time. */
-				__( '%1$s at %2$s' ),
-				date_i18n( _x( 'M j, Y', 'publish box date format' ), strtotime( $post->post_date ) ),
-				date_i18n( _x( 'H:i', 'publish box time format' ), strtotime( $post->post_date ) )
+				__( '%1$s at %2$s', 'nestform' ),
+				date_i18n( _x( 'M j, Y', 'publish box date format', 'nestform' ), strtotime( $post->post_date ) ),
+				date_i18n( _x( 'H:i', 'publish box time format', 'nestform' ), strtotime( $post->post_date ) )
 			);
 		}
 
@@ -131,14 +131,25 @@ class Nestform_Post_Type {
 		$trashed   = isset( $bulk_counts['trashed'] ) ? (int) $bulk_counts['trashed'] : 0;
 		$untrashed = isset( $bulk_counts['untrashed'] ) ? (int) $bulk_counts['untrashed'] : 0;
 
+		/* translators: %s: Number of forms. */
+		$updated_msg = _n( '%s form updated.', '%s forms updated.', $updated, 'nestform' );
+		/* translators: %s: Number of forms. */
+		$locked_msg = _n( '%s form not updated, somebody is editing it.', '%s forms not updated, somebody is editing them.', $locked, 'nestform' );
+		/* translators: %s: Number of forms. */
+		$deleted_msg = _n( '%s form permanently deleted.', '%s forms permanently deleted.', $deleted, 'nestform' );
+		/* translators: %s: Number of forms. */
+		$trashed_msg = _n( '%s form moved to the Trash.', '%s forms moved to the Trash.', $trashed, 'nestform' );
+		/* translators: %s: Number of forms. */
+		$untrashed_msg = _n( '%s form restored from the Trash.', '%s forms restored from the Trash.', $untrashed, 'nestform' );
+
 		$bulk_messages[ self::POST_TYPE ] = array(
-			'updated'   => _n( '%s form updated.', '%s forms updated.', $updated, 'nestform' ),
+			'updated'   => $updated_msg,
 			'locked'    => ( 1 === $locked )
 				? __( '1 form not updated, somebody is editing it.', 'nestform' )
-				: _n( '%s form not updated, somebody is editing it.', '%s forms not updated, somebody is editing them.', $locked, 'nestform' ),
-			'deleted'   => _n( '%s form permanently deleted.', '%s forms permanently deleted.', $deleted, 'nestform' ),
-			'trashed'   => _n( '%s form moved to the Trash.', '%s forms moved to the Trash.', $trashed, 'nestform' ),
-			'untrashed' => _n( '%s form restored from the Trash.', '%s forms restored from the Trash.', $untrashed, 'nestform' ),
+				: $locked_msg,
+			'deleted'   => $deleted_msg,
+			'trashed'   => $trashed_msg,
+			'untrashed' => $untrashed_msg,
 		);
 
 		return $bulk_messages;

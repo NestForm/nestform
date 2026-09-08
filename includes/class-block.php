@@ -242,6 +242,7 @@ class Nestform_Block {
 					'previewHint'      => __( 'The live form renders on the front end.', 'nestform' ),
 					'placeholderLabel' => __( 'Nestform', 'nestform' ),
 					'placeholderHelp'  => __( 'Choose which form to insert.', 'nestform' ),
+					/* translators: %d: Form ID. */
 					'formFallback'     => __( 'Form #%d', 'nestform' ),
 				),
 			)

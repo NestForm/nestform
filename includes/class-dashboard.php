@@ -379,25 +379,23 @@ class Nestform_Dashboard {
 						<span class="nestform-dash__pulse-value"><?php echo esc_html( number_format_i18n( $status_spam ) ); ?></span>
 					</a>
 					<?php
+					$pulse_ctx = array(
+						'form_id'     => $form_id,
+						'after'       => $after,
+						'before'      => $before,
+						'range'       => $range,
+						'status_new'  => $status_new,
+						'status_read' => $status_read,
+						'status_spam' => $status_spam,
+					);
 					/**
 					 * Extra work-pulse chips (e.g. Pro Hot leads).
 					 *
 					 * @param string $html Empty by default.
 					 * @param array  $ctx  Dashboard context.
 					 */
-					echo (string) apply_filters( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted Pro markup.
-						'nestform_dashboard_work_pulse_extra',
-						'',
-						array(
-							'form_id'     => $form_id,
-							'after'       => $after,
-							'before'      => $before,
-							'range'       => $range,
-							'status_new'  => $status_new,
-							'status_read' => $status_read,
-							'status_spam' => $status_spam,
-						)
-					);
+					$pulse_extra = (string) apply_filters( 'nestform_dashboard_work_pulse_extra', '', $pulse_ctx );
+					echo $pulse_extra; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- trusted Pro markup.
 					?>
 				</nav>
 			</section>
@@ -573,20 +571,24 @@ class Nestform_Dashboard {
 							 * @param array  $ctx  Context.
 							 */
 							if ( class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::ADVANCED_ANALYTICS ) ) {
-								echo (string) apply_filters( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-									'nestform_dashboard_chart_data',
-									'',
-									array(
-										'form_id'    => $form_id,
-										'after'      => $chart_after,
-										'before'     => $before,
-										'daily'      => $daily,
-										'range'      => $range,
-										'peak_count' => $peak_count,
-										'avg_day'    => $avg_day,
-										'peak_day'   => $peak_day,
-									)
+								$chart_ctx = array(
+									'form_id'    => $form_id,
+									'after'      => $chart_after,
+									'before'     => $before,
+									'daily'      => $daily,
+									'range'      => $range,
+									'peak_count' => $peak_count,
+									'avg_day'    => $avg_day,
+									'peak_day'   => $peak_day,
 								);
+								/**
+								 * Extra chart datasets when Advanced Analytics is active.
+								 *
+								 * @param string $html Empty.
+								 * @param array  $ctx  Context.
+								 */
+								$chart_extra = (string) apply_filters( 'nestform_dashboard_chart_data', '', $chart_ctx );
+								echo $chart_extra; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pro admin HTML.
 							}
 							?>
 							<div class="nestform-dash__legend">

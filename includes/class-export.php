@@ -126,7 +126,7 @@ class Nestform_Export {
 		}
 
 		// UTF-8 BOM for Excel.
-		fwrite( $out, "\xEF\xBB\xBF" );
+		echo "\xEF\xBB\xBF";
 
 		$header = array_merge(
 			array( 'entry_id', 'submitted_at', 'status', 'ip' ),
@@ -138,7 +138,6 @@ class Nestform_Export {
 			fputcsv( $out, self::build_row( (int) $entry_id, $labels ) );
 		}
 
-		fclose( $out );
 		exit;
 	}
 

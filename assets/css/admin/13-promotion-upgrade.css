@@ -275,7 +275,7 @@
 
 .nestform-settings__nav-item:hover,
 .nestform-settings__nav-item:focus {
-    background: var(--nestform-soft);
+    background: var(--nestform-hover);
     color: var(--nestform-ink);
 }
 
@@ -301,7 +301,7 @@
 
 .nestform-settings__nav-item--external:hover .nestform-settings__nav-hint,
 .nestform-settings__nav-item--external:focus .nestform-settings__nav-hint {
-    color: var(--nestform-muted);
+    color: var(--nestform-ink);
 }
 
 .nestform-settings__main {
@@ -437,7 +437,7 @@
 
 .nestform-settings__subnav-item:hover {
     color: var(--nestform-ink);
-    background: var(--nestform-surface);
+    background: var(--nestform-hover);
 }
 
 .nestform-settings__subnav-item--active {

@@ -865,7 +865,7 @@
 }
 
 .nestform-templates__card:hover {
-    border-color: var(--nestform-accent, #2271b1);
+    border-color: var(--nestform-hover-border);
     box-shadow: 0 4px 14px rgba(1, 18, 62, 0.08);
 }
 
@@ -1205,7 +1205,8 @@
 }
 
 .nestform-style-skins__item:hover {
-    border-color: var(--nestform-accent-line);
+    border-color: var(--nestform-hover-border);
+    background: var(--nestform-hover);
 }
 
 .nestform-style-skins__item.is-active {

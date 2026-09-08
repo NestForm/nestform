@@ -138,10 +138,11 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     #posts-filter
     .search-box
     .button:focus {
-    border-color: var(--nestform-border-strong);
-    color: var(--nestform-ink);
-    background: var(--nestform-soft);
+    border-color: var(--nestform-hover-border);
+    color: var(--nestform-accent-dark);
+    background: var(--nestform-surface);
     outline: none;
+    box-shadow: var(--nestform-shadow);
 }
 
 .nestform-entries-screen.edit-php .tablenav {
@@ -246,9 +247,10 @@ body.wp-core-ui.nestform-entries-screen.edit-php
 body.wp-core-ui.nestform-entries-screen.edit-php
     .nestform-entries-toolbar
     .button:focus {
-    border-color: var(--nestform-border-strong);
-    background: var(--nestform-raised);
-    color: var(--nestform-ink);
+    border-color: var(--nestform-hover-border);
+    background: var(--nestform-surface);
+    color: var(--nestform-accent-dark);
+    box-shadow: var(--nestform-shadow);
 }
 
 .nestform-entries-screen.edit-php .tablenav .tablenav-pages {
@@ -686,7 +688,34 @@ body.wp-core-ui.nestform-entries-screen.edit-php
     th,
 .nestform-entries-screen.edit-php .wp-list-table tbody tr:hover td,
 .nestform-entries-screen.edit-php .wp-list-table tbody tr:hover th {
-    background: var(--nestform-canvas) !important;
+    background: var(--nestform-hover) !important;
+}
+
+body.wp-core-ui.nestform-entries-screen.edit-php
+    .wp-list-table
+    tbody
+    tr:hover
+    .button,
+.nestform-entries-screen.edit-php .wp-list-table tbody tr:hover .button {
+    background: var(--nestform-surface);
+}
+
+body.wp-core-ui.nestform-entries-screen.edit-php
+    .wp-list-table
+    tbody
+    tr:hover
+    .button:hover,
+body.wp-core-ui.nestform-entries-screen.edit-php
+    .wp-list-table
+    tbody
+    tr:hover
+    .button:focus,
+.nestform-entries-screen.edit-php .wp-list-table tbody tr:hover .button:hover,
+.nestform-entries-screen.edit-php .wp-list-table tbody tr:hover .button:focus {
+    border-color: var(--nestform-hover-border);
+    color: var(--nestform-accent-dark);
+    background: var(--nestform-surface);
+    box-shadow: var(--nestform-shadow);
 }
 
 body.wp-core-ui.nestform-entries-screen.edit-php

@@ -587,7 +587,7 @@ body.nestform-editor-app .nestform-add {
 .nestform-entries__kind:hover,
 .nestform-entries__kind:focus {
     color: var(--nestform-ink);
-    background: transparent;
+    background: var(--nestform-hover);
     outline: none;
     text-decoration: none;
 }
@@ -603,6 +603,11 @@ body.nestform-editor-app .nestform-add {
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     color: var(--nestform-faint);
+}
+
+.nestform-entries__kind:hover .nestform-entries__kind-count,
+.nestform-entries__kind:focus .nestform-entries__kind-count {
+    color: var(--nestform-muted);
 }
 
 .nestform-entries__kind.is-active .nestform-entries__kind-count {
@@ -626,8 +631,8 @@ body.nestform-admin-screen a.nestform-entries__stat {
 
 body.nestform-admin-screen a.nestform-entries__stat:hover,
 body.nestform-admin-screen a.nestform-entries__stat:focus {
-    border-color: var(--nestform-border-strong);
-    background: var(--nestform-soft);
+    border-color: var(--nestform-hover-border);
+    background: var(--nestform-hover);
     outline: none;
     color: inherit;
     text-decoration: none;
@@ -1005,6 +1010,7 @@ body.nestform-admin-screen .nestform-entries__stat--new .nestform-entries__stat-
     width: 100%;
     margin: var(--nestform-space-6) 0 0;
     padding: var(--nestform-space-4) var(--nestform-space-4);
+    border: 1px solid transparent;
     border-radius: var(--nestform-radius);
     background: var(--nestform-surface);
     color: var(--nestform-pro);
@@ -1014,8 +1020,10 @@ body.nestform-admin-screen .nestform-entries__stat--new .nestform-entries__stat-
 
 .nestform-upgrade__cta:hover,
 .nestform-upgrade__cta:focus {
-    background: var(--nestform-soft);
+    background: var(--nestform-surface);
+    border-color: var(--nestform-hover-border);
     color: var(--nestform-pro);
+    box-shadow: var(--nestform-shadow);
 }
 
 .nestform-upgrade__cta--agency {
@@ -1028,8 +1036,10 @@ body.nestform-admin-screen .nestform-entries__stat--new .nestform-entries__stat-
 
 .nestform-upgrade__cta--agency:hover,
 .nestform-upgrade__cta--agency:focus {
-    background: var(--nestform-soft);
-    color: var(--nestform-ink);
+    background: var(--nestform-surface);
+    border-color: var(--nestform-hover-border);
+    color: var(--nestform-accent-dark);
+    box-shadow: var(--nestform-shadow);
 }
 
 .nestform-upgrade__plan--agency {
@@ -1373,6 +1383,7 @@ body.nestform-app-screen .wrap.nestform-license {
 .nestform-license__aside-cta {
     width: 100%;
     margin: 0 0 var(--nestform-space-2);
+    border: 1px solid transparent;
     background: var(--nestform-surface);
     color: var(--nestform-pro);
     margin-top: auto;
@@ -1381,8 +1392,10 @@ body.nestform-app-screen .wrap.nestform-license {
 
 .nestform-license__aside-cta:hover,
 .nestform-license__aside-cta:focus {
-    background: var(--nestform-soft);
+    background: var(--nestform-surface);
+    border-color: var(--nestform-hover-border);
     color: var(--nestform-pro);
+    box-shadow: var(--nestform-shadow);
 }
 
 .nestform-license__aside-link {

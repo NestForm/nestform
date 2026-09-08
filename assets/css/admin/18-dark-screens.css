@@ -67,7 +67,7 @@
 
     body.nestform-admin-screen:not(.nestform-theme-light) .nestform-hub__row:hover,
     body.nestform-admin-screen.nestform-theme-dark .nestform-hub__row:hover {
-        background: var(--nestform-soft);
+        background: var(--nestform-hover);
     }
 
     body.nestform-admin-screen:not(.nestform-theme-light) .nestform-dash__kpi,

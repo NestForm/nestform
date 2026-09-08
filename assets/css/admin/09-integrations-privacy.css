@@ -148,8 +148,9 @@ body.wp-core-ui.nestform-settings-screen
     .nestform-backup-import__file.nestform-admin__input::file-selector-button:hover,
 body.nestform-settings-screen
     .nestform-backup-import__file.nestform-admin__input::file-selector-button:hover {
-    border-color: var(--nestform-border-strong, #c5c9d4);
+    border-color: var(--nestform-hover-border, #bfdbfe);
     background: var(--nestform-surface);
+    color: var(--nestform-accent-dark);
 }
 
 .nestform-backup-import__hint {

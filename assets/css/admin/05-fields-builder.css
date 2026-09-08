@@ -45,7 +45,7 @@
 }
 
 .nestform-card:hover {
-    border-color: var(--nestform-border);
+    border-color: var(--nestform-hover-border);
     box-shadow: var(--nestform-shadow);
 }
 
@@ -111,7 +111,27 @@
 }
 
 .nestform-card.is-collapsed .nestform-card__header:hover {
-    background: var(--nestform-soft);
+    background: var(--nestform-hover);
+}
+
+.nestform-card.is-collapsed .nestform-card__header:hover .nestform-card__btn,
+.nestform-card.is-collapsed .nestform-card__header:hover .nestform-card__toggle {
+    background: var(--nestform-surface);
+}
+
+.nestform-card.is-collapsed .nestform-card__header:hover .nestform-card__btn:hover:not(.nestform-card__btn--danger),
+.nestform-card.is-collapsed .nestform-card__header:hover .nestform-card__btn:focus:not(.nestform-card__btn--danger) {
+    border-color: var(--nestform-hover-border);
+    color: var(--nestform-accent-dark);
+    box-shadow: var(--nestform-shadow);
+}
+
+.nestform-card.is-collapsed .nestform-card__header:hover .nestform-card__btn--danger:hover,
+.nestform-card.is-collapsed .nestform-card__header:hover .nestform-card__btn--danger:focus {
+    background: var(--nestform-danger-soft);
+    border-color: var(--nestform-danger-border);
+    color: var(--nestform-danger);
+    box-shadow: none;
 }
 
 .nestform-card__identity {
@@ -184,8 +204,10 @@
 }
 
 .nestform-card__toggle:hover {
-    background: var(--nestform-soft);
-    color: var(--nestform-ink);
+    background: var(--nestform-surface);
+    border: 1px solid var(--nestform-hover-border);
+    color: var(--nestform-accent-dark);
+    box-shadow: var(--nestform-shadow);
 }
 
 .nestform-card__toggle svg {
@@ -285,7 +307,9 @@
 }
 
 .nestform-card__title-btn:hover {
-    background: var(--nestform-soft);
+    background: var(--nestform-surface);
+    border: 1px solid var(--nestform-hover-border);
+    box-shadow: var(--nestform-shadow);
 }
 
 .nestform-card__meta {
@@ -499,21 +523,25 @@
 .nestform-card__btn:hover,
 .nestform-card__btn:focus,
 .nestform-card__btn:focus-visible {
-    background: var(--nestform-raised);
-    border-color: var(--nestform-border-strong);
-    color: var(--nestform-ink);
+    background: var(--nestform-surface);
+    border-color: var(--nestform-hover-border);
+    color: var(--nestform-accent-dark);
     outline: none;
     border-radius: var(--nestform-radius);
+    box-shadow: var(--nestform-shadow);
 }
 
 .nestform-card__btn .dashicons {
     display: none;
 }
 
-.nestform-card__btn--danger:hover {
+.nestform-card__btn.nestform-card__btn--danger:hover,
+.nestform-card__btn.nestform-card__btn--danger:focus,
+.nestform-card__btn.nestform-card__btn--danger:focus-visible {
     background: var(--nestform-danger-soft);
     border-color: var(--nestform-danger-border);
     color: var(--nestform-danger);
+    box-shadow: none;
 }
 
 .nestform-card__actions [data-nestform-tooltip] {
@@ -1480,10 +1508,12 @@
 
 .nestform-embed__action:hover,
 .nestform-embed__action:focus {
-    color: var(--nestform-ink);
-    background: var(--nestform-soft);
+    color: var(--nestform-accent-dark);
+    background: var(--nestform-surface);
+    border-color: var(--nestform-hover-border);
     outline: none;
     text-decoration: none;
+    box-shadow: var(--nestform-shadow);
 }
 
 .nestform-embed__delete {
@@ -1792,9 +1822,10 @@
 
 .nestform-steps-setup__add-step:hover,
 .nestform-steps-setup__add-step:focus {
-    border-color: var(--nestform-accent);
+    border-color: var(--nestform-hover-border);
     color: var(--nestform-accent-dark);
     background: var(--nestform-surface);
+    box-shadow: var(--nestform-shadow);
 }
 
 .nestform-steps-setup__branch {
@@ -1943,9 +1974,10 @@
 }
 
 .nestform-step-nav__btn:hover {
-    color: var(--nestform-ink);
+    color: var(--nestform-accent-dark);
     background: var(--nestform-surface);
-    border-color: transparent;
+    border-color: var(--nestform-hover-border);
+    box-shadow: var(--nestform-shadow);
 }
 
 .nestform-step-nav__btn.is-active {
@@ -2238,8 +2270,8 @@ body.nestform-admin-screen a.nestform-hub__stat:hover,
 body.nestform-admin-screen a.nestform-hub__stat:focus,
 body.nestform-admin-screen button.nestform-hub__stat:hover,
 body.nestform-admin-screen button.nestform-hub__stat:focus {
-    border-color: var(--nestform-border-strong);
-    background: var(--nestform-soft);
+    border-color: var(--nestform-hover-border);
+    background: var(--nestform-hover);
     outline: none;
     color: inherit;
     text-decoration: none;

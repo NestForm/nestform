@@ -16,6 +16,8 @@
         --nestform-paper: #161921;
         --nestform-soft: #1c2030;
         --nestform-raised: #222836;
+        --nestform-hover: var(--nestform-accent-soft);
+        --nestform-hover-border: var(--nestform-accent-line);
         --nestform-border: #2a3040;
         --nestform-border-strong: #3a4256;
         --nestform-muted: #9aa3b5;
@@ -59,6 +61,8 @@ body.nestform-admin-screen.nestform-theme-dark {
     --nestform-paper: #161921;
     --nestform-soft: #1c2030;
     --nestform-raised: #222836;
+    --nestform-hover: var(--nestform-accent-soft);
+    --nestform-hover-border: var(--nestform-accent-line);
     --nestform-border: #2a3040;
     --nestform-border-strong: #3a4256;
     --nestform-muted: #9aa3b5;

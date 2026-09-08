@@ -334,6 +334,7 @@
 .nestform-add-menu__item--teaser:focus {
     background: transparent;
     color: var(--nestform-muted);
+    cursor: default;
 }
 
 .nestform-add-menu__pro-link {
@@ -381,17 +382,18 @@
     transition: var(--nestform-transition);
 }
 
-.nestform-btn:hover,
-.nestform-btn:focus,
-.nestform-btn:focus-visible,
+.nestform-btn:hover:not(.nestform-btn--danger):not(.nestform-btn--danger-text),
+.nestform-btn:focus:not(.nestform-btn--danger):not(.nestform-btn--danger-text),
+.nestform-btn:focus-visible:not(.nestform-btn--danger):not(.nestform-btn--danger-text),
 .nestform-admin__chip:hover,
 .nestform-admin__chip:focus,
 .nestform-admin__chip:focus-visible {
-    border-color: var(--nestform-border-strong);
-    color: var(--nestform-ink-alt);
+    /* Solid surface + accent edge — stays readable on tile/row hover fill. */
+    border-color: var(--nestform-hover-border);
+    color: var(--nestform-accent-dark);
     background: var(--nestform-surface);
     text-decoration: none;
-    box-shadow: none;
+    box-shadow: var(--nestform-shadow);
     outline: none;
     border-radius: var(--nestform-radius);
 }
@@ -421,11 +423,13 @@
     font-weight: 600;
 }
 
-.nestform-btn--danger:hover,
-.nestform-btn--danger:focus {
-    background: var(--nestform-surface);
+.nestform-btn.nestform-btn--danger:hover,
+.nestform-btn.nestform-btn--danger:focus,
+.nestform-btn.nestform-btn--danger:focus-visible {
+    background: var(--nestform-danger-soft);
     border-color: var(--nestform-danger-border);
     color: var(--nestform-danger);
+    box-shadow: none;
 }
 
 .nestform-btn--outline {
@@ -436,8 +440,9 @@
 .nestform-btn--outline:hover,
 .nestform-btn--outline:focus {
     background: var(--nestform-surface);
-    border-color: var(--nestform-border-strong);
-    color: var(--nestform-ink);
+    border-color: var(--nestform-hover-border);
+    color: var(--nestform-accent-dark);
+    box-shadow: var(--nestform-shadow);
 }
 
 .nestform-btn--accent {
@@ -447,8 +452,10 @@
 
 .nestform-btn--accent:hover,
 .nestform-btn--accent:focus {
+    background: var(--nestform-surface);
     border-color: var(--nestform-accent);
     color: var(--nestform-accent-dark);
+    box-shadow: var(--nestform-shadow);
 }
 
 .nestform-btn--warn {
@@ -460,7 +467,11 @@
 
 .nestform-btn--warn:hover,
 .nestform-btn--warn:focus {
-    background: var(--nestform-warn-soft);
+    background: color-mix(
+        in srgb,
+        var(--nestform-warn) 12%,
+        var(--nestform-surface)
+    );
     border-color: var(--nestform-warn);
     color: var(--nestform-warn);
     box-shadow: none;
@@ -471,22 +482,25 @@
     border-color: transparent;
 }
 
-.nestform-btn--ghost:hover,
-.nestform-btn--ghost:focus {
-    background: var(--nestform-canvas);
-    border-color: var(--nestform-border);
-    color: var(--nestform-ink);
+.nestform-btn--ghost:hover:not(.nestform-btn--danger-text),
+.nestform-btn--ghost:focus:not(.nestform-btn--danger-text) {
+    background: var(--nestform-surface);
+    border-color: var(--nestform-hover-border);
+    color: var(--nestform-accent-dark);
+    box-shadow: var(--nestform-shadow);
 }
 
 .nestform-btn--danger-text {
     color: var(--nestform-danger);
 }
 
-.nestform-btn--danger-text:hover,
-.nestform-btn--danger-text:focus {
+.nestform-btn.nestform-btn--danger-text:hover,
+.nestform-btn.nestform-btn--danger-text:focus,
+.nestform-btn.nestform-btn--danger-text:focus-visible {
     background: var(--nestform-danger-soft);
-    border-color: transparent;
+    border-color: var(--nestform-danger-border);
     color: var(--nestform-danger);
+    box-shadow: none;
 }
 
 /* WP #publish / #save-post IDs beat class selectors */
@@ -578,13 +592,33 @@ body.nestform-admin-screen.post-type-nestform
 .nestform-entries-screen .button-primary:hover,
 .nestform-entries-screen .button-primary:focus,
 .nestform-entries-screen .button-primary:focus-visible {
-    border-color: var(--nestform-border-strong);
-    color: var(--nestform-ink);
+    border-color: var(--nestform-hover-border);
+    color: var(--nestform-accent-dark);
     background: var(--nestform-surface);
     text-decoration: none;
-    box-shadow: none !important;
+    box-shadow: var(--nestform-shadow) !important;
     outline: none;
     border-radius: var(--nestform-radius);
+}
+
+.nestform-hub .nestform-btn--danger:hover,
+.nestform-hub .nestform-btn--danger:focus,
+.nestform-admin .nestform-btn--danger:hover,
+.nestform-admin .nestform-btn--danger:focus,
+.nestform-embed .nestform-btn--danger:hover,
+.nestform-embed .nestform-btn--danger:focus,
+.nestform-dash .nestform-btn--danger:hover,
+.nestform-dash .nestform-btn--danger:focus,
+.nestform-hub .nestform-btn--danger-text:hover,
+.nestform-hub .nestform-btn--danger-text:focus,
+.nestform-admin .nestform-btn--danger-text:hover,
+.nestform-admin .nestform-btn--danger-text:focus,
+.nestform-embed .nestform-btn--danger-text:hover,
+.nestform-embed .nestform-btn--danger-text:focus {
+    background: var(--nestform-danger-soft);
+    border-color: var(--nestform-danger-border);
+    color: var(--nestform-danger);
+    box-shadow: none !important;
 }
 
 /*

@@ -186,7 +186,7 @@ body.wp-core-ui.nestform-settings-screen
 
 body.wp-core-ui.nestform-settings-screen .nestform-log__row:hover td,
 .nestform-settings-screen .nestform-log__row:hover td {
-    background: var(--nestform-soft) !important;
+    background: var(--nestform-hover) !important;
 }
 
 body.wp-core-ui.nestform-settings-screen .nestform-log__row--failed td,
@@ -295,8 +295,10 @@ body.wp-core-ui.nestform-settings-screen
     .nestform-log__pager
     a.page-numbers:hover,
 .nestform-settings-screen .nestform-log__pager a.page-numbers:hover {
-    color: var(--nestform-ink);
-    border-color: var(--nestform-border-strong);
+    color: var(--nestform-accent-dark);
+    border-color: var(--nestform-hover-border);
+    background: var(--nestform-surface);
+    box-shadow: var(--nestform-shadow);
 }
 
 body.wp-core-ui.nestform-settings-screen
@@ -829,7 +831,7 @@ body.wp-core-ui.nestform-settings-screen
     td,
 .nestform-settings-screen .nestform-settings__role-caps-row:hover th,
 .nestform-settings-screen .nestform-settings__role-caps-row:hover td {
-    background: var(--nestform-soft) !important;
+    background: var(--nestform-hover) !important;
 }
 
 body.wp-core-ui.nestform-settings-screen

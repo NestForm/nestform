@@ -149,8 +149,8 @@
 
 .nestform-dash__pulse-item:hover,
 .nestform-dash__pulse-item:focus {
-    border-color: var(--nestform-border-strong, var(--dash-line));
-    background: var(--nestform-soft);
+    border-color: var(--nestform-hover-border, var(--dash-line));
+    background: var(--nestform-hover);
     text-decoration: none;
     color: inherit;
     outline: none;
@@ -235,8 +235,8 @@
 
 .nestform-dash__kpi:hover,
 .nestform-dash__kpi--primary:hover {
-    border-color: var(--dash-line);
-    background: var(--dash-surface);
+    border-color: var(--nestform-hover-border);
+    background: var(--nestform-hover);
 }
 
 a.nestform-dash__kpi--link {
@@ -248,8 +248,8 @@ a.nestform-dash__kpi--link {
 
 a.nestform-dash__kpi--link:hover,
 a.nestform-dash__kpi--link:focus {
-    border-color: var(--nestform-border-strong);
-    background: var(--nestform-soft);
+    border-color: var(--nestform-hover-border);
+    background: var(--nestform-hover);
     outline: none;
 }
 
@@ -295,8 +295,8 @@ a.nestform-dash__kpi--link:focus {
 .nestform-dash__quick-item:hover,
 .nestform-dash__quick-item:focus {
     color: var(--dash-ink);
-    border-color: var(--nestform-border-strong, var(--dash-line));
-    background: var(--nestform-soft);
+    border-color: var(--nestform-hover-border, var(--dash-line));
+    background: var(--nestform-hover);
     outline: none;
     text-decoration: none;
 }
@@ -652,12 +652,6 @@ a.nestform-dash__kpi--link:focus {
 
 .nestform-dash__rank-item:last-child {
     margin-bottom: 0;
-}
-
-.nestform-dash__rank-item:hover {
-    border: 0;
-    box-shadow: none;
-    background: transparent;
 }
 
 .nestform-dash__rank-index {

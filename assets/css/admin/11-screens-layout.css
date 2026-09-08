@@ -372,10 +372,6 @@ body.wp-core-ui.nestform-admin-screen
     box-sizing: border-box;
 }
 
-.nestform-dash__insights-breakdown-row:hover {
-    background: color-mix(in srgb, var(--nestform-ink) 3%, transparent);
-}
-
 .nestform-dash__insights-breakdown-icon {
     display: inline-flex;
     align-items: center;
@@ -1170,9 +1166,10 @@ body.wp-core-ui.nestform-admin-screen
 .nestform-hub__pager-links a.page-numbers:focus,
 .nestform-hub__pager-links button.page-numbers:hover,
 .nestform-hub__pager-links button.page-numbers:focus {
-    border-color: var(--nestform-border-strong);
-    color: var(--nestform-ink);
-    background: var(--nestform-raised);
+    border-color: var(--nestform-hover-border);
+    color: var(--nestform-accent-dark);
+    background: var(--nestform-surface);
+    box-shadow: var(--nestform-shadow);
 }
 
 .nestform-entries__pager-links .page-numbers.current,
@@ -1254,7 +1251,35 @@ body.wp-core-ui.nestform-admin-screen
 }
 
 .nestform-entries__row:hover {
-    background: var(--nestform-soft);
+    background: var(--nestform-hover);
+}
+
+.nestform-entries__row:hover .button,
+.nestform-entries__row:hover .nestform-btn,
+.nestform-entries__row:hover .nestform-admin__chip {
+    background: var(--nestform-surface);
+}
+
+.nestform-entries__row:hover .button:hover,
+.nestform-entries__row:hover .button:focus,
+.nestform-entries__row:hover .nestform-btn:hover:not(.nestform-btn--danger):not(.nestform-btn--danger-text),
+.nestform-entries__row:hover .nestform-btn:focus:not(.nestform-btn--danger):not(.nestform-btn--danger-text),
+.nestform-entries__row:hover .nestform-admin__chip:hover,
+.nestform-entries__row:hover .nestform-admin__chip:focus {
+    border-color: var(--nestform-hover-border);
+    color: var(--nestform-accent-dark);
+    background: var(--nestform-surface);
+    box-shadow: var(--nestform-shadow);
+}
+
+.nestform-entries__row:hover .nestform-btn--danger:hover,
+.nestform-entries__row:hover .nestform-btn--danger:focus,
+.nestform-entries__row:hover .nestform-btn--danger-text:hover,
+.nestform-entries__row:hover .nestform-btn--danger-text:focus {
+    background: var(--nestform-danger-soft);
+    border-color: var(--nestform-danger-border);
+    color: var(--nestform-danger);
+    box-shadow: none;
 }
 
 .nestform-entries__row--new {
@@ -1994,7 +2019,8 @@ body.nestform-admin-screen.post-type-nestform .nestform-admin {
 }
 
 .nestform-style-skins__item:hover {
-    border-color: var(--nestform-border-strong);
+    border-color: var(--nestform-hover-border);
+    background: var(--nestform-hover);
 }
 
 .nestform-style-skins__item.is-active {

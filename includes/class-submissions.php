@@ -1494,6 +1494,10 @@ class Nestform_Submissions {
 		if ( $email !== '' ) {
 			return $email;
 		}
+		$payment = self::payload_payment_summary( $payload, (int) $form_id );
+		if ( $payment !== '' ) {
+			return $payment;
+		}
 		$title = trim( (string) $fallback );
 		if ( $title !== '' ) {
 			$parts = preg_split( '/\s+[—–-]\s+/u', $title );
@@ -1570,6 +1574,69 @@ class Nestform_Submissions {
 		}
 
 		return '';
+	}
+
+	/**
+	 * Short payment summary from submission payload (amount + currency).
+	 *
+	 * @param array<string, mixed> $payload Payload.
+	 * @param int                  $form_id Optional form ID to prefer payment-typed fields.
+	 * @return string
+	 */
+	public static function payload_payment_summary( array $payload, $form_id = 0 ) {
+		$form_id = (int) $form_id;
+		if ( $form_id > 0 && class_exists( 'Nestform_Form_Config' ) ) {
+			$fields = Nestform_Form_Config::get_fields( $form_id );
+			if ( is_array( $fields ) ) {
+				foreach ( $fields as $field ) {
+					if ( ! is_array( $field ) || 'payment' !== (string) ( $field['type'] ?? '' ) ) {
+						continue;
+					}
+					$name = isset( $field['name'] ) ? (string) $field['name'] : '';
+					if ( $name === '' || ! isset( $payload[ $name ] ) ) {
+						continue;
+					}
+					$summary = self::format_payment_contact( $payload[ $name ] );
+					if ( $summary !== '' ) {
+						return $summary;
+					}
+				}
+			}
+		}
+
+		foreach ( $payload as $value ) {
+			$summary = self::format_payment_contact( $value );
+			if ( $summary !== '' ) {
+				return $summary;
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * @param mixed $value Stored payment value.
+	 * @return string
+	 */
+	private static function format_payment_contact( $value ) {
+		if ( ! is_array( $value ) || ! isset( $value['amount'], $value['currency'] ) ) {
+			return '';
+		}
+		$amount   = trim( (string) $value['amount'] );
+		$currency = trim( (string) $value['currency'] );
+		if ( $amount === '' || $currency === '' ) {
+			return '';
+		}
+		$line = sprintf(
+			/* translators: 1: amount, 2: currency */
+			__( 'Paid %1$s %2$s', 'nestform' ),
+			$amount,
+			$currency
+		);
+		if ( ! empty( $value['mode'] ) && 'test' === (string) $value['mode'] ) {
+			$line .= ' · ' . __( 'test', 'nestform' );
+		}
+		return $line;
 	}
 
 	/**
@@ -2056,6 +2123,10 @@ class Nestform_Submissions {
 		$email = self::payload_email( $data );
 		if ( $email !== '' ) {
 			return $email;
+		}
+		$payment = self::payload_payment_summary( $data, (int) $form_id );
+		if ( $payment !== '' ) {
+			return $payment;
 		}
 		foreach ( array( 'phone', 'tel', 'mobile', 'telephone' ) as $key ) {
 			$text = self::payload_scalar_text( $data, $key );

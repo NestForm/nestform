@@ -3,7 +3,7 @@
  * Plugin Name: Nestform
  * Plugin URI: https://nestform.app
  * Description: Build forms, quizzes and surveys for WordPress that convert — entries inbox, email, spam protection, and analytics.
- * Version: 2.3.0
+ * Version: 2.3.2
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: A.CH
@@ -24,7 +24,7 @@ if ( defined( 'NESTFORM_VERSION' ) ) {
 	return;
 }
 
-define( 'NESTFORM_VERSION', '2.3.0' );
+define( 'NESTFORM_VERSION', '2.3.2' );
 define( 'NESTFORM_PATH', trailingslashit( dirname( __FILE__ ) ) );
 define( 'NESTFORM_URL', trailingslashit( plugin_dir_url( __FILE__ ) ) );
 
@@ -299,6 +299,7 @@ function nestform_admin_icon_html( $name, $variant = '' ) {
 		'forms'        => '<svg ' . $a . '><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h.01"/><path d="M12 8h4"/><path d="M8 12h.01"/><path d="M12 12h4"/><path d="M8 16h.01"/><path d="M12 16h3"/></svg>',
 		'analytics'    => '<svg ' . $a . '><rect x="3" y="12" width="4" height="8" rx="1"/><rect x="10" y="7" width="4" height="13" rx="1"/><rect x="17" y="3" width="4" height="17" rx="1"/></svg>',
 		'entries'      => '<svg ' . $a . '><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>',
+		'recruiting'   => '<svg ' . $a . '><rect x="2" y="7" width="20" height="14" rx="2.5"/><path d="M16 7V5.5A2.5 2.5 0 0 0 13.5 3h-3A2.5 2.5 0 0 0 8 5.5V7"/><path d="M12 12v3"/><path d="M2 12h20"/></svg>',
 		'settings'     => '<svg ' . $a . '><path d="M4 21v-7"/><path d="M4 10V3"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M20 21v-5"/><path d="M20 12V3"/><path d="M1 14h6"/><path d="M9 8h6"/><path d="M17 16h6"/></svg>',
 		'license'      => '<svg ' . $a . '><circle cx="8" cy="15" r="5"/><path d="m16 3 5 5"/><path d="m13.5 8.5 3 3L21 7l-3-3"/><circle cx="8" cy="15" r="1.5"/></svg>',
 		'plus'         => '<svg ' . $a . '><path d="M12 5v14"/><path d="M5 12h14"/></svg>',
@@ -348,69 +349,79 @@ function nestform_admin_icon( $name ) {
  * @param string $current Active nav: dashboard|forms|entries|settings|integrations|developers|upgrade|license|editor.
  */
 function nestform_render_app_open( $current ) {
-	$stats      = nestform_admin_stats();
-	$forms_n    = (int) $stats['forms'];
-	$new_n      = (int) $stats['new'];
-	$entries_n  = isset( $stats['entries'] ) ? (int) $stats['entries'] : 0;
-	$today_n    = isset( $stats['today'] ) ? (int) $stats['today'] : 0;
+	$stats       = nestform_admin_stats();
+	$forms_n     = (int) $stats['forms'];
+	$new_n       = (int) $stats['new'];
+	$entries_n   = isset( $stats['entries'] ) ? (int) $stats['entries'] : 0;
+	$today_n     = isset( $stats['today'] ) ? (int) $stats['today'] : 0;
 	$entries_url = class_exists( 'Nestform_Submissions' ) ? Nestform_Submissions::hub_url() : '';
 	$new_url     = class_exists( 'Nestform_Submissions' )
 		? Nestform_Submissions::hub_url( array( 'nestform_status' => Nestform_Submissions::STATUS_NEW ) )
 		: $entries_url;
 	$analytics_url = class_exists( 'Nestform_Dashboard' ) ? Nestform_Dashboard::url() : '';
-	$items   = array(
+
+	$can_edit_posts = current_user_can( 'edit_posts' );
+	$can_manage_opts = current_user_can( 'manage_options' );
+	$can_view_entries = class_exists( 'Nestform_Capabilities' )
+		? Nestform_Capabilities::can_view_entries()
+		: $can_edit_posts;
+	$can_manage_forms = class_exists( 'Nestform_Capabilities' )
+		? Nestform_Capabilities::can_manage()
+		: $can_edit_posts;
+
+	$items = array(
 		array(
 			'id'    => 'dashboard',
 			'label' => __( 'Dashboard', 'nestform' ),
-			'url'   => class_exists( 'Nestform_Dashboard' ) ? Nestform_Dashboard::url() : '',
+			'url'   => ( $can_edit_posts && class_exists( 'Nestform_Dashboard' ) ) ? Nestform_Dashboard::url() : '',
 			'icon'  => 'analytics',
 			'group' => 'primary',
 		),
 		array(
 			'id'    => 'forms',
 			'label' => __( 'Forms', 'nestform' ),
-			'url'   => class_exists( 'Nestform_Post_Type' ) ? Nestform_Post_Type::hub_url() : '',
+			'url'   => ( $can_manage_forms && class_exists( 'Nestform_Post_Type' ) ) ? Nestform_Post_Type::hub_url() : '',
 			'icon'  => 'forms',
 			'group' => 'primary',
 		),
 		array(
 			'id'    => 'entries',
 			'label' => __( 'Entries', 'nestform' ),
-			'url'   => class_exists( 'Nestform_Submissions' ) ? Nestform_Submissions::hub_url() : '',
+			'url'   => ( $can_view_entries && class_exists( 'Nestform_Submissions' ) ) ? Nestform_Submissions::hub_url() : '',
 			'icon'  => 'entries',
 			'group' => 'primary',
 		),
 		array(
 			'id'    => 'integrations',
 			'label' => __( 'Integrations', 'nestform' ),
-			'url'   => class_exists( 'Nestform_Integrations' ) ? Nestform_Integrations::url() : '',
+			'url'   => ( $can_manage_opts && class_exists( 'Nestform_Integrations' ) ) ? Nestform_Integrations::url() : '',
 			'icon'  => 'integrations',
 			'group' => 'primary',
 		),
 		array(
 			'id'    => 'settings',
 			'label' => __( 'Settings', 'nestform' ),
-			'url'   => class_exists( 'Nestform_Settings' ) ? Nestform_Settings::url() : '',
+			'url'   => ( $can_manage_opts && class_exists( 'Nestform_Settings' ) ) ? Nestform_Settings::url() : '',
 			'icon'  => 'settings',
 			'group' => 'primary',
 		),
 		array(
 			'id'    => 'developers',
 			'label' => __( 'Developers', 'nestform' ),
-			'url'   => class_exists( 'Nestform_Developers' ) ? Nestform_Developers::url() : '',
+			'url'   => ( $can_edit_posts && class_exists( 'Nestform_Developers' ) ) ? Nestform_Developers::url() : '',
 			'icon'  => 'developers',
 			'group' => 'tools',
 		),
 		array(
 			'id'    => 'import',
 			'label' => __( 'Import forms', 'nestform' ),
-			'url'   => class_exists( 'Nestform_Importer' ) && Nestform_Importer::user_can_import() ? Nestform_Importer::url() : '',
+			'url'   => ( class_exists( 'Nestform_Importer' ) && Nestform_Importer::user_can_import() ) ? Nestform_Importer::url() : '',
 			'icon'  => 'download',
 			'group' => 'tools',
 		),
 	);
 
-	if ( class_exists( 'Nestform_Promotion' ) && Nestform_Promotion::should_promote() ) {
+	if ( class_exists( 'Nestform_Promotion' ) && Nestform_Promotion::should_promote() && $can_edit_posts ) {
 		$items[] = array(
 			'id'    => 'pro',
 			'label' => __( 'Pro', 'nestform' ),
@@ -420,7 +431,7 @@ function nestform_render_app_open( $current ) {
 		);
 	}
 
-	if ( current_user_can( 'manage_options' ) && class_exists( 'Nestform_Pro_License' ) ) {
+	if ( $can_manage_opts && class_exists( 'Nestform_Pro_License' ) ) {
 		$items[] = array(
 			'id'    => 'license',
 			'label' => __( 'License', 'nestform' ),
@@ -432,6 +443,8 @@ function nestform_render_app_open( $current ) {
 
 	/**
 	 * Filter Nestform app sidebar nav items.
+	 *
+	 * Empty `url` hides the item. Match WordPress submenu capabilities.
 	 *
 	 * @param array<int, array{id:string,label:string,url:string,icon:string,group?:string}> $items   Nav items.
 	 * @param string                                                                         $current Active view id.
@@ -617,6 +630,7 @@ function nestform_admin_current_view() {
 		'nestform-account'           => 'license',
 		'nestform-forms-account'     => 'license',
 		'nestform-pro-license'       => 'license',
+		'nestform-recruiting'        => 'recruiting',
 	);
 	if ( isset( $map[ $page ] ) ) {
 		return $map[ $page ];

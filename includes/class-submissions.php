@@ -708,7 +708,19 @@ class Nestform_Submissions {
 			return $caps;
 		}
 		$form_id = (int) get_post_meta( $post_id, self::META_FORM, true );
-		if ( $form_id <= 0 || ! user_can( $user_id, 'edit_post', $form_id ) ) {
+		if ( $form_id <= 0 ) {
+			return array( 'do_not_allow' );
+		}
+		$allowed = user_can( $user_id, 'edit_post', $form_id );
+		/**
+		 * Whether a user may manage entries for a form (addons may tighten HR ownership).
+		 *
+		 * @param bool $allowed Whether allowed.
+		 * @param int  $form_id Form ID.
+		 * @param int  $user_id User ID.
+		 */
+		$allowed = (bool) apply_filters( 'nestform_user_can_manage_form_entries', $allowed, $form_id, $user_id );
+		if ( ! $allowed ) {
 			return array( 'do_not_allow' );
 		}
 		return array();
@@ -722,7 +734,15 @@ class Nestform_Submissions {
 	 */
 	public static function user_can_manage_form_entries( $form_id ) {
 		$form_id = (int) $form_id;
-		return $form_id > 0 && current_user_can( 'edit_post', $form_id );
+		$allowed = $form_id > 0 && current_user_can( 'edit_post', $form_id );
+		/**
+		 * Whether the current user may manage entries for a form.
+		 *
+		 * @param bool $allowed Whether allowed.
+		 * @param int  $form_id Form ID.
+		 * @param int  $user_id User ID.
+		 */
+		return (bool) apply_filters( 'nestform_user_can_manage_form_entries', $allowed, $form_id, get_current_user_id() );
 	}
 
 	/**
@@ -736,7 +756,14 @@ class Nestform_Submissions {
 			return array();
 		}
 		if ( current_user_can( 'edit_others_posts' ) ) {
-			return null;
+			/**
+			 * Form IDs the current user may inspect entries for.
+			 * null = unrestricted; array = allow-list.
+			 *
+			 * @param array<int, int>|null $ids     Form IDs or null.
+			 * @param int                  $user_id User ID.
+			 */
+			return apply_filters( 'nestform_accessible_form_ids', null, get_current_user_id() );
 		}
 		$forms = get_posts(
 			array(
@@ -752,7 +779,7 @@ class Nestform_Submissions {
 			)
 		);
 		if ( ! is_array( $forms ) ) {
-			return array();
+			return apply_filters( 'nestform_accessible_form_ids', array(), get_current_user_id() );
 		}
 		$ids = array();
 		foreach ( $forms as $fid ) {
@@ -761,7 +788,7 @@ class Nestform_Submissions {
 				$ids[] = $fid;
 			}
 		}
-		return $ids;
+		return apply_filters( 'nestform_accessible_form_ids', $ids, get_current_user_id() );
 	}
 
 	/**
@@ -877,9 +904,60 @@ class Nestform_Submissions {
 	}
 
 	/**
+	 * Optional form_ids / exclude_form_ids (Entries hub kind filters).
+	 * Skipped when a single form_id is already set.
+	 *
+	 * @param array<int, mixed>    $meta_query Meta query clauses.
+	 * @param array<string, mixed> $args       Query args.
+	 * @return array<int, mixed>|false Updated meta query, or false for empty result.
+	 */
+	private static function apply_extra_form_scope( array $meta_query, array $args ) {
+		if ( isset( $args['form_id'] ) && (int) $args['form_id'] > 0 ) {
+			return $meta_query;
+		}
+
+		if ( array_key_exists( 'form_ids', $args ) ) {
+			$ids = array_values(
+				array_unique(
+					array_filter(
+						array_map( 'intval', (array) $args['form_ids'] )
+					)
+				)
+			);
+			if ( array() === $ids ) {
+				return false;
+			}
+			$meta_query[] = array(
+				'key'     => self::META_FORM,
+				'value'   => $ids,
+				'compare' => 'IN',
+			);
+		}
+
+		if ( ! empty( $args['exclude_form_ids'] ) ) {
+			$exclude = array_values(
+				array_unique(
+					array_filter(
+						array_map( 'intval', (array) $args['exclude_form_ids'] )
+					)
+				)
+			);
+			if ( array() !== $exclude ) {
+				$meta_query[] = array(
+					'key'     => self::META_FORM,
+					'value'   => $exclude,
+					'compare' => 'NOT IN',
+				);
+			}
+		}
+
+		return $meta_query;
+	}
+
+	/**
 	 * Count entries with optional form + date range + status.
 	 *
-	 * @param array{form_id?:int,after?:string,before?:string,status?:string,exclude_spam?:bool,starred?:bool,skip_access_check?:bool} $args Args.
+	 * @param array{form_id?:int,form_ids?:array<int,int>,exclude_form_ids?:array<int,int>,after?:string,before?:string,status?:string,exclude_spam?:bool,starred?:bool,skip_access_check?:bool} $args Args.
 	 * @return int
 	 */
 	public static function count_entries( array $args = array() ) {
@@ -915,6 +993,11 @@ class Nestform_Submissions {
 					'compare' => 'IN',
 				);
 			}
+		}
+
+		$meta_query = self::apply_extra_form_scope( $meta_query, $args );
+		if ( false === $meta_query ) {
+			return 0;
 		}
 
 		$status = isset( $args['status'] ) ? sanitize_key( (string) $args['status'] ) : '';
@@ -1225,7 +1308,7 @@ class Nestform_Submissions {
 	/**
 	 * Query entries with optional status / form / pagination.
 	 *
-	 * @param array{form_id?:int,status?:string,limit?:int,paged?:int} $args Args.
+	 * @param array{form_id?:int,form_ids?:array<int,int>,exclude_form_ids?:array<int,int>,status?:string,limit?:int,paged?:int} $args Args.
 	 * @return array{posts: array<int, WP_Post>, total: int, pages: int, paged: int, per_page: int}
 	 */
 	public static function query_entries( array $args = array() ) {
@@ -1278,6 +1361,17 @@ class Nestform_Submissions {
 					'compare' => 'IN',
 				);
 			}
+		}
+
+		$meta_query = self::apply_extra_form_scope( $meta_query, $args );
+		if ( false === $meta_query ) {
+			return array(
+				'posts'    => array(),
+				'total'    => 0,
+				'pages'    => 1,
+				'paged'    => 1,
+				'per_page' => $per_page,
+			);
 		}
 
 		$status = isset( $args['status'] ) ? sanitize_key( (string) $args['status'] ) : '';
@@ -1456,21 +1550,52 @@ class Nestform_Submissions {
 			$status = '';
 		}
 
-		$all_n  = self::count_entries();
-		$new_n  = self::count_entries( array( 'status' => self::STATUS_NEW ) );
-		$read_n = self::count_entries( array( 'status' => self::STATUS_READ ) );
-		$spam_n = self::count_entries( array( 'status' => self::STATUS_SPAM ) );
+		/**
+		 * Optional Entries hub kind tabs (e.g. All / Forms / Jobs).
+		 *
+		 * @param array<string, string> $filters Map of kind key => label. Empty key = All.
+		 */
+		$kind_filters = (array) apply_filters( 'nestform_entries_kind_filters', array() );
+		$kind         = isset( $_GET['nestform_kind'] ) ? sanitize_key( wp_unslash( $_GET['nestform_kind'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( $kind !== '' && ! isset( $kind_filters[ $kind ] ) ) {
+			$kind = '';
+		}
+
+		/**
+		 * Merge form_ids / exclude_form_ids into Entries hub queries.
+		 *
+		 * @param array<string, mixed> $args Query args.
+		 * @param array{kind:string}   $ctx  Hub context.
+		 */
+		$scope = (array) apply_filters(
+			'nestform_entries_hub_query_args',
+			array(),
+			array(
+				'kind' => $kind,
+			)
+		);
+
+		$all_n  = self::count_entries( $scope );
+		$new_n  = self::count_entries( array_merge( $scope, array( 'status' => self::STATUS_NEW ) ) );
+		$read_n = self::count_entries( array_merge( $scope, array( 'status' => self::STATUS_READ ) ) );
+		$spam_n = self::count_entries( array_merge( $scope, array( 'status' => self::STATUS_SPAM ) ) );
 
 		$per_page = 20;
 		$paged    = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		$query = array(
-			'limit' => $per_page,
-			'paged' => $paged,
+		$query    = array_merge(
+			$scope,
+			array(
+				'limit' => $per_page,
+				'paged' => $paged,
+			)
 		);
 		$url_args = array();
+		if ( $kind !== '' ) {
+			$url_args['nestform_kind'] = $kind;
+		}
 		if ( $status !== '' ) {
-			$query['status']            = $status;
+			$query['status']             = $status;
 			$url_args['nestform_status'] = $status;
 		}
 
@@ -1495,6 +1620,8 @@ class Nestform_Submissions {
 			self::STATUS_SPAM => array( __( 'Spam', 'nestform' ), $spam_n ),
 		);
 
+		$kind_url_base = $kind !== '' ? array( 'nestform_kind' => $kind ) : array();
+
 		$lead_html = '';
 		if ( class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::LEAD_INSIGHTS ) ) {
 			/**
@@ -1511,6 +1638,7 @@ class Nestform_Submissions {
 					'new'  => $new_n,
 					'read' => $read_n,
 					'spam' => $spam_n,
+					'kind' => $kind,
 				)
 			);
 		}
@@ -1525,10 +1653,43 @@ class Nestform_Submissions {
 				)
 			);
 			?>
+			<?php if ( array() !== $kind_filters ) : ?>
+				<nav class="nestform-entries__kinds" role="navigation" aria-label="<?php esc_attr_e( 'Entry type', 'nestform' ); ?>">
+					<?php foreach ( $kind_filters as $kind_key => $kind_label ) : ?>
+						<?php
+						$kind_key = (string) $kind_key;
+						$k_args   = '' === $kind_key ? array() : array( 'nestform_kind' => $kind_key );
+						if ( $status !== '' ) {
+							$k_args['nestform_status'] = $status;
+						}
+						$k_url    = self::hub_url( $k_args );
+						$k_active = $kind === $kind_key;
+						$k_scope  = (array) apply_filters(
+							'nestform_entries_hub_query_args',
+							array(),
+							array(
+								'kind' => $kind_key,
+							)
+						);
+						$k_count = self::count_entries( $k_scope );
+						?>
+						<a
+							class="nestform-entries__kind<?php echo $k_active ? ' is-active' : ''; ?>"
+							href="<?php echo esc_url( $k_url ); ?>"
+							<?php echo $k_active ? ' aria-current="page"' : ''; ?>
+						>
+							<span class="nestform-entries__kind-label"><?php echo esc_html( (string) $kind_label ); ?></span>
+							<span class="nestform-entries__kind-count"><?php echo esc_html( number_format_i18n( $k_count ) ); ?></span>
+						</a>
+					<?php endforeach; ?>
+				</nav>
+			<?php endif; ?>
 			<div class="nestform-entries__stats" role="navigation" aria-label="<?php esc_attr_e( 'Filter entries', 'nestform' ); ?>">
 				<?php foreach ( $filters as $key => $meta ) : ?>
 					<?php
-					$url     = '' === $key ? self::hub_url() : self::hub_url( array( 'nestform_status' => $key ) );
+					$url     = '' === $key
+						? self::hub_url( $kind_url_base )
+						: self::hub_url( array_merge( $kind_url_base, array( 'nestform_status' => $key ) ) );
 					$active  = $status === (string) $key;
 					$mod     = '';
 					if ( self::STATUS_NEW === $key ) {
@@ -1556,9 +1717,9 @@ class Nestform_Submissions {
 			</div>
 			<?php if ( array() === $entries ) : ?>
 				<div class="nestform-hub__empty-state">
-					<?php if ( $status !== '' ) : ?>
+					<?php if ( $status !== '' || $kind !== '' ) : ?>
 						<p class="nestform-hub__empty-state-title"><?php esc_html_e( 'No matching entries', 'nestform' ); ?></p>
-						<p class="nestform-hub__empty-state-text"><?php esc_html_e( 'Try another status filter, or open a form inbox from All Forms.', 'nestform' ); ?></p>
+						<p class="nestform-hub__empty-state-text"><?php esc_html_e( 'Try another filter, or open a form inbox from All Forms.', 'nestform' ); ?></p>
 						<p>
 							<a class="nestform-btn nestform-btn--outline" href="<?php echo esc_url( self::hub_url() ); ?>">
 								<?php esc_html_e( 'Show all entries', 'nestform' ); ?>
@@ -2454,6 +2615,14 @@ class Nestform_Submissions {
 					<?php endif; ?>
 				</div>
 			</div>
+			<?php
+			/**
+			 * After entry status triage (addons: recruiting stage — keep high in the sidebar).
+			 *
+			 * @param WP_Post $post Entry post.
+			 */
+			do_action( 'nestform_entry_meta_after_triage', $post );
+			?>
 			<div class="nestform-entry-meta__rows">
 				<div class="nestform-entry-meta__row">
 					<span class="nestform-entry-meta__label"><?php esc_html_e( 'Entry ID', 'nestform' ); ?></span>
@@ -2489,6 +2658,14 @@ class Nestform_Submissions {
 					</div>
 				<?php endif; ?>
 			</div>
+			<?php
+			/**
+			 * After entry meta rows (addons: recruiting stage, etc.).
+			 *
+			 * @param WP_Post $post Entry post.
+			 */
+			do_action( 'nestform_entry_meta_after', $post );
+			?>
 		</div>
 		<?php
 	}

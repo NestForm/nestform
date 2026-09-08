@@ -220,6 +220,8 @@
 			options: {
 				responsive: true,
 				maintainAspectRatio: false,
+				devicePixelRatio: (window.devicePixelRatio || 1) > 1 ? window.devicePixelRatio : 1,
+				animation: false,
 				layout: {
 					padding: {
 						top: 18,

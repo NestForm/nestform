@@ -40,7 +40,7 @@ class Nestform_Integrations {
 	 * @return array<string, array{label:string,desc:string}>
 	 */
 	public static function sections() {
-		return array(
+		$sections = array(
 			'captcha' => array(
 				'label' => __( 'Captcha', 'nestform' ),
 				'desc'  => __( 'One site-wide captcha provider. Forms opt in under Spam & privacy.', 'nestform' ),
@@ -58,6 +58,13 @@ class Nestform_Integrations {
 				'desc'  => __( 'Webhooks and planned native connectors.', 'nestform' ),
 			),
 		);
+
+		/**
+		 * Filter Integrations sidebar sections (Pro modules, etc.).
+		 *
+		 * @param array<string, array{label:string,desc:string}> $sections Sections.
+		 */
+		return apply_filters( 'nestform_integrations_sections', $sections );
 	}
 
 	/**
@@ -169,8 +176,19 @@ class Nestform_Integrations {
 						<?php self::render_stripe_section( $s, $opt ); ?>
 					<?php elseif ( 'hubspot' === $section ) : ?>
 						<?php self::render_hubspot_section( $s, $opt ); ?>
-					<?php else : ?>
+					<?php elseif ( 'more' === $section ) : ?>
 						<?php self::render_more_section(); ?>
+					<?php else : ?>
+						<?php
+						/**
+						 * Render a custom Integrations section (e.g. Recruiting).
+						 *
+						 * @param string               $section Section id.
+						 * @param array<string, mixed> $s       Settings.
+						 * @param string               $opt     Option name.
+						 */
+						do_action( 'nestform_integrations_section', $section, $s, $opt );
+						?>
 					<?php endif; ?>
 				</div>
 			</div>

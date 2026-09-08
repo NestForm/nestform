@@ -4,7 +4,7 @@ Tags: forms, contact form, lead generation, survey, email
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.3.0
+Stable tag: 2.3.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -159,6 +159,14 @@ The phone country picker uses self-hosted SVG flags from [flag-icons](https://gi
 
 == Changelog ==
 
+= 2.3.2 =
+* Entries hub: optional All / Forms / Jobs kind filters via `nestform_entries_kind_filters` and `nestform_entries_hub_query_args` (form_ids / exclude_form_ids).
+* Sharper dashboard charts (no forced canvas stretch on retina).
+
+= 2.3.1 =
+* Addon hooks: `nestform_accessible_form_ids`, `nestform_user_can_manage_form_entries`, `nestform_templates`, `nestform_template_applied`, `nestform_entry_meta_after`.
+* Forms hub respects the same entry access allow-list (needed for Nestform HR and similar add-ons).
+
 = 2.3.0 =
 * Dashboard redesign: Work pulse (New / Read / Spam), quieter KPIs, Activity chart without duplicate status footers.
 * Top forms rail replaces Status mix; Recent activity uses a normal panel frame.
@@ -182,6 +190,12 @@ The phone country picker uses self-hosted SVG flags from [flag-icons](https://gi
 * WordPress.org compliance: premium runtime ships in Nestform Pro add-on only.
 
 == Upgrade Notice ==
+
+= 2.3.2 =
+Entries hub kind filters for Recruiting (All / Forms / Jobs) and sharper dashboard charts.
+
+= 2.3.1 =
+Addon access hooks for Nestform HR and similar recruiting/ownership add-ons.
 
 = 2.3.0 =
 Clearer dashboard: one inbox pulse, cleaner chart and Top forms, WordPress 7.1 tested.

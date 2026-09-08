@@ -105,6 +105,9 @@ class Nestform_Developers {
 			'nestform_extra_mail_sent' => __( 'After conditional extra mail (only if sent).', 'nestform' ),
 			'nestform_user_mail_sent'  => __( 'After visitor autoreply (only if sent).', 'nestform' ),
 			'nestform_webhook_sent'    => __( 'After each outbound webhook HTTP request.', 'nestform' ),
+			'nestform_entry_meta_after_triage' => __( 'After entry status triage (addons: recruiting stage).', 'nestform' ),
+			'nestform_entry_meta_after'=> __( 'After entry meta box rows.', 'nestform' ),
+			'nestform_template_applied'=> __( 'After a starter template is applied. Args: form_id, key.', 'nestform' ),
 		);
 	}
 
@@ -127,6 +130,11 @@ class Nestform_Developers {
 			'nestform_mail_args'           => __( 'Admin wp_mail() args.', 'nestform' ),
 			'nestform_extra_mail_args'     => __( 'Extra notification wp_mail() args.', 'nestform' ),
 			'nestform_user_mail_args'      => __( 'Visitor autoreply wp_mail() args.', 'nestform' ),
+			'nestform_accessible_form_ids' => __( 'Form IDs the user may inspect entries for (null = all).', 'nestform' ),
+			'nestform_user_can_manage_form_entries' => __( 'Whether a user may manage entries for a form.', 'nestform' ),
+			'nestform_entries_kind_filters' => __( 'Entries hub kind tabs (e.g. All / Forms / Jobs).', 'nestform' ),
+			'nestform_entries_hub_query_args' => __( 'Entries hub query args (form_ids / exclude_form_ids by kind).', 'nestform' ),
+			'nestform_templates'           => __( 'Starter form templates registry.', 'nestform' ),
 			'nestform_settings'            => __( 'Plugin-wide settings array.', 'nestform' ),
 			'nestform_webhook_payload'     => __( 'Webhook JSON body (per endpoint URL).', 'nestform' ),
 			'nestform_webhook_request_args'=> __( 'Webhook wp_remote_post() args (per endpoint URL).', 'nestform' ),

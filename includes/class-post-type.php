@@ -320,7 +320,27 @@ class Nestform_Post_Type {
 				'order'          => 'ASC',
 			)
 		);
-		return is_array( $forms ) ? $forms : array();
+		if ( ! is_array( $forms ) ) {
+			return array();
+		}
+		if ( ! class_exists( 'Nestform_Submissions' ) ) {
+			return $forms;
+		}
+		$allowed = Nestform_Submissions::accessible_form_ids();
+		if ( null === $allowed ) {
+			return $forms;
+		}
+		if ( array() === $allowed ) {
+			return array();
+		}
+		$map = array_fill_keys( array_map( 'intval', $allowed ), true );
+		$out = array();
+		foreach ( $forms as $form ) {
+			if ( isset( $map[ (int) $form->ID ] ) ) {
+				$out[] = $form;
+			}
+		}
+		return $out;
 	}
 
 	public static function render_hub() {
@@ -558,6 +578,42 @@ class Nestform_Post_Type {
 									<?php if ( $status ) : ?>
 										<span class="nestform-badge nestform-badge--<?php echo esc_attr( $status_mod ); ?>"><?php echo esc_html( strtoupper( $status->name ) ); ?></span>
 									<?php endif; ?>
+									<?php
+									/**
+									 * Extra form badges for the Forms hub (e.g. Job for Recruiting).
+									 *
+									 * Each item: label (string), url (string, optional), mod (string CSS modifier).
+									 *
+									 * @param array<int, array{label:string,url?:string,mod?:string}> $badges Badges.
+									 * @param WP_Post                                                   $form   Form post.
+									 */
+									$hub_badges = apply_filters( 'nestform_hub_form_badges', array(), $form );
+									if ( is_array( $hub_badges ) ) {
+										foreach ( $hub_badges as $badge ) {
+											if ( empty( $badge['label'] ) ) {
+												continue;
+											}
+											$mod  = isset( $badge['mod'] ) ? sanitize_html_class( (string) $badge['mod'] ) : '';
+											$url  = isset( $badge['url'] ) ? (string) $badge['url'] : '';
+											$cls  = 'nestform-badge' . ( $mod !== '' ? ' nestform-badge--' . $mod : '' );
+											$lbl  = (string) $badge['label'];
+											if ( $url !== '' ) {
+												printf(
+													'<a class="%1$s" href="%2$s" onclick="event.stopPropagation();">%3$s</a>',
+													esc_attr( $cls ),
+													esc_url( $url ),
+													esc_html( $lbl )
+												);
+											} else {
+												printf(
+													'<span class="%1$s">%2$s</span>',
+													esc_attr( $cls ),
+													esc_html( $lbl )
+												);
+											}
+										}
+									}
+									?>
 									<span class="nestform-hub__id">
 										<?php
 										echo esc_html(
@@ -594,6 +650,17 @@ class Nestform_Post_Type {
 								<a class="nestform-btn nestform-btn--outline" href="<?php echo esc_url( $edit_url ); ?>">
 									<?php esc_html_e( 'Edit', 'nestform' ); ?>
 								</a>
+								<?php
+								/**
+								 * Extra primary actions before the “more” menu (e.g. Candidates).
+								 *
+								 * @param string  $html      Escaped HTML.
+								 * @param WP_Post $form      Form post.
+								 * @param string  $entry_url Entries/candidates URL.
+								 */
+								$extra_actions = (string) apply_filters( 'nestform_hub_row_actions_before_more', '', $form, $entry_url );
+								echo $extra_actions; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- filter returns escaped HTML
+								?>
 								<div class="nestform-hub__more" data-nestform-hub-more>
 									<button
 										type="button"
@@ -605,8 +672,16 @@ class Nestform_Post_Type {
 										···
 									</button>
 									<div class="nestform-hub__more-menu" hidden>
-										<a class="nestform-btn nestform-btn--ghost" href="<?php echo esc_url( $entry_url ); ?>">
-											<?php esc_html_e( 'Entries', 'nestform' ); ?>
+										<a class="nestform-btn nestform-btn--ghost" href="<?php echo esc_url( $entry_url ); ?>" onclick="event.stopPropagation();">
+											<?php
+											/**
+											 * Label for the hub “Entries” action (Recruiting may use “Candidates”).
+											 *
+											 * @param string  $label Default label.
+											 * @param WP_Post $form  Form post.
+											 */
+											echo esc_html( (string) apply_filters( 'nestform_hub_entries_action_label', __( 'Entries', 'nestform' ), $form ) );
+											?>
 										</a>
 										<a class="nestform-btn nestform-btn--ghost" href="<?php echo esc_url( self::duplicate_url( (int) $form->ID ) ); ?>">
 											<?php esc_html_e( 'Duplicate', 'nestform' ); ?>

@@ -579,10 +579,9 @@ a.nestform-dash__kpi--link:focus {
     gap: var(--nestform-space-4);
 }
 
+/* Let Chart.js own canvas size — forcing 100% blurs on retina. */
 .nestform-dash__chart-canvas {
     display: block;
-    width: 100% !important;
-    height: 100% !important;
 }
 
 .nestform-dash__legend {

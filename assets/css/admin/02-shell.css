@@ -1169,6 +1169,19 @@ body.nestform-admin-screen .notice-dismiss::before {
     border: 1px solid var(--nestform-ok-border);
 }
 
+.nestform-badge--job {
+    background: var(--nestform-violet-soft);
+    color: var(--nestform-violet);
+    border: 1px solid var(--nestform-violet-line);
+    text-decoration: none;
+}
+
+.nestform-badge--job:hover,
+.nestform-badge--job:focus {
+    color: var(--nestform-pro);
+    border-color: var(--nestform-violet);
+}
+
 .nestform-badge--new,
 .nestform-entry-status--new {
     background: var(--nestform-accent-soft);
@@ -1306,6 +1319,8 @@ body.nestform-admin-screen .notice-dismiss::before {
     width: 112px;
     flex-shrink: 0;
     text-align: left;
+    display: flex;
+    align-items: center;
 }
 
 .nestform-hub__th--entries,
@@ -1313,15 +1328,18 @@ body.nestform-admin-screen .notice-dismiss::before {
     width: 72px;
     text-align: center;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .nestform-hub__th--actions,
 .nestform-hub__td--actions {
-    width: 120px;
+    width: 132px;
     flex-shrink: 0;
     display: flex;
     justify-content: flex-end;
-    gap: var(--nestform-space-1);
+    gap: var(--nestform-space-2);
     flex-wrap: nowrap;
     align-items: center;
 }
@@ -1532,12 +1550,18 @@ a.nestform-hub__count:focus {
 
 .nestform-hub__meta {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--nestform-space-2);
     align-items: center;
 }
 
+.nestform-hub__meta .nestform-badge {
+    flex-shrink: 0;
+}
+
 .nestform-hub__id {
-    font-size: 10.5px;
+    font-size: 11px;
+    line-height: 1.2;
     color: var(--nestform-faint);
 }
 

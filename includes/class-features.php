@@ -27,6 +27,7 @@ class Nestform_Features {
 	const AUTOMATIONS        = 'automations';
 	const PAYMENTS           = 'payments';
 	const HUBSPOT            = 'hubspot';
+	const RECRUITING         = 'recruiting';
 
 	/**
 	 * Registered Pro capabilities.
@@ -56,6 +57,7 @@ class Nestform_Features {
 			self::AUTOMATIONS,
 			self::PAYMENTS,
 			self::HUBSPOT,
+			self::RECRUITING,
 		);
 	}
 

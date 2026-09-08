@@ -24,7 +24,7 @@ class Nestform_Templates {
 		$admin = get_option( 'admin_email' );
 		$admin = is_string( $admin ) ? $admin : '';
 
-		return array(
+		$templates = array(
 			'contact'    => array(
 				'label'       => __( 'Contact', 'nestform' ),
 				'description' => __( 'Name, email, phone, message.', 'nestform' ),
@@ -1499,6 +1499,13 @@ class Nestform_Templates {
 				),
 			),
 		);
+
+		/**
+		 * Filter starter form templates (addons may register job application, etc.).
+		 *
+		 * @param array<string, array{label:string,description:string,config:array}> $templates Templates.
+		 */
+		return apply_filters( 'nestform_templates', $templates );
 	}
 
 	/**
@@ -1524,6 +1531,13 @@ class Nestform_Templates {
 			'settings' => array_merge( $current['settings'], $tpl['settings'] ),
 		);
 		Nestform_Form_Config::save( $form_id, $config );
+		/**
+		 * After a starter template is applied to a form.
+		 *
+		 * @param int    $form_id Form ID.
+		 * @param string $key     Template key.
+		 */
+		do_action( 'nestform_template_applied', $form_id, $key );
 		return true;
 	}
 

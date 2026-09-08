@@ -555,6 +555,60 @@ body.nestform-editor-app .nestform-add {
     margin: 0 0 var(--nestform-space-4);
 }
 
+.nestform-entries__kinds {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--nestform-space-4);
+    margin: 0 0 var(--nestform-space-4);
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid var(--nestform-border);
+}
+
+.nestform-entries__kind {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--nestform-space-2);
+    margin: 0;
+    padding: var(--nestform-space-2) 0;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    color: var(--nestform-muted);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: var(--nestform-line-height);
+    text-decoration: none;
+    transition: var(--nestform-transition);
+}
+
+.nestform-entries__kind:hover,
+.nestform-entries__kind:focus {
+    color: var(--nestform-ink);
+    background: transparent;
+    outline: none;
+    text-decoration: none;
+}
+
+.nestform-entries__kind.is-active {
+    color: var(--nestform-accent);
+    border-bottom-color: var(--nestform-accent);
+    font-weight: 600;
+}
+
+.nestform-entries__kind-count {
+    font-size: 12px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--nestform-faint);
+}
+
+.nestform-entries__kind.is-active .nestform-entries__kind-count {
+    color: var(--nestform-accent);
+}
+
 body.nestform-admin-screen .nestform-entries__stat,
 body.nestform-admin-screen a.nestform-entries__stat {
     display: block;

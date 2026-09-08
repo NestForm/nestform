@@ -13,23 +13,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$form_id = isset( $attributes['formId'] ) ? (int) $attributes['formId'] : 0;
-if ( $form_id <= 0 || ! class_exists( 'Nestform_Renderer' ) ) {
+$nestform_form_id = isset( $attributes['formId'] ) ? (int) $attributes['formId'] : 0;
+if ( $nestform_form_id <= 0 || ! class_exists( 'Nestform_Renderer' ) ) {
 	if ( current_user_can( 'edit_posts' ) ) {
 		echo '<p class="nestform-block nestform-block--empty">' . esc_html__( 'Select a Nestform in the block settings.', 'nestform' ) . '</p>';
 	}
 	return;
 }
 
-$wrapper = get_block_wrapper_attributes(
+$nestform_wrapper = get_block_wrapper_attributes(
 	array(
 		'class' => 'nestform-block',
 	)
 );
 
-$html = Nestform_Renderer::render( $form_id );
-if ( $html === '' ) {
+$nestform_html = Nestform_Renderer::render( $nestform_form_id );
+if ( $nestform_html === '' ) {
 	return;
 }
 
-echo '<div ' . $wrapper . '>' . $html . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderer returns escaped HTML.
+echo '<div ' . $nestform_wrapper . '>' . $nestform_html . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderer returns escaped HTML.

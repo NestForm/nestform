@@ -189,11 +189,11 @@ class Nestform_Captcha {
 		$field = $all[ $provider ]['field'];
 		$token = '';
 		if ( isset( $_POST[ $field ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- form nonce checked in submit handler
-			$token = trim( (string) wp_unslash( $_POST[ $field ] ) );
+			$token = sanitize_text_field( wp_unslash( $_POST[ $field ] ) );
 		}
 		// Shared fallback used by some caches / older markup.
 		if ( $token === '' && isset( $_POST['g-recaptcha-response'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-			$token = trim( (string) wp_unslash( $_POST['g-recaptcha-response'] ) );
+			$token = sanitize_text_field( wp_unslash( $_POST['g-recaptcha-response'] ) );
 		}
 
 		if ( $token === '' ) {
@@ -268,7 +268,7 @@ class Nestform_Captcha {
 			$src .= '?render=' . rawurlencode( self::$site_key );
 		}
 
-		wp_enqueue_script( $handle, $src, array(), null, true );
+		wp_enqueue_script( $handle, $src, array(), defined( 'NESTFORM_VERSION' ) ? NESTFORM_VERSION : '1.0.0', true );
 		wp_localize_script(
 			'nestform-front',
 			'nestformCaptcha',

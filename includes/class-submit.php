@@ -59,12 +59,12 @@ class Nestform_Submit {
 		}
 
 		// Honeypot.
-		$hp = isset( $_POST['nestform_hp'] ) ? trim( (string) wp_unslash( $_POST['nestform_hp'] ) ) : '';
+		$hp = isset( $_POST['nestform_hp'] ) ? sanitize_text_field( wp_unslash( $_POST['nestform_hp'] ) ) : '';
 		if ( '' === $hp && isset( $_POST['liteforms_hp'] ) ) {
-			$hp = trim( (string) wp_unslash( $_POST['liteforms_hp'] ) );
+			$hp = sanitize_text_field( wp_unslash( $_POST['liteforms_hp'] ) );
 		}
 		if ( '' === $hp && isset( $_POST['vite_forms_hp'] ) ) {
-			$hp = trim( (string) wp_unslash( $_POST['vite_forms_hp'] ) );
+			$hp = sanitize_text_field( wp_unslash( $_POST['vite_forms_hp'] ) );
 		}
 		$ip = self::client_ip();
 
@@ -330,7 +330,7 @@ class Nestform_Submit {
 	 * @return bool
 	 */
 	private static function is_preview_submit( $form_id ) {
-		if ( empty( $_POST['nestform_preview'] ) || '1' !== (string) wp_unslash( $_POST['nestform_preview'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( empty( $_POST['nestform_preview'] ) || '1' !== sanitize_text_field( wp_unslash( (string) $_POST['nestform_preview'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			return false;
 		}
 
@@ -1476,8 +1476,8 @@ class Nestform_Submit {
 	 * @return string
 	 */
 	private static function client_ip() {
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? (string) $_SERVER['REMOTE_ADDR'] : '';
-		return sanitize_text_field( $ip );
+		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) ) : '';
+		return $ip;
 	}
 
 	/**

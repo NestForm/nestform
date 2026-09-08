@@ -40,7 +40,7 @@ class Nestform_Security {
 	 * @return bool
 	 */
 	public static function is_rate_limited( $bucket, $max = 30, $window = MINUTE_IN_SECONDS ) {
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( (string) $_SERVER['REMOTE_ADDR'] ) : '';
+		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) ) : '';
 		$key = 'nestform_sec_rl_' . md5( (string) $bucket . '|' . $ip );
 		$count = (int) get_transient( $key );
 		if ( $count >= (int) $max ) {

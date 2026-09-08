@@ -492,7 +492,7 @@ class Nestform_Submissions {
 		if ( $current !== '' && ! isset( self::status_labels()[ $current ] ) ) {
 			$current = '';
 		}
-		$starred_only = isset( $_GET['starred'] ) && '1' === (string) wp_unslash( $_GET['starred'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$starred_only = isset( $_GET['starred'] ) && '1' === sanitize_text_field( wp_unslash( (string) $_GET['starred'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		$out   = array();
 		$all_n = self::count_for_form( $form_id );
@@ -1801,7 +1801,7 @@ class Nestform_Submissions {
 			wp_die( esc_html__( 'You do not have permission to view entries.', 'nestform' ) );
 		}
 
-		$want_summary = isset( $_GET['summary'] ) && '1' === (string) wp_unslash( $_GET['summary'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$want_summary = isset( $_GET['summary'] ) && '1' === sanitize_text_field( wp_unslash( (string) $_GET['summary'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( $want_summary && class_exists( 'Nestform_Response_Summary' ) && Nestform_Response_Summary::render_summary_screen() ) {
 			return;
 		}
@@ -2374,7 +2374,7 @@ class Nestform_Submissions {
 		}
 
 		$status_filter = isset( $_GET['nestform_status'] ) ? sanitize_key( wp_unslash( $_GET['nestform_status'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$starred       = isset( $_GET['starred'] ) && '1' === (string) wp_unslash( $_GET['starred'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$starred       = isset( $_GET['starred'] ) && '1' === sanitize_text_field( wp_unslash( (string) $_GET['starred'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		echo '<span class="nestform-entries-toolbar">';
 		printf(
@@ -2510,7 +2510,7 @@ class Nestform_Submissions {
 				);
 			}
 		}
-		$starred_only = isset( $_GET['starred'] ) && '1' === (string) wp_unslash( $_GET['starred'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$starred_only = isset( $_GET['starred'] ) && '1' === sanitize_text_field( wp_unslash( (string) $_GET['starred'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( $starred_only ) {
 			$meta_query[] = array(
 				'key'   => self::META_STARRED,

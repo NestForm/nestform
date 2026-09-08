@@ -796,7 +796,7 @@ class Nestform_Settings {
 			);
 			settings_errors();
 			self::render_test_email_notice();
-			if ( isset( $_GET['theme-updated'] ) && '1' === (string) wp_unslash( $_GET['theme-updated'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( isset( $_GET['theme-updated'] ) && '1' === sanitize_text_field( wp_unslash( (string) $_GET['theme-updated'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Admin appearance saved.', 'nestform' ) . '</p></div>';
 			}
 			?>

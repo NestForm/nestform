@@ -873,8 +873,6 @@ require_once NESTFORM_PATH . 'includes/class-elementor.php';
 add_action(
 	'plugins_loaded',
 	static function () {
-		load_plugin_textdomain( 'nestform', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-
 		Nestform_Migration::init();
 		Nestform_Compat::init();
 		Nestform_Capabilities::init();

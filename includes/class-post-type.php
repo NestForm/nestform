@@ -609,7 +609,6 @@ class Nestform_Post_Type {
 											<?php esc_html_e( 'Entries', 'nestform' ); ?>
 										</a>
 										<a class="nestform-btn nestform-btn--ghost" href="<?php echo esc_url( self::duplicate_url( (int) $form->ID ) ); ?>">
-											<?php nestform_admin_icon( 'copy' ); ?>
 											<?php esc_html_e( 'Duplicate', 'nestform' ); ?>
 										</a>
 										<?php if ( class_exists( 'Nestform_Form_IO' ) ) : ?>

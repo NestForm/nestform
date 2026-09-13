@@ -1498,6 +1498,567 @@ class Nestform_Templates {
 					),
 				),
 			),
+			'restaurant_reservation' => array(
+				'label'       => __( 'Restaurant reservation', 'nestform' ),
+				'description' => __( 'Table booking with date, time, and party size.', 'nestform' ),
+				'category'    => 'other',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'tel',
+							'name'     => 'phone',
+							'label'    => 'Phone',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'number',
+							'name'     => 'guests',
+							'label'    => 'Guests',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'date',
+							'name'     => 'date',
+							'label'    => 'Date',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'time',
+							'name'     => 'time',
+							'label'    => 'Time',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'notes',
+							'label'    => 'Special requests (optional)',
+							'required' => false,
+							'width'    => 'full',
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Reserve table',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Reservation: {date} · {guests} guests',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'product_review' => array(
+				'label'       => __( 'Product review', 'nestform' ),
+				'description' => __( 'Star rating, product name, and written review.', 'nestform' ),
+				'category'    => 'survey',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'product',
+							'label'    => 'Product name',
+							'required' => true,
+							'width'    => 'full',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'radio',
+							'name'     => 'rating',
+							'label'    => 'Your rating',
+							'required' => true,
+							'options'  => "5 — Excellent\n4 — Good\n3 — Average\n2 — Poor\n1 — Terrible",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'text',
+							'name'     => 'title',
+							'label'    => 'Review title',
+							'required' => false,
+							'width'    => 'full',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'review',
+							'label'    => 'Your review',
+							'required' => true,
+							'width'    => 'full',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email (optional)',
+							'required' => false,
+							'width'    => 'full',
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Submit review',
+						'form_mode'    => 'survey',
+						'store_ip'     => '0',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Review: {product} ({rating})',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'giveaway' => array(
+				'label'       => __( 'Giveaway / contest', 'nestform' ),
+				'description' => __( 'Contest entry with email and consent.', 'nestform' ),
+				'category'    => 'other',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'text',
+							'name'     => 'handle',
+							'label'    => 'Social handle (optional)',
+							'required' => false,
+							'width'    => 'full',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'heard_from',
+							'label'    => 'How did you find this giveaway?',
+							'required' => false,
+							'width'    => 'full',
+							'options'  => "Instagram\nFacebook\nEmail\nFriend\nOther",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'acceptance',
+							'name'     => 'rules',
+							'label'    => 'I agree to the contest rules and privacy policy.',
+							'required' => true,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Enter giveaway',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Giveaway entry: {email}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'gdpr_request' => array(
+				'label'       => __( 'GDPR data request', 'nestform' ),
+				'description' => __( 'Access, export, or delete personal data.', 'nestform' ),
+				'category'    => 'contact',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email on file',
+							'required' => true,
+							'width'    => 'full',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'request_type',
+							'label'    => 'Request type',
+							'required' => true,
+							'width'    => 'full',
+							'options'  => "Access my data\nExport my data\nCorrect my data\nDelete my data\nOther",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'details',
+							'label'    => 'Additional details',
+							'required' => false,
+							'width'    => 'full',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'acceptance',
+							'name'     => 'identity',
+							'label'    => 'I confirm I am the account holder for this email.',
+							'required' => true,
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Submit request',
+						'enable_steps' => '0',
+						'store_ip'     => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'GDPR: {request_type}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'multi_step_intake' => array(
+				'label'       => __( 'Multi-step intake', 'nestform' ),
+				'description' => __( 'Contact, project scope, then files (Pro).', 'nestform' ),
+				'category'    => 'lead',
+				'requires'    => array( 'multi_step' ),
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'heading',
+							'name'     => 'h_about',
+							'label'    => 'About you',
+							'options'  => 'h2',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Full name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'text',
+							'name'     => 'company',
+							'label'    => 'Company',
+							'required' => false,
+							'width'    => 'full',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'heading',
+							'name'     => 'h_project',
+							'label'    => 'Project',
+							'options'  => 'h2',
+							'step'     => 2,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'service',
+							'label'    => 'What do you need?',
+							'required' => true,
+							'width'    => 'half',
+							'options'  => "Website\nBrand\nApp\nOther",
+							'step'     => 2,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'budget',
+							'label'    => 'Budget range',
+							'required' => false,
+							'width'    => 'half',
+							'options'  => "Under $5k\n$5k–$15k\n$15k–$50k\n$50k+",
+							'step'     => 2,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'goals',
+							'label'    => 'Goals and context',
+							'required' => true,
+							'width'    => 'full',
+							'step'     => 2,
+						),
+						array(
+							'type'     => 'heading',
+							'name'     => 'h_files',
+							'label'    => 'Files',
+							'options'  => 'h2',
+							'step'     => 3,
+						),
+						array(
+							'type'     => 'file',
+							'name'     => 'brief',
+							'label'    => 'Brief or references (optional)',
+							'required' => false,
+							'width'    => 'full',
+							'step'     => 3,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'notes',
+							'label'    => 'Anything else?',
+							'required' => false,
+							'width'    => 'full',
+							'step'     => 3,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Submit intake',
+						'enable_steps' => '1',
+						'step_labels'  => "About you\nProject\nFiles",
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Intake: {name} — {service}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'real_estate' => array(
+				'label'       => __( 'Real estate inquiry', 'nestform' ),
+				'description' => __( 'Property type, budget, and contact details.', 'nestform' ),
+				'category'    => 'lead',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Full name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'tel',
+							'name'     => 'phone',
+							'label'    => 'Phone',
+							'required' => false,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'looking_for',
+							'label'    => 'Looking to',
+							'required' => true,
+							'width'    => 'half',
+							'options'  => "Buy\nRent\nSell\nInvest",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'property_type',
+							'label'    => 'Property type',
+							'required' => true,
+							'width'    => 'half',
+							'options'  => "Apartment\nHouse\nCondo\nCommercial\nLand",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'budget',
+							'label'    => 'Budget',
+							'required' => false,
+							'width'    => 'half',
+							'options'  => "Under $250k\n$250k–$500k\n$500k–$1M\n$1M+",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'text',
+							'name'     => 'location',
+							'label'    => 'Preferred area',
+							'required' => false,
+							'width'    => 'full',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'notes',
+							'label'    => 'Notes',
+							'required' => false,
+							'width'    => 'full',
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Send inquiry',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Real estate: {looking_for} · {property_type}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'course_enrollment' => array(
+				'label'       => __( 'Course enrollment', 'nestform' ),
+				'description' => __( 'Sign up for a class with experience level.', 'nestform' ),
+				'category'    => 'other',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Full name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'course',
+							'label'    => 'Course',
+							'required' => true,
+							'width'    => 'half',
+							'options'  => "Intro\nIntermediate\nAdvanced\nWorkshop",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'select',
+							'name'     => 'experience',
+							'label'    => 'Experience level',
+							'required' => true,
+							'width'    => 'half',
+							'options'  => "Beginner\nSome experience\nAdvanced",
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'goals',
+							'label'    => 'What do you want to learn?',
+							'required' => false,
+							'width'    => 'full',
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Enroll',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Enrollment: {course} — {name}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
+			'content_pitch' => array(
+				'label'       => __( 'Content tip / pitch', 'nestform' ),
+				'description' => __( 'Guest post or story pitch with link.', 'nestform' ),
+				'category'    => 'other',
+				'config'      => array(
+					'fields'   => array(
+						array(
+							'type'     => 'text',
+							'name'     => 'name',
+							'label'    => 'Your name',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'email',
+							'name'     => 'email',
+							'label'    => 'Email',
+							'required' => true,
+							'width'    => 'half',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'text',
+							'name'     => 'title',
+							'label'    => 'Proposed title',
+							'required' => true,
+							'width'    => 'full',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'url',
+							'name'     => 'link',
+							'label'    => 'Portfolio or draft URL',
+							'required' => false,
+							'width'    => 'full',
+							'step'     => 1,
+						),
+						array(
+							'type'     => 'textarea',
+							'name'     => 'pitch',
+							'label'    => 'Pitch / summary',
+							'required' => true,
+							'width'    => 'full',
+							'step'     => 1,
+						),
+					),
+					'settings' => array(
+						'submit_label' => 'Send pitch',
+						'enable_steps' => '0',
+					),
+					'mail'     => array(
+						'to'             => $admin,
+						'subject'        => 'Pitch: {title}',
+						'reply_to_field' => 'email',
+						'body_template'  => "{all_fields}\n",
+					),
+				),
+			),
 		);
 
 		/**
@@ -1544,23 +2105,72 @@ class Nestform_Templates {
 	/**
 	 * Whether a template may be applied with current capabilities.
 	 *
+	 * Free never lists or applies Pro templates (explicit requires + inferred from config).
+	 *
 	 * @param string $key Template key.
 	 * @return bool
 	 */
 	public static function template_allowed( $key ) {
 		$all = self::all();
-		if ( ! isset( $all[ $key ] ) ) {
+		if ( ! isset( $all[ $key ] ) || ! is_array( $all[ $key ] ) ) {
 			return false;
 		}
-		$requires = isset( $all[ $key ]['requires'] ) && is_array( $all[ $key ]['requires'] )
-			? $all[ $key ]['requires']
-			: array();
-		foreach ( $requires as $feature ) {
+		foreach ( self::required_features_for_template( $all[ $key ] ) as $feature ) {
 			if ( ! class_exists( 'Nestform_Features' ) || ! Nestform_Features::can( (string) $feature ) ) {
 				return false;
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Feature keys a template needs (declared + inferred from fields/settings).
+	 *
+	 * @param array<string, mixed> $tpl Template row.
+	 * @return array<int, string>
+	 */
+	public static function required_features_for_template( array $tpl ) {
+		$features = array();
+		if ( isset( $tpl['requires'] ) && is_array( $tpl['requires'] ) ) {
+			foreach ( $tpl['requires'] as $feature ) {
+				$feature = sanitize_key( (string) $feature );
+				if ( '' !== $feature ) {
+					$features[] = $feature;
+				}
+			}
+		}
+
+		$config   = isset( $tpl['config'] ) && is_array( $tpl['config'] ) ? $tpl['config'] : array();
+		$settings = isset( $config['settings'] ) && is_array( $config['settings'] ) ? $config['settings'] : array();
+		$fields   = isset( $config['fields'] ) && is_array( $config['fields'] ) ? $config['fields'] : array();
+
+		if ( ! empty( $settings['enable_steps'] ) && '1' === (string) $settings['enable_steps'] ) {
+			$features[] = Nestform_Features::MULTI_STEP;
+		}
+
+		$form_mode = isset( $settings['form_mode'] ) ? sanitize_key( (string) $settings['form_mode'] ) : 'form';
+		if ( in_array( $form_mode, array( 'quiz', 'survey' ), true ) ) {
+			// Survey mode is free for simple templates; quiz scoring needs Pro.
+			if ( 'quiz' === $form_mode ) {
+				$features[] = Nestform_Features::QUIZ_SURVEY;
+			}
+		}
+
+		foreach ( $fields as $field ) {
+			if ( ! is_array( $field ) ) {
+				continue;
+			}
+			$type = isset( $field['type'] ) ? sanitize_key( (string) $field['type'] ) : '';
+			if ( '' === $type || ! class_exists( 'Nestform_Features' ) || ! Nestform_Features::is_pro_field_type( $type ) ) {
+				continue;
+			}
+			$cap = Nestform_Features::capability_for_field_type( $type );
+			if ( '' !== $cap ) {
+				$features[] = $cap;
+			}
+		}
+
+		return array_values( array_unique( $features ) );
 	}
 
 	/**

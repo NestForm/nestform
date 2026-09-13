@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Nestform
  * Plugin URI: https://nestform.app
- * Description: Build forms, quizzes and surveys for WordPress that convert — entries inbox, email, spam protection, and analytics.
+ * Description: Build WordPress lead and contact forms with an entries inbox, email alerts, spam protection, webhooks, and analytics.
  * Version: 2.3.2
  * Requires at least: 6.0
  * Requires PHP: 7.4

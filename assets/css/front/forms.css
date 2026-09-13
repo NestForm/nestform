@@ -64,10 +64,39 @@
 
 .nest-form__field {
 	width: 100%;
+	box-sizing: border-box;
+}
+
+.nest-form__field--half,
+.nest-form__field--third,
+.nest-form__field--two-thirds,
+.nest-form__field--quarter,
+.nest-form__field--custom {
+	width: calc(
+		var(--nest-form-field-basis, 50%) -
+			(var(--nest-form-gap, 1rem) * (1 - var(--nest-form-field-ratio, 0.5)))
+	);
+	max-width: 100%;
 }
 
 .nest-form__field--half {
-	width: calc(50% - 0.5rem);
+	--nest-form-field-basis: 50%;
+	--nest-form-field-ratio: 0.5;
+}
+
+.nest-form__field--third {
+	--nest-form-field-basis: 33.333%;
+	--nest-form-field-ratio: 0.33333;
+}
+
+.nest-form__field--two-thirds {
+	--nest-form-field-basis: 66.667%;
+	--nest-form-field-ratio: 0.66667;
+}
+
+.nest-form__field--quarter {
+	--nest-form-field-basis: 25%;
+	--nest-form-field-ratio: 0.25;
 }
 
 /* Layout blocks (heading, image, HTML) — display only, not submitted */
@@ -311,7 +340,11 @@
 }
 
 @media (max-width: 640px) {
-	.nest-form__field--half {
+	.nest-form__field--half,
+	.nest-form__field--third,
+	.nest-form__field--two-thirds,
+	.nest-form__field--quarter,
+	.nest-form__field--custom {
 		width: 100%;
 	}
 }

@@ -408,8 +408,11 @@ body.nestform-editor-app .nestform-steps-setup.nestform-admin__surface {
 
 body.nestform-editor-app
     .nestform-steps-setup.nestform-admin__surface:not(.is-on) {
-    padding-top: var(--nestform-space-1);
-    padding-bottom: var(--nestform-space-1);
+    align-self: flex-start;
+    width: fit-content;
+    max-width: 100%;
+    padding: var(--nestform-space-2) var(--nestform-space-4);
+    background: var(--nestform-soft);
 }
 
 body.nestform-editor-app .nestform-admin__quick-add.nestform-admin__surface {
@@ -585,11 +588,15 @@ body.nestform-editor-app .nestform-add {
 }
 
 .nestform-entries__kind:hover,
-.nestform-entries__kind:focus {
+.nestform-entries__kind:focus-visible {
     color: var(--nestform-ink);
-    background: var(--nestform-hover);
+    background: transparent;
     outline: none;
     text-decoration: none;
+}
+
+.nestform-entries__kind:focus:not(:focus-visible) {
+    outline: none;
 }
 
 .nestform-entries__kind.is-active {
@@ -606,7 +613,7 @@ body.nestform-editor-app .nestform-add {
 }
 
 .nestform-entries__kind:hover .nestform-entries__kind-count,
-.nestform-entries__kind:focus .nestform-entries__kind-count {
+.nestform-entries__kind:focus-visible .nestform-entries__kind-count {
     color: var(--nestform-muted);
 }
 
@@ -667,7 +674,9 @@ body.nestform-admin-screen a.nestform-entries__stat.is-active {
 body.nestform-admin-screen
     a.nestform-entries__stat--new.is-active
     .nestform-entries__stat-value,
-body.nestform-admin-screen .nestform-entries__stat--new .nestform-entries__stat-value {
+body.nestform-admin-screen
+    .nestform-entries__stat--new
+    .nestform-entries__stat-value {
     color: var(--nestform-accent);
 }
 
@@ -1280,7 +1289,7 @@ body.nestform-app-screen .wrap.nestform-license {
     display: grid;
     grid-template-columns: minmax(0, 1.4fr) minmax(220px, 0.8fr);
     gap: var(--nestform-space-4);
-    align-items: stretch;
+    align-items: flex-start;
 }
 
 .nestform-license__card {
@@ -1727,6 +1736,12 @@ a:focus .plugin-icon,
 .nestform-templates__card--locked {
     cursor: default;
     opacity: 0.72;
+}
+
+body.wp-core-ui
+    .nestform-templates__search
+    .nestform-templates__search-input.nestform-admin__input {
+    padding-left: 40px !important;
 }
 
 .nestform-admin__check--full {

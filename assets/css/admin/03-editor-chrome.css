@@ -236,6 +236,8 @@ body.nestform-admin-screen.post-type-nestform
 }
 
 .nestform-steps-setup.nestform-admin__surface:not(.is-on) {
-    padding-top: var(--nestform-space-1);
-    padding-bottom: var(--nestform-space-1);
+    width: fit-content;
+    max-width: 100%;
+    padding: var(--nestform-space-2) var(--nestform-space-4);
+    background: var(--nestform-soft);
 }

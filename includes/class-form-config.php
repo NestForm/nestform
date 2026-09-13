@@ -1447,10 +1447,9 @@ class Nestform_Form_Config {
 				return null;
 			}
 		}
-		$width = isset( $row['width'] ) ? sanitize_key( (string) $row['width'] ) : 'full';
-		if ( ! in_array( $width, array( 'full', 'half' ), true ) ) {
-			$width = 'full';
-		}
+		$width_pack   = self::sanitize_field_width( $row['width'] ?? 'full', $row['width_custom'] ?? 50 );
+		$width        = $width_pack['width'];
+		$width_custom = $width_pack['width_custom'];
 		$step = isset( $row['step'] ) ? (int) $row['step'] : 1;
 		if ( $step < 1 ) {
 			$step = 1;
@@ -1532,6 +1531,7 @@ class Nestform_Form_Config {
 			'required'        => $required,
 			'enabled'         => $enabled,
 			'width'           => $width,
+			'width_custom'    => $width_custom,
 			'options'         => $options,
 			'allow_other'     => ! empty( $row['allow_other'] ) && in_array( $type, array( 'select', 'radio', 'checkboxes' ), true ),
 			'other_label'     => in_array( $type, array( 'select', 'radio', 'checkboxes' ), true )
@@ -2179,6 +2179,84 @@ class Nestform_Form_Config {
 			'lastname'  => __( 'Last name', 'nestform' ),
 			'phone'     => __( 'Phone', 'nestform' ),
 			'company'   => __( 'Company', 'nestform' ),
+		);
+	}
+
+	/**
+	 * Field width presets (stored keys → labels).
+	 *
+	 * @return array<string, string>
+	 */
+	public static function field_width_presets() {
+		return array(
+			'full'       => __( 'Full', 'nestform' ),
+			'half'       => __( 'Half', 'nestform' ),
+			'third'      => __( 'One third', 'nestform' ),
+			'two_thirds' => __( 'Two thirds', 'nestform' ),
+			'quarter'    => __( 'Quarter', 'nestform' ),
+			'custom'     => __( 'Custom…', 'nestform' ),
+		);
+	}
+
+	/**
+	 * Sanitize width + optional custom percent (1–100).
+	 *
+	 * @param mixed $width  Preset key.
+	 * @param mixed $custom Custom percent.
+	 * @return array{width: string, width_custom: int}
+	 */
+	public static function sanitize_field_width( $width, $custom = 50 ) {
+		$width = sanitize_key( (string) $width );
+		if ( ! array_key_exists( $width, self::field_width_presets() ) ) {
+			$width = 'full';
+		}
+		$pct = (int) $custom;
+		if ( $pct < 1 || $pct > 100 ) {
+			$pct = 50;
+		}
+		return array(
+			'width'        => $width,
+			'width_custom' => $pct,
+		);
+	}
+
+	/**
+	 * CSS class suffix + optional inline style vars for a field width.
+	 *
+	 * @param array<string, mixed> $field Field row.
+	 * @return array{class: string, style: string}
+	 */
+	public static function field_width_presentation( array $field ) {
+		$pack   = self::sanitize_field_width( $field['width'] ?? 'full', $field['width_custom'] ?? 50 );
+		$width  = $pack['width'];
+		$class  = str_replace( '_', '-', $width );
+		$style  = '';
+		$ratios = array(
+			'half'       => array( '50%', 0.5 ),
+			'third'      => array( '33.333%', 0.33333 ),
+			'two_thirds' => array( '66.667%', 0.66667 ),
+			'quarter'    => array( '25%', 0.25 ),
+		);
+
+		if ( isset( $ratios[ $width ] ) ) {
+			$style = sprintf(
+				'--nest-form-field-basis:%1$s;--nest-form-field-ratio:%2$s;',
+				$ratios[ $width ][0],
+				(string) $ratios[ $width ][1]
+			);
+		} elseif ( 'custom' === $width ) {
+			$pct   = $pack['width_custom'];
+			$ratio = round( $pct / 100, 5 );
+			$style = sprintf(
+				'--nest-form-field-basis:%1$d%%;--nest-form-field-ratio:%2$s;',
+				$pct,
+				(string) $ratio
+			);
+		}
+
+		return array(
+			'class' => $class,
+			'style' => $style,
 		);
 	}
 

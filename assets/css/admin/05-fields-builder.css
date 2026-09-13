@@ -115,19 +115,29 @@
 }
 
 .nestform-card.is-collapsed .nestform-card__header:hover .nestform-card__btn,
-.nestform-card.is-collapsed .nestform-card__header:hover .nestform-card__toggle {
+.nestform-card.is-collapsed
+    .nestform-card__header:hover
+    .nestform-card__toggle {
     background: var(--nestform-surface);
 }
 
-.nestform-card.is-collapsed .nestform-card__header:hover .nestform-card__btn:hover:not(.nestform-card__btn--danger),
-.nestform-card.is-collapsed .nestform-card__header:hover .nestform-card__btn:focus:not(.nestform-card__btn--danger) {
+.nestform-card.is-collapsed
+    .nestform-card__header:hover
+    .nestform-card__btn:hover:not(.nestform-card__btn--danger),
+.nestform-card.is-collapsed
+    .nestform-card__header:hover
+    .nestform-card__btn:focus:not(.nestform-card__btn--danger) {
     border-color: var(--nestform-hover-border);
     color: var(--nestform-accent-dark);
     box-shadow: var(--nestform-shadow);
 }
 
-.nestform-card.is-collapsed .nestform-card__header:hover .nestform-card__btn--danger:hover,
-.nestform-card.is-collapsed .nestform-card__header:hover .nestform-card__btn--danger:focus {
+.nestform-card.is-collapsed
+    .nestform-card__header:hover
+    .nestform-card__btn--danger:hover,
+.nestform-card.is-collapsed
+    .nestform-card__header:hover
+    .nestform-card__btn--danger:focus {
     background: var(--nestform-danger-soft);
     border-color: var(--nestform-danger-border);
     color: var(--nestform-danger);
@@ -304,6 +314,12 @@
     text-align: left;
     cursor: pointer;
     transition: var(--nestform-transition);
+}
+
+.nestform-card__title-btn:focus-visible {
+    background: var(--nestform-surface);
+    border: 1px solid var(--nestform-hover-border);
+    box-shadow: var(--nestform-shadow);
 }
 
 .nestform-card__title-btn:hover {
@@ -599,11 +615,8 @@
     margin: 0;
     padding: var(--nestform-space-4) var(--nestform-space-4);
     border-top: 1px solid var(--nestform-border);
-    background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.92) 0%,
-        var(--nestform-soft) 28%
-    );
+    /* Admin chrome — follow theme tokens (no hardcoded light wash). */
+    background: color-mix(in srgb, var(--nestform-soft) 88%, transparent);
     backdrop-filter: blur(4px);
 }
 
@@ -620,19 +633,21 @@
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--nestform-faint);
+    color: var(--nestform-muted);
 }
 
 .nestform-card__preview-note {
     font-size: 11px;
-    color: var(--nestform-faint);
+    color: var(--nestform-muted);
 }
 
 .nestform-card__preview-stage {
     padding: var(--nestform-space-4);
-    border: 1px solid var(--nestform-border);
+    /* Front-form canvas: keep appearance surface, not admin surface. */
+    border: 1px solid var(--nest-form-border, var(--nestform-border));
     border-radius: var(--nestform-radius);
-    background: var(--nestform-surface);
+    background: var(--nest-form-surface, #ffffff);
+    color: var(--nest-form-text, var(--nestform-ink));
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
 }
 
@@ -1672,11 +1687,16 @@
 }
 
 .nestform-steps-setup:not(.is-on) {
-    padding-top: var(--nestform-space-1);
-    padding-bottom: var(--nestform-space-1);
+    align-self: flex-start;
+    width: fit-content;
+    max-width: 100%;
+    padding: var(--nestform-space-2) var(--nestform-space-4);
+    background: var(--nestform-soft);
+    border-color: var(--nestform-border);
 }
 
 .nestform-steps-setup.is-on {
+    width: 100%;
     border-color: var(--nestform-accent-line);
     background: color-mix(
         in srgb,
@@ -1691,6 +1711,10 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--nestform-space-2) var(--nestform-space-4);
+}
+
+.nestform-steps-setup:not(.is-on) .nestform-steps-setup__bar {
+    justify-content: flex-start;
 }
 
 .nestform-steps-setup__toggle {
@@ -1731,16 +1755,13 @@
     line-height: var(--nestform-line-height);
 }
 
-.nestform-steps-setup:not(.is-on) .nestform-steps-setup__toggle-desc {
+/* Off: keep short hint so the control isn’t a lonely switch. On: tools replace it. */
+.nestform-steps-setup.is-on .nestform-steps-setup__toggle-desc {
     display: none;
 }
 
 .nestform-steps-setup--locked .nestform-steps-setup__toggle {
     cursor: pointer;
-}
-
-.nestform-steps-setup.is-on .nestform-steps-setup__toggle-desc {
-    display: none;
 }
 
 .nestform-steps-setup__tools {

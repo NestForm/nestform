@@ -2076,7 +2076,7 @@ class Nestform_Admin_UI {
 							<li><code>.nest-form__input</code> / <code>.input</code> / <code>.textarea</code></li>
 							<li><code>.nest-form__submit</code> / <code>.nest-form__next</code> / <code>.nest-form__prev</code></li>
 							<li><code>.nest-form__field--{type}</code> — <?php esc_html_e( 'e.g. email, tel, select', 'nestform' ); ?></li>
-							<li><code>.nest-form__field--half</code></li>
+							<li><code>.nest-form__field--half</code> / <code>--third</code> / <code>--two-thirds</code> / <code>--quarter</code> / <code>--custom</code></li>
 							<li><code>.nest-form__progress</code> / <code>.nest-form__progress-fill</code></li>
 							<li><code>.nest-form-select__trigger</code> / <code>.nest-form-select__list</code></li>
 							<li><code>.nest-form__status--success</code> / <code>.nest-form__status--error</code></li>
@@ -2245,11 +2245,18 @@ class Nestform_Admin_UI {
 		$cond_op    = (string) ( $field['condition_op'] ?? 'equals' );
 		$cond_value = (string) ( $field['condition_value'] ?? '' );
 		$css_class  = (string) ( $field['css_class'] ?? '' );
-		$field_width = (string) ( $field['width'] ?? 'full' );
+		$field_width        = (string) ( $field['width'] ?? 'full' );
+		$field_width_custom = (int) ( $field['width_custom'] ?? 50 );
+		if ( $field_width_custom < 1 || $field_width_custom > 100 ) {
+			$field_width_custom = 50;
+		}
+		if ( ! array_key_exists( $field_width, Nestform_Form_Config::field_width_presets() ) ) {
+			$field_width = 'full';
+		}
 		$desc_val    = (string) ( $field['description'] ?? '' );
 		$ph_val      = (string) ( $field['placeholder'] ?? '' );
 		$def_val     = (string) ( $field['default'] ?? '' );
-		$more_open   = ( 'half' === $field_width )
+		$more_open   = ( 'full' !== $field_width )
 			|| ( $desc_val !== '' )
 			|| ( 'file' !== $type && $ph_val !== '' )
 			|| ( 'file' !== $type && 'image' !== $type && $def_val !== '' && '0' !== $def_val );
@@ -2649,10 +2656,25 @@ class Nestform_Admin_UI {
 								</label>
 								<label class="nestform-admin__field-control">
 									<span class="nestform-admin__label"><?php esc_html_e( 'Width', 'nestform' ); ?></span>
-									<select class="nestform-admin__input" name="<?php echo esc_attr( $prefix . '[width]' ); ?>">
-										<option value="full" <?php selected( $field_width, 'full' ); ?>><?php esc_html_e( 'Full', 'nestform' ); ?></option>
-										<option value="half" <?php selected( $field_width, 'half' ); ?>><?php esc_html_e( 'Half', 'nestform' ); ?></option>
+									<select class="nestform-admin__input" name="<?php echo esc_attr( $prefix . '[width]' ); ?>" data-nestform-width>
+										<?php foreach ( Nestform_Form_Config::field_width_presets() as $width_key => $width_label ) : ?>
+											<option value="<?php echo esc_attr( $width_key ); ?>" <?php selected( $field_width, $width_key ); ?>><?php echo esc_html( $width_label ); ?></option>
+										<?php endforeach; ?>
 									</select>
+								</label>
+								<label class="nestform-admin__field-control" data-nestform-width-custom-wrap <?php echo 'custom' === $field_width ? '' : 'hidden'; ?>>
+									<span class="nestform-admin__label"><?php esc_html_e( 'Custom width (%)', 'nestform' ); ?></span>
+									<input
+										type="number"
+										class="nestform-admin__input"
+										name="<?php echo esc_attr( $prefix . '[width_custom]' ); ?>"
+										value="<?php echo esc_attr( (string) $field_width_custom ); ?>"
+										min="1"
+										max="100"
+										step="1"
+										inputmode="numeric"
+										data-nestform-width-custom
+									/>
 								</label>
 								<input type="hidden" name="<?php echo esc_attr( $prefix . '[step]' ); ?>" value="<?php echo esc_attr( (string) $step ); ?>" data-nestform-step />
 							</div>
@@ -2810,26 +2832,61 @@ class Nestform_Admin_UI {
 		$category = isset( $tpl['category'] ) ? sanitize_key( (string) $tpl['category'] ) : 'other';
 		$label    = isset( $tpl['label'] ) ? (string) $tpl['label'] : $tpl_key;
 		$desc     = isset( $tpl['description'] ) ? (string) $tpl['description'] : '';
+		$category_labels = array(
+			'contact' => __( 'Contact', 'nestform' ),
+			'lead'    => __( 'Lead', 'nestform' ),
+			'survey'  => __( 'Survey', 'nestform' ),
+			'quiz'    => __( 'Quiz', 'nestform' ),
+			'other'   => __( 'Other', 'nestform' ),
+		);
+		$category_label = isset( $category_labels[ $category ] ) ? $category_labels[ $category ] : ucfirst( $category );
+		$icon_map       = array(
+			'contact' => 'forms',
+			'lead'    => 'entries',
+			'survey'  => 'analytics',
+			'quiz'    => 'sparkle',
+			'other'   => 'docs',
+		);
+		$icon_name = isset( $icon_map[ $category ] ) ? $icon_map[ $category ] : 'forms';
+		$search    = strtolower(
+			trim(
+				implode(
+					' ',
+					array_filter(
+						array(
+							(string) $tpl_key,
+							$label,
+							$desc,
+							$category,
+							$category_label,
+						)
+					)
+				)
+			)
+		);
 
 		// Pro-only templates: omit locked cards (honest upsell lives on Forms → Pro).
 		if ( ! $allowed ) {
 			return;
 		}
 
+		$card_class = 'nestform-templates__card nestform-templates__card--' . $category;
 		if ( $can_apply ) {
 			?>
 			<a
-				class="nestform-templates__card"
+				class="<?php echo esc_attr( $card_class ); ?>"
 				data-nestform-templates-card
 				data-category="<?php echo esc_attr( $category ); ?>"
+				data-nestform-templates-search="<?php echo esc_attr( $search ); ?>"
 				href="<?php echo esc_url( Nestform_Templates::url( $form_id, $tpl_key ) ); ?>"
 				onclick="return confirm('<?php echo esc_js( __( 'Replace current fields with this template?', 'nestform' ) ); ?>');"
 			>
+				<span class="nestform-templates__card-icon" aria-hidden="true"><?php nestform_admin_icon( $icon_name ); ?></span>
 				<span class="nestform-templates__card-label"><?php echo esc_html( $label ); ?></span>
 				<?php if ( $desc !== '' ) : ?>
 					<span class="nestform-templates__card-desc"><?php echo esc_html( $desc ); ?></span>
 				<?php endif; ?>
-				<span class="nestform-templates__card-meta"><?php echo esc_html( ucfirst( $category ) ); ?></span>
+				<span class="nestform-templates__card-meta"><?php echo esc_html( $category_label ); ?></span>
 			</a>
 			<?php
 			return;
@@ -2837,11 +2894,13 @@ class Nestform_Admin_UI {
 		?>
 		<button
 			type="button"
-			class="nestform-templates__card nestform-templates__card--disabled"
+			class="<?php echo esc_attr( $card_class . ' nestform-templates__card--disabled' ); ?>"
 			data-nestform-templates-card
 			data-nestform-templates-save-first
 			data-category="<?php echo esc_attr( $category ); ?>"
+			data-nestform-templates-search="<?php echo esc_attr( $search ); ?>"
 		>
+			<span class="nestform-templates__card-icon" aria-hidden="true"><?php nestform_admin_icon( $icon_name ); ?></span>
 			<span class="nestform-templates__card-label"><?php echo esc_html( $label ); ?></span>
 			<?php if ( $desc !== '' ) : ?>
 				<span class="nestform-templates__card-desc"><?php echo esc_html( $desc ); ?></span>
@@ -2871,21 +2930,34 @@ class Nestform_Admin_UI {
 					</div>
 					<button type="button" class="nestform-btn" data-nestform-templates-close><?php esc_html_e( 'Close', 'nestform' ); ?></button>
 				</header>
-				<div class="nestform-templates__filters" role="tablist">
-					<button type="button" class="nestform-templates__chip is-active" data-nestform-templates-filter="all"><?php esc_html_e( 'All', 'nestform' ); ?></button>
-					<button type="button" class="nestform-templates__chip" data-nestform-templates-filter="contact"><?php esc_html_e( 'Contact', 'nestform' ); ?></button>
-					<button type="button" class="nestform-templates__chip" data-nestform-templates-filter="lead"><?php esc_html_e( 'Lead', 'nestform' ); ?></button>
-					<button type="button" class="nestform-templates__chip" data-nestform-templates-filter="survey"><?php esc_html_e( 'Survey', 'nestform' ); ?></button>
-					<button type="button" class="nestform-templates__chip" data-nestform-templates-filter="quiz"><?php esc_html_e( 'Quiz', 'nestform' ); ?></button>
-					<button type="button" class="nestform-templates__chip" data-nestform-templates-filter="other"><?php esc_html_e( 'Other', 'nestform' ); ?></button>
+				<div class="nestform-templates__toolbar">
+					<label class="nestform-templates__search">
+						<span class="nestform-templates__search-icon" aria-hidden="true"><?php nestform_admin_icon( 'search' ); ?></span>
+						<span class="screen-reader-text"><?php esc_html_e( 'Search templates', 'nestform' ); ?></span>
+						<input
+							type="search"
+							class="nestform-admin__input nestform-templates__search-input"
+							data-nestform-templates-search
+							placeholder="<?php esc_attr_e( 'Search templates…', 'nestform' ); ?>"
+							autocomplete="off"
+						/>
+					</label>
+					<div class="nestform-templates__filters" role="tablist">
+						<button type="button" class="nestform-templates__chip is-active" data-nestform-templates-filter="all"><?php esc_html_e( 'All', 'nestform' ); ?></button>
+						<button type="button" class="nestform-templates__chip" data-nestform-templates-filter="contact"><?php esc_html_e( 'Contact', 'nestform' ); ?></button>
+						<button type="button" class="nestform-templates__chip" data-nestform-templates-filter="lead"><?php esc_html_e( 'Lead', 'nestform' ); ?></button>
+						<button type="button" class="nestform-templates__chip" data-nestform-templates-filter="survey"><?php esc_html_e( 'Survey', 'nestform' ); ?></button>
+						<button type="button" class="nestform-templates__chip" data-nestform-templates-filter="quiz"><?php esc_html_e( 'Quiz', 'nestform' ); ?></button>
+						<button type="button" class="nestform-templates__chip" data-nestform-templates-filter="other"><?php esc_html_e( 'Other', 'nestform' ); ?></button>
+					</div>
 				</div>
 				<div class="nestform-templates__grid">
 					<?php
 					$shown = self::render_template_cards( $form_id, 0 );
-					if ( 0 === $shown ) :
-						?>
-						<p class="nestform-templates__empty"><?php esc_html_e( 'No templates to show.', 'nestform' ); ?></p>
-					<?php endif; ?>
+					?>
+					<p class="nestform-templates__empty" data-nestform-templates-no-results <?php echo $shown > 0 ? 'hidden' : ''; ?>>
+						<?php esc_html_e( 'No templates match your search.', 'nestform' ); ?>
+					</p>
 				</div>
 			</div>
 		</div>

@@ -267,9 +267,9 @@
 
 		function syncLivePreview() {
 			var form = root.querySelector('[data-nestform-live-form]');
-			if (!form) {
-				return;
-			}
+			var fieldStages = root.querySelectorAll(
+				'[data-nestform-field-preview-stage]'
+			);
 
 			var skin = settingValue('style_skin') || 'theme';
 			var button = settingValue('style_button') || 'solid';
@@ -277,12 +277,6 @@
 			var font = settingValue('style_font_size') || 'md';
 			var gap = settingValue('style_gap') || 'md';
 			var density = settingValue('style_density') || 'md';
-
-			var classes = ['nestform-live-preview', 'nestform-live-preview--skin-' + skin];
-			if (skin !== 'theme') {
-				classes.push('nestform-live-preview--btn-' + button);
-			}
-			form.className = classes.join(' ');
 
 			var vars = {
 				'--nest-form-accent': colorValue('style_accent'),
@@ -324,13 +318,30 @@
 					styleParts.push(key + ':' + vars[key]);
 				}
 			});
-			form.setAttribute('style', styleParts.join(';'));
+			var styleAttr = styleParts.join(';');
 
-			var submitBtn = form.querySelector('[data-nestform-live-submit]');
-			var submitLabel = settingValue('submit_label');
-			if (submitBtn && submitLabel) {
-				submitBtn.textContent = submitLabel;
+			if (form) {
+				var classes = [
+					'nestform-live-preview',
+					'nestform-live-preview--skin-' + skin,
+				];
+				if (skin !== 'theme') {
+					classes.push('nestform-live-preview--btn-' + button);
+				}
+				form.className = classes.join(' ');
+				form.setAttribute('style', styleAttr);
+
+				var submitBtn = form.querySelector('[data-nestform-live-submit]');
+				var submitLabel = settingValue('submit_label');
+				if (submitBtn && submitLabel) {
+					submitBtn.textContent = submitLabel;
+				}
 			}
+
+			/* Field card stages share form appearance tokens (keep light canvas in dark admin). */
+			fieldStages.forEach(function (stage) {
+				stage.setAttribute('style', styleAttr);
+			});
 		}
 
 		function syncColorWrap(wrap) {
@@ -1227,9 +1238,23 @@
 				chips.push({ text: (sumA || '9.99') + ' ' + (sumC || 'USD') });
 			}
 		}
-		var width = card.querySelector('select[name*="[width]"]');
-		if (width && width.value === 'half') {
+		var width = card.querySelector('[data-nestform-width], select[name*="[width]"]');
+		var widthVal = width ? String(width.value || 'full') : 'full';
+		if (widthVal === 'half') {
 			chips.push({ text: '½' });
+		} else if (widthVal === 'third') {
+			chips.push({ text: '⅓' });
+		} else if (widthVal === 'two_thirds') {
+			chips.push({ text: '⅔' });
+		} else if (widthVal === 'quarter') {
+			chips.push({ text: '¼' });
+		} else if (widthVal === 'custom') {
+			var customInput = card.querySelector('[data-nestform-width-custom]');
+			var pct = customInput ? parseInt(String(customInput.value || '50'), 10) : 50;
+			if (!isFinite(pct) || pct < 1 || pct > 100) {
+				pct = 50;
+			}
+			chips.push({ text: pct + '%' });
 		}
 		if (!isLayoutType(type)) {
 			var condField = card.querySelector('[data-nestform-condition-field]');
@@ -1599,11 +1624,43 @@
 		if (defaultInput && !defaultInput.disabled && defaultInput.type !== 'hidden') {
 			defaultVal = String(defaultInput.value || '').trim();
 		}
-		var width = card.querySelector('select[name*="[width]"]');
-		var half = width && width.value === 'half';
+		var width = card.querySelector('[data-nestform-width], select[name*="[width]"]');
+		var widthVal = width ? String(width.value || 'full') : 'full';
+		var widthClass = 'full';
+		var widthStyle = '';
+		if (widthVal === 'half') {
+			widthClass = 'half';
+			widthStyle = '--nest-form-field-basis:50%;--nest-form-field-ratio:0.5';
+		} else if (widthVal === 'third') {
+			widthClass = 'third';
+			widthStyle = '--nest-form-field-basis:33.333%;--nest-form-field-ratio:0.33333';
+		} else if (widthVal === 'two_thirds') {
+			widthClass = 'two-thirds';
+			widthStyle =
+				'--nest-form-field-basis:66.667%;--nest-form-field-ratio:0.66667';
+		} else if (widthVal === 'quarter') {
+			widthClass = 'quarter';
+			widthStyle = '--nest-form-field-basis:25%;--nest-form-field-ratio:0.25';
+		} else if (widthVal === 'custom') {
+			widthClass = 'custom';
+			var customW = card.querySelector('[data-nestform-width-custom]');
+			var customPct = customW ? parseInt(String(customW.value || '50'), 10) : 50;
+			if (!isFinite(customPct) || customPct < 1 || customPct > 100) {
+				customPct = 50;
+			}
+			widthStyle =
+				'--nest-form-field-basis:' +
+				customPct +
+				'%;--nest-form-field-ratio:' +
+				String(Math.round((customPct / 100) * 1e5) / 1e5);
+		}
 		var field = document.createElement('div');
 		field.className =
-			'nestform-live-preview__field' + (half ? ' nestform-live-preview__field--half' : '');
+			'nestform-live-preview__field' +
+			(widthClass !== 'full' ? ' nestform-live-preview__field--' + widthClass : '');
+		if (widthStyle) {
+			field.setAttribute('style', widthStyle);
+		}
 
 		if (type === 'hidden') {
 			var hiddenNote = document.createElement('p');
@@ -2184,6 +2241,16 @@
 		}
 	}
 
+	function syncWidthCustomWrap(card) {
+		var select = card.querySelector('[data-nestform-width]');
+		var wrap = card.querySelector('[data-nestform-width-custom-wrap]');
+		if (!wrap) {
+			return;
+		}
+		var isCustom = !!(select && select.value === 'custom');
+		wrap.hidden = !isCustom;
+	}
+
 	function syncEnabledState(card) {
 		var checkbox = card.querySelector('[data-nestform-enabled]');
 		var wrap = card.querySelector('[data-nestform-enabled-wrap]');
@@ -2632,6 +2699,7 @@
 		syncEnabledState(card);
 		syncStepBadge(card);
 		syncConditionValue(card);
+		syncWidthCustomWrap(card);
 		bindImagePicker(card);
 		bindPhonePicker(card);
 		bindDrag(card);
@@ -3271,7 +3339,11 @@
 				if (event.target.matches('[data-nestform-move-step]')) {
 					moveCardToStep(root, card, event.target.value);
 				}
-				if (event.target.matches('select[name*="[width]"]')) {
+				if (event.target.matches('[data-nestform-width], select[name*="[width]"]')) {
+					syncWidthCustomWrap(card);
+					syncCardSummary(card);
+				}
+				if (event.target.matches('[data-nestform-width-custom]')) {
 					syncCardSummary(card);
 				}
 				if (event.target.matches('[data-nestform-payment-currency]')) {
@@ -3458,6 +3530,9 @@
 		var INTRO_KEY = 'nestform_templates_intro';
 		var fromIntro = false;
 		var nudgeTimer = 0;
+		var activeCategory = 'all';
+		var searchInput = drawer.querySelector('[data-nestform-templates-search]');
+		var noResults = drawer.querySelector('[data-nestform-templates-no-results]');
 
 		function introState() {
 			try {
@@ -3504,6 +3579,24 @@
 				homeBtn.addEventListener('click', hideNudge, { once: true });
 			}
 		}
+		function applyFilters() {
+			var query = searchInput ? String(searchInput.value || '').trim().toLowerCase() : '';
+			var visible = 0;
+			drawer.querySelectorAll('[data-nestform-templates-card]').forEach(function (card) {
+				var cardCat = card.getAttribute('data-category') || 'other';
+				var haystack = card.getAttribute('data-nestform-templates-search') || '';
+				var matchCat = activeCategory === 'all' || cardCat === activeCategory;
+				var matchQuery = !query || haystack.indexOf(query) !== -1;
+				var show = matchCat && matchQuery;
+				card.hidden = !show;
+				if (show) {
+					visible += 1;
+				}
+			});
+			if (noResults) {
+				noResults.hidden = visible > 0;
+			}
+		}
 		function close() {
 			var wasIntro = fromIntro && !drawer.hidden;
 			drawer.hidden = true;
@@ -3517,6 +3610,11 @@
 				document.body.appendChild(drawer);
 			}
 			drawer.hidden = false;
+			if (searchInput) {
+				window.setTimeout(function () {
+					searchInput.focus();
+				}, 0);
+			}
 		}
 		openBtns.forEach(function (btn) {
 			btn.addEventListener('click', open);
@@ -3526,16 +3624,17 @@
 		});
 		drawer.querySelectorAll('[data-nestform-templates-filter]').forEach(function (chip) {
 			chip.addEventListener('click', function () {
-				var cat = chip.getAttribute('data-nestform-templates-filter') || 'all';
+				activeCategory = chip.getAttribute('data-nestform-templates-filter') || 'all';
 				drawer.querySelectorAll('[data-nestform-templates-filter]').forEach(function (c) {
 					c.classList.toggle('is-active', c === chip);
 				});
-				drawer.querySelectorAll('[data-nestform-templates-card]').forEach(function (card) {
-					var cardCat = card.getAttribute('data-category') || 'other';
-					card.hidden = cat !== 'all' && cardCat !== cat;
-				});
+				applyFilters();
 			});
 		});
+		if (searchInput) {
+			searchInput.addEventListener('input', applyFilters);
+			searchInput.addEventListener('search', applyFilters);
+		}
 		document.querySelectorAll('[data-nestform-templates-save-first]').forEach(function (btn) {
 			btn.addEventListener('click', function () {
 				var cfg = window.nestformAdmin || {};
@@ -3548,6 +3647,8 @@
 				close();
 			}
 		});
+
+		applyFilters();
 
 		var admin = document.querySelector('[data-nestform-admin]');
 		var isEmpty = (admin && admin.getAttribute('data-nestform-empty') === '1')

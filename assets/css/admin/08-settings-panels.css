@@ -796,11 +796,39 @@
     margin: var(--nestform-space-1) 0 0;
 }
 
+.nestform-templates__toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nestform-space-2);
+    padding: var(--nestform-space-4);
+}
+
+.nestform-templates__search {
+    position: relative;
+    display: block;
+}
+
+.nestform-templates__search-icon {
+    position: absolute;
+    top: 50%;
+    left: 12px;
+    display: inline-flex;
+    color: var(--nestform-faint);
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.nestform-templates__search .nestform-templates__search-input.nestform-admin__input {
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: 40px;
+}
+
 .nestform-templates__filters {
     display: flex;
     flex-wrap: wrap;
     gap: var(--nestform-space-2);
-    padding: var(--nestform-space-4) var(--nestform-space-4) 0;
+    padding: 0;
 }
 
 .nestform-templates__chip {
@@ -829,6 +857,8 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: var(--nestform-space-2);
+    align-items: start;
+    align-content: start;
     padding: var(--nestform-space-4) var(--nestform-space-4)
         var(--nestform-space-4);
     overflow: auto;
@@ -845,10 +875,19 @@
     text-align: center;
 }
 
+.nestform-templates__empty[hidden] {
+    display: none !important;
+}
+
 .nestform-templates__card {
+    --nestform-tpl-accent: var(--nestform-accent);
+    --nestform-tpl-soft: var(--nestform-accent-soft);
+    --nestform-tpl-line: var(--nestform-accent-line);
     display: flex;
     flex-direction: column;
     gap: var(--nestform-space-2);
+    align-self: start;
+    height: auto;
     padding: var(--nestform-space-4);
     border: 1px solid var(--nestform-border);
     border-radius: var(--nestform-radius);
@@ -860,12 +899,42 @@
     transition: var(--nestform-transition);
 }
 
+.nestform-templates__card--contact {
+    --nestform-tpl-accent: #2563eb;
+    --nestform-tpl-soft: rgba(37, 99, 235, 0.08);
+    --nestform-tpl-line: #bfdbfe;
+}
+
+.nestform-templates__card--lead {
+    --nestform-tpl-accent: #0f766e;
+    --nestform-tpl-soft: rgba(15, 118, 110, 0.1);
+    --nestform-tpl-line: #99f6e4;
+}
+
+.nestform-templates__card--survey {
+    --nestform-tpl-accent: #c2410c;
+    --nestform-tpl-soft: rgba(194, 65, 12, 0.1);
+    --nestform-tpl-line: #fdba74;
+}
+
+.nestform-templates__card--quiz {
+    --nestform-tpl-accent: #6366f1;
+    --nestform-tpl-soft: rgba(99, 102, 241, 0.1);
+    --nestform-tpl-line: #c7d2fe;
+}
+
+.nestform-templates__card--other {
+    --nestform-tpl-accent: #475569;
+    --nestform-tpl-soft: rgba(71, 85, 105, 0.1);
+    --nestform-tpl-line: #cbd5e1;
+}
+
 .nestform-templates__card[hidden] {
     display: none !important;
 }
 
 .nestform-templates__card:hover {
-    border-color: var(--nestform-hover-border);
+    border-color: var(--nestform-tpl-line);
     box-shadow: 0 4px 14px rgba(1, 18, 62, 0.08);
 }
 
@@ -886,6 +955,24 @@
     border-color: var(--nestform-border);
 }
 
+.nestform-templates__card-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: var(--nestform-surface);
+    border: 1px solid var(--nestform-tpl-line);
+    color: var(--nestform-tpl-accent);
+    box-shadow: 0 1px 2px rgba(1, 18, 62, 0.04);
+}
+
+.nestform-templates__card-icon svg {
+    width: 16px;
+    height: 16px;
+}
+
 .nestform-templates__card-label {
     font-size: 13.5px;
     font-weight: 700;
@@ -898,12 +985,20 @@
 }
 
 .nestform-templates__card-meta {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
     margin-top: auto;
-    font-size: 11px;
-    font-weight: 600;
+    padding: 2px 8px;
+    border: 1px solid var(--nestform-tpl-line);
+    border-radius: 999px;
+    background: var(--nestform-tpl-soft);
+    font-size: 10px;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--nestform-muted, #646970);
+    letter-spacing: 0.05em;
+    color: var(--nestform-tpl-accent);
+    line-height: 1.4;
 }
 
 .nestform-preview {

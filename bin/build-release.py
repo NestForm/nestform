@@ -36,7 +36,7 @@ def normalize_rel(path: str) -> str:
 
 
 def match_pattern(rel_posix: str, pattern: str) -> bool:
-    pattern = normalize_rel(pattern)
+    pattern = normalize_rel(pattern).rstrip("/")
     rel_posix = normalize_rel(rel_posix)
 
     if pattern.startswith("**/"):
@@ -53,10 +53,24 @@ def match_pattern(rel_posix: str, pattern: str) -> bool:
             return True
         return fnmatch.fnmatch(rel_posix, pattern)
 
+    # Plain name (e.g. .git, node_modules, bin) — file or whole directory tree.
+    if "/" not in pattern and "*" not in pattern and "?" not in pattern:
+        return rel_posix == pattern or rel_posix.startswith(pattern + "/")
+
     if "/" not in pattern and pattern.startswith("*"):
         return fnmatch.fnmatch(os.path.basename(rel_posix), pattern)
 
-    return fnmatch.fnmatch(rel_posix, pattern)
+    # Path pattern may still exclude a directory tree (assets/css/admin/).
+    if fnmatch.fnmatch(rel_posix, pattern):
+        return True
+    if "*" not in pattern and "?" not in pattern:
+        return rel_posix.startswith(pattern + "/")
+    # Glob directory trees: assets/css/admin/** via pattern assets/css/admin
+    if pattern.endswith("/*"):
+        return False
+    return fnmatch.fnmatch(rel_posix, pattern + "/*") or fnmatch.fnmatch(
+        rel_posix, pattern + "/**"
+    )
 
 
 def is_excluded(rel_posix: str, patterns: list[str]) -> bool:

@@ -41,7 +41,7 @@ Nestform is a focused form builder for lead capture and feedback — not a Conta
 * Light / dark admin theme
 * **Developers** screen with hooks and filters
 
-**Optional Nestform Pro** is a **separate add-on** (`nestform-pro`), sold on [nestform.app](https://nestform.app) and hosted outside the WordPress.org directory. Premium code is not included in this download. It adds multi-step flows, quizzes and surveys, Stripe payments, HubSpot sync, advanced fields, HTML email, PDF attachments, automations, and richer analytics. Compare features under **Forms → Pro**.
+**Optional Nestform Pro** is a **separate add-on** (`nestform-pro`), sold via Freemius and hosted outside the WordPress.org directory. Premium code is not included in this download. It adds multi-step flows, quizzes and surveys, Stripe payments, HubSpot sync, advanced fields, HTML email, PDF attachments, automations, and richer analytics. Compare features under **Forms → Pro**.
 
 == Installation ==
 
@@ -52,7 +52,7 @@ Nestform is a focused form builder for lead capture and feedback — not a Conta
 5. Documentation: [nestform.app/docs](https://nestform.app/docs). Hooks live under **Forms → Developers**.
 6. Source and build tools: [github.com/NestForm/nestform-free](https://github.com/NestForm/nestform-free). From the plugin root run `npm run build`, then `python bin/build-release.py`.
 
-For Pro features, install the `nestform-pro` add-on from nestform.app and enter your license key under **Forms → License**.
+For Pro features, install the `nestform-pro` add-on from Freemius checkout / your purchase email, then activate the license under **Forms → Account** or **Forms → License**.
 
 == Source ==
 
@@ -71,11 +71,11 @@ The WordPress.org zip contains compiled `*.min.js` and bundled CSS. Edit the sou
 
 = Is Nestform Pro included in this download? =
 
-No. This is the free plugin. Nestform Pro is a separate add-on purchased on nestform.app and installed as its own plugin.
+No. This is the free plugin. Nestform Pro is a separate add-on purchased via Freemius and installed as its own plugin.
 
 = How do I activate Pro after purchase? =
 
-Install **Nestform Pro**, open **Forms → License**, and paste the license key from your purchase email.
+Install **Nestform Pro**, then open **Forms → Account** (or **Forms → License**) and activate your Freemius license on this site.
 
 = How many forms can I create? =
 
@@ -143,11 +143,11 @@ This plugin can connect to optional third-party services configured by the site 
 * Terms: https://legal.hubspot.com/terms-of-service
 * Privacy: https://legal.hubspot.com/privacy-policy
 
-**nestform.app** (optional — Pro purchase only)
+**nestform.app / Freemius** (optional — Pro purchase only)
 
-* Used for: purchasing Nestform Pro and managing your license.
-* When: only if you choose to buy Pro from our website.
-* The free plugin does not require a nestform.app account.
+* Used for: purchasing Nestform Pro and managing your Freemius license.
+* When: only if you choose to buy Pro (checkout opens Freemius).
+* The free plugin does not require a Freemius or nestform.app account to run.
 
 == Bundled fonts ==
 
@@ -157,11 +157,20 @@ Admin UI uses self-hosted **Plus Jakarta Sans** and **Sora** (SIL Open Font Lice
 
 The phone country picker uses self-hosted SVG flags from [flag-icons](https://github.com/lipis/flag-icons) (MIT). Files ship under `assets/flags/` with `assets/flags/LICENSE.txt`. No flag CDN is used.
 
+== Screenshots ==
+
+1. Dashboard — Work pulse, activity chart, and quick actions.
+2. Forms list — search, status, and shortcode copy.
+3. Form builder — drag-and-drop fields on the canvas.
+4. Entries inbox — submissions with status filters.
+5. Front-end form — embedded Nestform on a page.
+
 == Changelog ==
 
 = 2.3.2 =
 * Entries hub: optional All / Forms / Jobs kind filters via `nestform_entries_kind_filters` and `nestform_entries_hub_query_args` (form_ids / exclude_form_ids).
 * Sharper dashboard charts (no forced canvas stretch on retina).
+* WordPress.org prep: Freemius checkout copy, clearer Free plugin description, screenshots.
 
 = 2.3.1 =
 * Addon hooks: `nestform_accessible_form_ids`, `nestform_user_can_manage_form_entries`, `nestform_templates`, `nestform_template_applied`, `nestform_entry_meta_after`.
@@ -183,8 +192,8 @@ The phone country picker uses self-hosted SVG flags from [flag-icons](https://gi
 * Phone country flags are bundled as local SVGs (no flagcdn.com).
 
 = 2.2.0 =
-* Free plugin: unlimited forms, no Freemius SDK; Pro sold on nestform.app.
-* Pro add-on: site license key activation.
+* Free plugin: unlimited forms, no Freemius SDK in the free zip; Pro sold via Freemius.
+* Pro add-on: Freemius license activation.
 * Admin preview submits no longer create entries.
 * In-app **Pro** page and **Developers** reference.
 * WordPress.org compliance: premium runtime ships in Nestform Pro add-on only.
@@ -192,7 +201,7 @@ The phone country picker uses self-hosted SVG flags from [flag-icons](https://gi
 == Upgrade Notice ==
 
 = 2.3.2 =
-Entries hub kind filters for Recruiting (All / Forms / Jobs) and sharper dashboard charts.
+Entries hub kind filters for Recruiting (All / Forms / Jobs), sharper dashboard charts, Freemius-ready Pro upsell copy and screenshots.
 
 = 2.3.1 =
 Addon access hooks for Nestform HR and similar recruiting/ownership add-ons.
@@ -204,4 +213,4 @@ Clearer dashboard: one inbox pulse, cleaner chart and Top forms, WordPress 7.1 t
 Print layout, templates on empty forms, and a clearer response summary.
 
 = 2.2.0 =
-Free plugin with unlimited forms. Nestform Pro is a separate add-on purchased on nestform.app.
+Free plugin with unlimited forms. Nestform Pro is a separate add-on purchased via Freemius.

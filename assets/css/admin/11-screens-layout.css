@@ -1805,10 +1805,37 @@ body.nestform-admin-screen.post-type-nestform .nestform-admin {
     min-width: 0;
 }
 
+.nestform-live-preview__field--half,
+.nestform-live-preview__field--third,
+.nestform-live-preview__field--two-thirds,
+.nestform-live-preview__field--quarter,
+.nestform-live-preview__field--custom {
+    flex: 0 0 auto;
+    width: calc(
+        var(--nest-form-field-basis, 50%) -
+            (var(--nest-form-gap) * (1 - var(--nest-form-field-ratio, 0.5)))
+    );
+    max-width: 100%;
+}
+
 .nestform-live-preview__field--half {
-    flex: 1 1 calc(50% - var(--nest-form-gap));
-    width: auto;
-    max-width: calc(50% - (var(--nest-form-gap) / 2));
+    --nest-form-field-basis: 50%;
+    --nest-form-field-ratio: 0.5;
+}
+
+.nestform-live-preview__field--third {
+    --nest-form-field-basis: 33.333%;
+    --nest-form-field-ratio: 0.33333;
+}
+
+.nestform-live-preview__field--two-thirds {
+    --nest-form-field-basis: 66.667%;
+    --nest-form-field-ratio: 0.66667;
+}
+
+.nestform-live-preview__field--quarter {
+    --nest-form-field-basis: 25%;
+    --nest-form-field-ratio: 0.25;
 }
 
 .nestform-live-preview__label {

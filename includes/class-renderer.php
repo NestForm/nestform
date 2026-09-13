@@ -339,7 +339,8 @@ class Nestform_Renderer {
 
 		$name  = $field['name'];
 		$id    = $uid . '-' . $name;
-		$width = $field['width'] === 'half' ? 'half' : 'full';
+		$width_ui = Nestform_Form_Config::field_width_presentation( $field );
+		$width    = $width_ui['class'];
 		$req   = ! empty( $field['required'] );
 		$label = (string) $field['label'];
 		$ph    = (string) $field['placeholder'];
@@ -382,7 +383,8 @@ class Nestform_Renderer {
 		}
 
 		$condition_attrs = self::condition_data_attrs( $field );
-		echo '<div class="' . esc_attr( implode( ' ', $classes ) ) . '" data-field-name="' . esc_attr( $name ) . '" data-field-step="' . esc_attr( (string) $step ) . '"' . $condition_attrs . ( $start_hidden ? ' hidden' : '' ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- condition_data_attrs() returns esc_attr()'d attributes.
+		$width_style     = $width_ui['style'] !== '' ? ' style="' . esc_attr( $width_ui['style'] ) . '"' : '';
+		echo '<div class="' . esc_attr( implode( ' ', $classes ) ) . '" data-field-name="' . esc_attr( $name ) . '" data-field-step="' . esc_attr( (string) $step ) . '"' . $width_style . $condition_attrs . ( $start_hidden ? ' hidden' : '' ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- width_style escaped; condition_data_attrs() returns esc_attr()'d attributes.
 
 		if ( in_array( $type, array( 'checkbox', 'acceptance' ), true ) ) {
 			$check_label_class = 'checkbox-field nest-form__check';
@@ -644,7 +646,8 @@ class Nestform_Renderer {
 	private static function render_layout_field( array $field, $uid, $start_hidden = false ) {
 		$type  = (string) $field['type'];
 		$name  = (string) $field['name'];
-		$width = ( $field['width'] ?? '' ) === 'half' ? 'half' : 'full';
+		$width_ui = Nestform_Form_Config::field_width_presentation( $field );
+		$width    = $width_ui['class'];
 		$label = (string) ( $field['label'] ?? '' );
 		$desc  = (string) ( $field['description'] ?? '' );
 		$extra = sanitize_html_class( (string) ( $field['css_class'] ?? '' ) );
@@ -663,7 +666,8 @@ class Nestform_Renderer {
 		$classes = (array) apply_filters( 'nestform_field_classes', $classes, $field, $uid );
 
 		ob_start();
-		echo '<div class="' . esc_attr( implode( ' ', $classes ) ) . '" data-nest-form-layout data-field-step="' . esc_attr( (string) $step ) . '"' . ( $start_hidden ? ' hidden' : '' ) . '>';
+		$width_style = $width_ui['style'] !== '' ? ' style="' . esc_attr( $width_ui['style'] ) . '"' : '';
+		echo '<div class="' . esc_attr( implode( ' ', $classes ) ) . '" data-nest-form-layout data-field-step="' . esc_attr( (string) $step ) . '"' . $width_style . ( $start_hidden ? ' hidden' : '' ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- width_style escaped.
 
 		if ( 'heading' === $type ) {
 			$level = (string) ( $field['options'] ?? 'h2' );

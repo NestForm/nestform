@@ -19,6 +19,9 @@ class Nestform_Upgrade {
 
 	/**
 	 * Old Upgrade / Account slugs → current Pro / License screens.
+	 *
+	 * Do not redirect Freemius `nestform-account` — the SDK needs that slug
+	 * for activate / sync / billing. Only remap our legacy Forms Account slug.
 	 */
 	public static function redirect_legacy_pages() {
 		if ( ! is_admin() ) {
@@ -29,7 +32,7 @@ class Nestform_Upgrade {
 			wp_safe_redirect( Nestform_Promotion::url() );
 			exit;
 		}
-		if ( in_array( $page, array( 'nestform-account', 'nestform-forms-account' ), true ) && class_exists( 'Nestform_Pro_License' ) ) {
+		if ( 'nestform-forms-account' === $page && class_exists( 'Nestform_Pro_License' ) ) {
 			wp_safe_redirect( Nestform_Pro_License::url() );
 			exit;
 		}
@@ -299,14 +302,21 @@ class Nestform_Upgrade {
 		if ( ! in_array( $billing, array( 'monthly', 'yearly' ), true ) ) {
 			$billing = 'monthly';
 		}
-		$url = class_exists( 'Nestform_Promotion' ) ? Nestform_Promotion::store_url() : 'https://nestform.app/pro';
-		$url = apply_filters( 'nestform_pro_checkout_url', $url, $plan, $billing );
+
+		$plan_id = ( 'agency' === $plan ) ? 84776 : 84761;
+		$cycle   = ( 'yearly' === $billing ) ? 'annual' : 'monthly';
+		$url     = sprintf(
+			'https://checkout.freemius.com/mode/dialog/plugin/37981/plan/%d/licenses/1/%s/',
+			$plan_id,
+			$cycle
+		);
+
 		if ( 'agency' === $plan ) {
-			$url = apply_filters( 'nestform_agency_checkout_url', add_query_arg( 'plan', 'agency', (string) $url ), $plan, $billing );
+			$url = apply_filters( 'nestform_agency_checkout_url', $url, $plan, $billing );
+		} else {
+			$url = apply_filters( 'nestform_pro_checkout_url', $url, $plan, $billing );
 		}
-		if ( 'yearly' === $billing ) {
-			$url = add_query_arg( 'billing', 'yearly', (string) $url );
-		}
+
 		return esc_url_raw( (string) $url );
 	}
 
@@ -439,7 +449,7 @@ class Nestform_Upgrade {
 						>
 							<?php
 							if ( 'pro' === $checkout_plan ) {
-								esc_html_e( 'Buy on nestform.app', 'nestform' );
+								esc_html_e( 'Buy Pro', 'nestform' );
 							} else {
 								esc_html_e( 'Get Agency', 'nestform' );
 							}

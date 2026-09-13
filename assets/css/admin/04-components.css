@@ -751,6 +751,10 @@ body.wp-core-ui.nestform-admin-screen
     gap: var(--nestform-space-1);
 }
 
+.nestform-admin__field-control[hidden] {
+    display: none !important;
+}
+
 .nestform-admin__field-control--full {
     grid-column: 1 / -1;
 }

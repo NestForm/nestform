@@ -659,7 +659,18 @@
 			valueEl.textContent = placeholder;
 			valueEl.classList.add('is-placeholder');
 		} else {
-			valueEl.textContent = value;
+			var label = value;
+			var selectedNative = native.options[native.selectedIndex];
+			if (selectedNative && selectedNative.textContent) {
+				label = selectedNative.textContent;
+			} else if (list) {
+				list.querySelectorAll('[role="option"]').forEach(function (opt) {
+					if (opt.getAttribute('data-value') === value && opt.textContent) {
+						label = opt.textContent;
+					}
+				});
+			}
+			valueEl.textContent = label;
 			valueEl.classList.remove('is-placeholder');
 		}
 		if (list) {

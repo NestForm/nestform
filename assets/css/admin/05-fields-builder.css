@@ -314,6 +314,7 @@
     text-align: left;
     cursor: pointer;
     transition: var(--nestform-transition);
+    outline: none !important;
 }
 
 .nestform-card__title-btn:focus-visible {

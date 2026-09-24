@@ -273,7 +273,13 @@ class Nestform_Admin_UI {
 		echo '<!DOCTYPE html><html><head><meta charset="utf-8" />';
 		echo '<meta name="viewport" content="width=device-width, initial-scale=1" />';
 		wp_head();
-		echo '<style>body{margin:24px;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;font-size:13px;color:#01123e}.nestform-preview-shell{max-width:720px;margin:0 auto;padding:24px;background:#fff;border:1px solid #e8e8ec;border-radius:10px}</style>';
+		wp_enqueue_style(
+			'nestform-preview-frame',
+			NESTFORM_URL . 'assets/css/preview-frame.css',
+			array(),
+			NESTFORM_VERSION
+		);
+		wp_print_styles( 'nestform-preview-frame' );
 		echo '</head><body class="nestform-preview-body"><div class="nestform-preview-shell">';
 		echo Nestform_Renderer::render( $form_id, array( 'preview' => true ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '</div>';
@@ -315,14 +321,9 @@ class Nestform_Admin_UI {
 		$layout_types = Nestform_Form_Config::layout_field_type_labels();
 		$input_types  = Nestform_Form_Config::input_field_type_labels();
 		$steps_enabled = ( '1' === (string) ( $settings['enable_steps'] ?? '0' ) );
-		$can_multi     = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::MULTI_STEP );
 		$can_quiz      = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::QUIZ_SURVEY );
 		$can_advanced  = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::ADVANCED_FIELDS );
 		$can_auto      = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::AUTOMATIONS );
-		// Runtime / editor: steps UI only when capability is active.
-		if ( ! $can_multi ) {
-			$steps_enabled = false;
-		}
 		$step_labels   = Nestform_Form_Config::parse_step_labels( (string) ( $settings['step_labels'] ?? '' ) );
 		$used_steps    = Nestform_Form_Config::collect_steps( $fields );
 		if ( $steps_enabled ) {
@@ -428,84 +429,8 @@ class Nestform_Admin_UI {
 				</div>
 				<?php endif; ?>
 
-				<?php if ( $can_multi ) : ?>
-				<div class="nestform-admin__surface nestform-steps-setup<?php echo $steps_enabled ? ' is-on' : ''; ?>" data-nestform-steps-setup data-nestform-can-multi-step="1">
-					<div class="nestform-steps-setup__bar">
-						<label
-							class="nestform-steps-setup__toggle<?php echo $steps_enabled ? ' is-on' : ''; ?>"
-							title="<?php esc_attr_e( 'Split into wizard steps.', 'nestform' ); ?>"
-						>
-							<input type="hidden" name="nestform[settings][enable_steps]" value="0" />
-							<input type="checkbox" name="nestform[settings][enable_steps]" value="1" <?php checked( $steps_enabled ); ?> data-nestform-enable-steps />
-							<span class="nestform-switch" aria-hidden="true"></span>
-							<span class="nestform-steps-setup__toggle-copy">
-								<span class="nestform-steps-setup__toggle-title"><?php esc_html_e( 'Multi-step form', 'nestform' ); ?></span>
-								<span class="nestform-steps-setup__toggle-desc"><?php esc_html_e( 'Split into wizard steps.', 'nestform' ); ?></span>
-							</span>
-						</label>
-
-						<div class="nestform-steps-setup__tools" data-nestform-steps-extra <?php echo $steps_enabled ? '' : 'hidden'; ?>>
-							<label class="nestform-steps-setup__tool">
-								<span class="nestform-admin__label"><?php esc_html_e( 'Next', 'nestform' ); ?></span>
-								<input type="text" class="nestform-admin__input nestform-steps-setup__input" name="nestform[settings][next_label]" value="<?php echo esc_attr( (string) ( $settings['next_label'] ?? '' ) ); ?>" placeholder="<?php esc_attr_e( 'Next', 'nestform' ); ?>" />
-							</label>
-							<label class="nestform-steps-setup__tool">
-								<span class="nestform-admin__label"><?php esc_html_e( 'Back', 'nestform' ); ?></span>
-								<input type="text" class="nestform-admin__input nestform-steps-setup__input" name="nestform[settings][prev_label]" value="<?php echo esc_attr( (string) ( $settings['prev_label'] ?? '' ) ); ?>" placeholder="<?php esc_attr_e( 'Back', 'nestform' ); ?>" />
-							</label>
-							<button type="button" class="nestform-admin__chip nestform-steps-setup__add-step" data-nestform-add-step>
-								<?php nestform_admin_icon( 'plus' ); ?>
-								<?php esc_html_e( 'Add step', 'nestform' ); ?>
-							</button>
-						</div>
-					</div>
-
-					<details class="nestform-steps-setup__branch" data-nestform-steps-branch <?php echo $steps_enabled ? '' : 'hidden'; ?>>
-						<summary class="nestform-steps-setup__branch-summary">
-							<span class="nestform-steps-setup__branch-title"><?php esc_html_e( 'Branch rules', 'nestform' ); ?></span>
-							<span class="nestform-steps-setup__branch-hint"><?php esc_html_e( 'Jump to another step when a field matches.', 'nestform' ); ?></span>
-						</summary>
-						<textarea class="nestform-admin__input nestform-admin__textarea" rows="3" name="nestform[settings][branch_rules]" data-nestform-branch-rules hidden><?php echo esc_textarea( (string) ( $settings['branch_rules'] ?? '' ) ); ?></textarea>
-						<div class="nestform-branch" data-nestform-branch-ui>
-							<ul class="nestform-branch__list" data-nestform-branch-list></ul>
-							<div class="nestform-branch__add">
-								<label class="nestform-admin__field-control">
-									<span class="nestform-admin__label"><?php esc_html_e( 'From step', 'nestform' ); ?></span>
-									<select class="nestform-admin__input" data-nestform-branch-from></select>
-								</label>
-								<label class="nestform-admin__field-control">
-									<span class="nestform-admin__label"><?php esc_html_e( 'Field', 'nestform' ); ?></span>
-									<select class="nestform-admin__input" data-nestform-branch-field></select>
-								</label>
-								<label class="nestform-admin__field-control">
-									<span class="nestform-admin__label"><?php esc_html_e( 'Operator', 'nestform' ); ?></span>
-									<select class="nestform-admin__input" data-nestform-branch-op>
-										<?php foreach ( Nestform_Form_Config::condition_operators() as $op_key => $op_label ) : ?>
-											<option value="<?php echo esc_attr( $op_key ); ?>"><?php echo esc_html( $op_label ); ?></option>
-										<?php endforeach; ?>
-									</select>
-								</label>
-								<label class="nestform-admin__field-control">
-									<span class="nestform-admin__label"><?php esc_html_e( 'Value', 'nestform' ); ?></span>
-									<input type="text" class="nestform-admin__input" data-nestform-branch-value placeholder="<?php esc_attr_e( 'Value', 'nestform' ); ?>" />
-								</label>
-								<label class="nestform-admin__field-control">
-									<span class="nestform-admin__label"><?php esc_html_e( 'To step', 'nestform' ); ?></span>
-									<select class="nestform-admin__input" data-nestform-branch-to></select>
-								</label>
-								<div class="nestform-branch__add-action">
-									<span class="nestform-admin__label" aria-hidden="true">&nbsp;</span>
-									<button type="button" class="nestform-btn nestform-btn--outline" data-nestform-branch-add>
-										<?php nestform_admin_icon( 'plus' ); ?>
-										<?php esc_html_e( 'Add rule', 'nestform' ); ?>
-									</button>
-								</div>
-							</div>
-							<p class="nestform-branch__hint" data-nestform-branch-hint hidden></p>
-						</div>
-					</details>
-					<textarea class="nestform-admin__input" hidden name="nestform[settings][step_labels]" data-nestform-step-labels><?php echo esc_textarea( (string) ( $settings['step_labels'] ?? '' ) ); ?></textarea>
-				</div>
+				<?php if ( has_action( 'nestform_render_steps_editor' ) ) : ?>
+					<?php do_action( 'nestform_render_steps_editor', $form_id, $settings ); ?>
 				<?php elseif ( class_exists( 'Nestform_Promotion' ) ) : ?>
 					<?php
 					Nestform_Promotion::render_feature_teaser(
@@ -2051,40 +1976,6 @@ class Nestform_Admin_UI {
 						</label>
 					</div>
 				</div>
-				<div class="nestform-admin__surface">
-					<div class="nestform-admin__panel-head">
-						<div>
-							<h3 class="nestform-admin__panel-title"><?php esc_html_e( 'Custom CSS', 'nestform' ); ?></h3>
-							<p class="nestform-admin__panel-desc"><?php esc_html_e( 'Scoped to this form only. Use the hooks below — no need to write the form id.', 'nestform' ); ?></p>
-						</div>
-					</div>
-					<label class="nestform-admin__field-control nestform-admin__field-control--full">
-						<span class="screen-reader-text"><?php esc_html_e( 'Custom CSS', 'nestform' ); ?></span>
-						<textarea
-							class="nestform-admin__input nestform-admin__textarea nestform-style-css"
-							rows="10"
-							name="nestform[settings][style_custom_css]"
-							spellcheck="false"
-							placeholder="<?php echo esc_attr( Nestform_Form_Config::style_custom_css_example() ); ?>"
-						><?php echo esc_textarea( (string) ( $settings['style_custom_css'] ?? '' ) ); ?></textarea>
-					</label>
-					<details class="nestform-style-hooks">
-						<summary><?php esc_html_e( 'Class hooks', 'nestform' ); ?></summary>
-						<ul class="nestform-style-hooks__list">
-							<li><code>.nest-form</code> — <?php esc_html_e( 'root form', 'nestform' ); ?></li>
-							<li><code>.nest-form__label</code> / <code>.label</code></li>
-							<li><code>.nest-form__input</code> / <code>.input</code> / <code>.textarea</code></li>
-							<li><code>.nest-form__submit</code> / <code>.nest-form__next</code> / <code>.nest-form__prev</code></li>
-							<li><code>.nest-form__field--{type}</code> — <?php esc_html_e( 'e.g. email, tel, select', 'nestform' ); ?></li>
-							<li><code>.nest-form__field--half</code> / <code>--third</code> / <code>--two-thirds</code> / <code>--quarter</code> / <code>--custom</code></li>
-							<li><code>.nest-form__progress</code> / <code>.nest-form__progress-fill</code></li>
-							<li><code>.nest-form-select__trigger</code> / <code>.nest-form-select__list</code></li>
-							<li><code>.nest-form__status--success</code> / <code>.nest-form__status--error</code></li>
-							<li><code>--nest-form-font-size</code> / <code>--nest-form-gap</code> / <code>--nest-form-control-pad</code></li>
-							<li><code>.nest-form--skin-classic</code> — <?php esc_html_e( 'current skin modifier', 'nestform' ); ?></li>
-						</ul>
-					</details>
-				</div>
 					</div>
 					<?php
 					$live_style   = Nestform_Form_Config::style_inline_css( $settings );
@@ -2145,49 +2036,6 @@ class Nestform_Admin_UI {
 			</div>
 			<?php self::render_templates_panel( $form_id ); ?>
 		</div>
-		<script>
-		(function () {
-			var root = document.querySelector('[data-nestform-admin][data-form-id="<?php echo esc_js( (string) (int) $form_id ); ?>"]');
-			if (!root) {
-				return;
-			}
-			var tabs = ['fields', 'messages', 'mail', 'settings', 'appearance'];
-			var formId = root.getAttribute('data-form-id') || '0';
-			var key = 'nestform_editor_tab_' + formId;
-			var id = '';
-			var hash = String(window.location.hash || '').replace(/^#/, '');
-			if (hash.indexOf('nf-tab=') === 0) {
-				id = hash.slice(7).split('&')[0];
-			} else if (tabs.indexOf(hash) !== -1) {
-				id = hash;
-			}
-			if (!id || tabs.indexOf(id) === -1) {
-				try {
-					id = window.sessionStorage.getItem(key) || '';
-				} catch (err) {
-					id = '';
-				}
-			}
-			if (!id || tabs.indexOf(id) === -1) {
-				return;
-			}
-			var current = root.querySelector('[data-nestform-tab].is-active');
-			if (current && current.getAttribute('data-nestform-tab') === id) {
-				return;
-			}
-			root.querySelectorAll('[data-nestform-tab]').forEach(function (t) {
-				var active = t.getAttribute('data-nestform-tab') === id;
-				t.classList.toggle('is-active', active);
-				t.setAttribute('aria-selected', active ? 'true' : 'false');
-				t.setAttribute('tabindex', active ? '0' : '-1');
-			});
-			root.querySelectorAll('[data-nestform-panel]').forEach(function (panel) {
-				var match = panel.getAttribute('data-nestform-panel') === id;
-				panel.classList.toggle('is-active', match);
-				panel.hidden = !match;
-			});
-		})();
-		</script>
 		<?php
 	}
 

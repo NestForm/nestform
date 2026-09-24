@@ -349,9 +349,7 @@ class Nestform_Form_Config {
 		$density   = isset( $raw['style_density'] ) ? sanitize_key( (string) $raw['style_density'] ) : 'md';
 		$settings['style_density'] = isset( $densities[ $density ] ) ? $density : 'md';
 
-		if ( isset( $raw['style_custom_css'] ) ) {
-			$settings['style_custom_css'] = self::sanitize_custom_css( (string) $raw['style_custom_css'] );
-		}
+		$settings['style_custom_css'] = '';
 
 		return $settings;
 	}
@@ -1110,9 +1108,6 @@ class Nestform_Form_Config {
 	 * @return array<string, string>
 	 */
 	public static function apply_feature_gates( array $settings ) {
-		if ( ! class_exists( 'Nestform_Features' ) || ! Nestform_Features::can( Nestform_Features::MULTI_STEP ) ) {
-			$settings['enable_steps'] = '0';
-		}
 		if ( ! class_exists( 'Nestform_Features' ) || ! Nestform_Features::can( Nestform_Features::QUIZ_SURVEY ) ) {
 			$settings['form_mode']          = 'form';
 			$settings['quiz_show_score']    = '0';
@@ -1323,31 +1318,13 @@ class Nestform_Form_Config {
 				isset( $config['settings']['hubspot_map'] ) ? $config['settings']['hubspot_map'] : array()
 			);
 
-			$can_steps   = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::MULTI_STEP );
-			$existing    = self::get_settings_raw( $form_id );
-
-			if ( $can_steps ) {
-				$settings['enable_steps'] = ! empty( $config['settings']['enable_steps'] ) ? '1' : '0';
-				if ( isset( $config['settings']['step_labels'] ) ) {
-					$settings['step_labels'] = sanitize_textarea_field( (string) $config['settings']['step_labels'] );
-				}
-				if ( isset( $config['settings']['next_label'] ) ) {
-					$settings['next_label'] = sanitize_text_field( (string) $config['settings']['next_label'] );
-				}
-				if ( isset( $config['settings']['prev_label'] ) ) {
-					$settings['prev_label'] = sanitize_text_field( (string) $config['settings']['prev_label'] );
-				}
-				if ( isset( $config['settings']['branch_rules'] ) ) {
-					$settings['branch_rules'] = sanitize_textarea_field( (string) $config['settings']['branch_rules'] );
-				}
-			} else {
-				// Preserve stored Pro settings; ignore POST so Free cannot enable steps.
-				$settings['enable_steps']  = isset( $existing['enable_steps'] ) ? (string) $existing['enable_steps'] : '0';
-				$settings['step_labels']   = isset( $existing['step_labels'] ) ? (string) $existing['step_labels'] : '';
-				$settings['next_label']    = isset( $existing['next_label'] ) ? (string) $existing['next_label'] : $settings['next_label'];
-				$settings['prev_label']    = isset( $existing['prev_label'] ) ? (string) $existing['prev_label'] : $settings['prev_label'];
-				$settings['branch_rules']  = isset( $existing['branch_rules'] ) ? (string) $existing['branch_rules'] : '';
-			}
+			$existing = self::get_settings_raw( $form_id );
+			$settings['enable_steps'] = isset( $existing['enable_steps'] ) ? (string) $existing['enable_steps'] : '0';
+			$settings['step_labels']  = isset( $existing['step_labels'] ) ? (string) $existing['step_labels'] : '';
+			$settings['next_label']   = isset( $existing['next_label'] ) ? (string) $existing['next_label'] : $settings['next_label'];
+			$settings['prev_label']   = isset( $existing['prev_label'] ) ? (string) $existing['prev_label'] : $settings['prev_label'];
+			$settings['branch_rules'] = isset( $existing['branch_rules'] ) ? (string) $existing['branch_rules'] : '';
+			$settings = apply_filters( 'nestform_settings_from_request', $settings, $config, $form_id );
 
 			$settings = self::merge_webhook_settings(
 				isset( $config['settings'] ) && is_array( $config['settings'] ) ? $config['settings'] : array(),

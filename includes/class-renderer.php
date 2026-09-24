@@ -74,28 +74,15 @@ class Nestform_Renderer {
 		$settings = Nestform_Form_Config::apply_feature_gates( $settings );
 		$messages = $config['messages'];
 		$fields   = self::filter_public_fields( Nestform_Form_Config::get_fields( $form_id ) );
-		$steps_on = self::multi_step_enabled( $settings, $fields );
-		$steps    = $steps_on ? Nestform_Form_Config::collect_steps( $fields ) : array( 1 );
-		$labels   = Nestform_Form_Config::parse_step_labels( (string) ( $settings['step_labels'] ?? '' ) );
-		$steps_count = count( $steps );
-		$form_class  = 'nest-form' . ( $steps_on && $steps_count > 1 ? ' nest-form--steps' : '' );
+		$form_class    = (string) apply_filters( 'nestform_form_class', 'nest-form', $settings, $fields );
 		$style_classes = Nestform_Form_Config::style_form_classes( $settings );
 		if ( array() !== $style_classes ) {
 			$form_class .= ' ' . implode( ' ', $style_classes );
 		}
 		$style_inline = Nestform_Form_Config::style_inline_css( $settings );
-		$custom_css  = Nestform_Form_Config::scope_custom_css(
-			(string) ( $settings['style_custom_css'] ?? '' ),
-			'#' . $uid
-		);
-		$has_file    = Nestform_Form_Config::has_file_field( $fields );
+		$has_file     = Nestform_Form_Config::has_file_field( $fields );
 
 		ob_start();
-		if ( $custom_css !== '' ) :
-			?>
-			<style id="<?php echo esc_attr( $uid ); ?>-custom-css"><?php echo $custom_css; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sanitized CSS only. ?></style>
-			<?php
-		endif;
 		?>
 		<form
 			class="<?php echo esc_attr( $form_class ); ?>"
@@ -126,12 +113,6 @@ class Nestform_Renderer {
 			data-msg-file-too-large="<?php echo esc_attr( (string) ( $messages['file_too_large'] ?? '' ) ); ?>"
 			data-msg-too-many-files="<?php echo esc_attr( (string) ( $messages['too_many_files'] ?? '' ) ); ?>"
 			data-error-generic="<?php echo esc_attr( (string) ( $messages['error_generic'] ?? '' ) ); ?>"
-			<?php if ( $steps_on && $steps_count > 1 ) : ?>
-				data-nest-form-steps="1"
-				data-steps="<?php echo esc_attr( wp_json_encode( array_values( $steps ) ) ); ?>"
-				data-step-index="0"
-				data-branch-rules="<?php echo esc_attr( wp_json_encode( Nestform_Form_Config::parse_branch_rules( (string) ( $settings['branch_rules'] ?? '' ) ) ) ); ?>"
-			<?php endif; ?>
 			<?php
 			$form_extra_attrs = (array) apply_filters(
 				'nestform_form_html_attrs',
@@ -153,17 +134,12 @@ class Nestform_Renderer {
 		>
 			<input type="hidden" name="action" value="nestform_submit" />
 			<?php
-			$can_quiz = class_exists( 'Nestform_Features' ) && Nestform_Features::can( Nestform_Features::QUIZ_SURVEY );
-			if ( $can_quiz && ! empty( $settings['quiz_timer_seconds'] ) && (int) $settings['quiz_timer_seconds'] > 0 ) :
-				?>
-				<input type="hidden" name="nestform_quiz_started_at" value="<?php echo esc_attr( (string) time() ); ?>" data-nestform-quiz-started />
-			<?php endif; ?>
+			echo apply_filters( 'nestform_form_quiz_inputs', '', $form_id, $settings ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pro returns escaped inputs.
+			?>
 			<div class="nest-form__result" data-nest-form-result hidden></div>
 			<input type="hidden" name="form_id" value="<?php echo esc_attr( (string) $form_id ); ?>" />
 			<input type="hidden" name="nestform_loaded_at" value="<?php echo esc_attr( (string) time() ); ?>" />
-			<?php if ( $steps_on ) : ?>
-				<input type="hidden" name="nestform_visited_steps" value="1" data-nest-form-visited-steps />
-			<?php endif; ?>
+			<?php echo apply_filters( 'nestform_form_hidden_inputs', '', $form_id, $settings, $fields ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pro returns escaped inputs. ?>
 			<?php wp_nonce_field( 'nestform_submit_' . $form_id, 'nestform_nonce' ); ?>
 			<?php if ( $is_preview ) : ?>
 				<input type="hidden" name="nestform_preview" value="1" />
@@ -176,64 +152,19 @@ class Nestform_Renderer {
 				</label>
 			</div>
 
-			<?php if ( $steps_on && $steps_count > 1 ) : ?>
-				<div class="nest-form__progress" data-nest-form-progress role="navigation" aria-label="<?php esc_attr_e( 'Form steps', 'nestform' ); ?>">
-					<div class="nest-form__progress-bar" aria-hidden="true">
-						<span class="nest-form__progress-fill" data-nest-form-progress-fill style="width: <?php echo esc_attr( (string) ( 100 / $steps_count ) ); ?>%"></span>
-					</div>
-					<ol class="nest-form__progress-steps">
-						<?php foreach ( $steps as $i => $step_num ) : ?>
-							<?php
-							$step_label = isset( $labels[ $i + 1 ] ) ? $labels[ $i + 1 ] : sprintf(
-								/* translators: %d: step number */
-								__( 'Step %d', 'nestform' ),
-								$i + 1
-							);
-							?>
-							<li class="nest-form__progress-step<?php echo 0 === $i ? ' is-active' : ''; ?>" data-nest-form-progress-step data-step="<?php echo esc_attr( (string) $step_num ); ?>">
-								<span class="nest-form__progress-index"><?php echo esc_html( (string) ( $i + 1 ) ); ?></span>
-								<span class="nest-form__progress-label"><?php echo esc_html( $step_label ); ?></span>
-							</li>
-						<?php endforeach; ?>
-					</ol>
-				</div>
-			<?php endif; ?>
+			<?php echo apply_filters( 'nestform_form_progress_html', '', $form_id, $settings, $fields ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pro returns escaped markup. ?>
 
 			<div class="nest-form__fields">
-				<?php if ( $steps_on && $steps_count > 1 ) : ?>
-					<?php foreach ( $steps as $i => $step_num ) : ?>
-						<?php
-						$step_label = isset( $labels[ $i + 1 ] ) ? $labels[ $i + 1 ] : sprintf(
-							/* translators: %d: step number */
-							__( 'Step %d', 'nestform' ),
-							$i + 1
-						);
-						?>
-						<div
-							class="nest-form__step<?php echo 0 === $i ? ' is-active' : ''; ?>"
-							data-nest-form-step-panel
-							data-step="<?php echo esc_attr( (string) $step_num ); ?>"
-							<?php echo 0 === $i ? '' : ' hidden'; ?>
-						>
-							<p class="nest-form__step-title"><?php echo esc_html( $step_label ); ?></p>
-							<div class="nest-form__step-fields">
-								<?php foreach ( $fields as $field ) : ?>
-									<?php
-									$field_step = isset( $field['step'] ) ? (int) $field['step'] : 1;
-									if ( $field_step !== (int) $step_num ) {
-										continue;
-									}
-									echo self::render_field( $field, $uid, false ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-									?>
-								<?php endforeach; ?>
-							</div>
-						</div>
-					<?php endforeach; ?>
-				<?php else : ?>
-					<?php foreach ( $fields as $field ) : ?>
-						<?php echo self::render_field( $field, $uid, false ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					<?php endforeach; ?>
-				<?php endif; ?>
+				<?php
+				$fields_html = apply_filters( 'nestform_form_fields_html', null, $fields, $uid, $settings );
+				if ( is_string( $fields_html ) ) {
+					echo $fields_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pro builds field markup via render_field().
+				} else {
+					foreach ( $fields as $field ) {
+						echo self::render_field( $field, $uid, false ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					}
+				}
+				?>
 			</div>
 			<?php
 			$captcha_html = (string) apply_filters( 'nestform_captcha_html', '', $form_id, $config );
@@ -246,30 +177,26 @@ class Nestform_Renderer {
 				if ( 'recaptcha_v3' === $captcha_provider ) {
 					$captcha_class .= ' nest-form__captcha--invisible';
 				}
-				$captcha_hidden = $steps_on && $steps_count > 1;
+				$captcha_hidden = (bool) apply_filters( 'nestform_captcha_starts_hidden', false, $settings, $fields );
 				?>
 				<div class="<?php echo esc_attr( $captcha_class ); ?>"<?php echo $captcha_provider !== '' ? ' data-nest-form-captcha="' . esc_attr( $captcha_provider ) . '"' : ''; ?> data-nest-form-captcha-wrap<?php echo $captcha_hidden ? ' hidden' : ''; ?>>
-					<?php echo $captcha_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo wp_kses_post( $captcha_html ); ?>
 				</div>
 			<?php endif; ?>
 			<div class="nest-form__actions">
-				<?php if ( $steps_on && $steps_count > 1 ) : ?>
-					<button type="button" class="button button--outline nest-form__prev" data-nest-form-prev hidden>
-						<?php echo esc_html( (string) ( $settings['prev_label'] ?: __( 'Back', 'nestform' ) ) ); ?>
-					</button>
-					<button type="button" class="button button--primary nest-form__next" data-nest-form-next>
-						<?php echo esc_html( (string) ( $settings['next_label'] ?: __( 'Continue', 'nestform' ) ) ); ?>
-					</button>
-					<button type="submit" class="button button--primary nest-form__submit" data-nest-form-submit hidden>
-						<span class="nest-form__submit-spinner" aria-hidden="true"></span>
-						<span class="nest-form__submit-label"><?php echo esc_html( $settings['submit_label'] ); ?></span>
-					</button>
-				<?php else : ?>
+				<?php
+				$actions_html = apply_filters( 'nestform_form_actions_html', null, $settings, $fields );
+				if ( is_string( $actions_html ) ) {
+					echo $actions_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pro returns escaped buttons.
+				} else {
+					?>
 					<button type="submit" class="button button--primary nest-form__submit">
 						<span class="nest-form__submit-spinner" aria-hidden="true"></span>
 						<span class="nest-form__submit-label"><?php echo esc_html( $settings['submit_label'] ); ?></span>
 					</button>
-				<?php endif; ?>
+					<?php
+				}
+				?>
 			</div>
 			<div class="nest-form__status" data-nest-form-status role="status" aria-live="polite" aria-atomic="true" hidden></div>
 		</form>
@@ -298,7 +225,7 @@ class Nestform_Renderer {
 	 * @param bool   $start_hidden Hide initially (other steps).
 	 * @return string
 	 */
-	private static function render_field( array $field, $uid, $start_hidden = false ) {
+	public static function render_field( array $field, $uid, $start_hidden = false ) {
 		if ( ! Nestform_Form_Config::is_field_enabled( $field ) ) {
 			return '';
 		}
@@ -762,21 +689,6 @@ class Nestform_Renderer {
 			$out[] = $field;
 		}
 		return $out;
-	}
-
-	/**
-	 * @param array<string, mixed>             $settings Settings.
-	 * @param array<int, array<string, mixed>> $fields   Fields.
-	 * @return bool
-	 */
-	private static function multi_step_enabled( array $settings, array $fields ) {
-		if ( ! class_exists( 'Nestform_Features' ) || ! Nestform_Features::can( Nestform_Features::MULTI_STEP ) ) {
-			return false;
-		}
-		if ( '1' !== (string) ( $settings['enable_steps'] ?? '0' ) ) {
-			return false;
-		}
-		return count( Nestform_Form_Config::collect_steps( $fields ) ) > 1;
 	}
 
 	public static function enqueue_front() {

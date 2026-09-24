@@ -439,7 +439,12 @@ class Nestform_Submit {
 			}
 
 			$req = ! empty( $field['required'] );
-			$raw = isset( $_POST[ $name ] ) ? wp_unslash( $_POST[ $name ] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$raw = isset( $_POST[ $name ] ) ? wp_unslash( $_POST[ $name ] ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			if ( is_array( $raw ) ) {
+				$raw = map_deep( $raw, 'sanitize_text_field' );
+			} else {
+				$raw = sanitize_text_field( (string) ( $raw ?? '' ) );
+			}
 
 			/**
 			 * Early validation for custom field types (Pro).

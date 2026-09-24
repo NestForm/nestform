@@ -24,7 +24,7 @@ class Nestform_Post_Type {
 		add_filter( 'submenu_file', array( __CLASS__, 'submenu_file' ) );
 		add_action( 'admin_post_nestform_duplicate', array( __CLASS__, 'handle_duplicate' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'duplicate_notice' ) );
-		add_action( 'admin_head', array( __CLASS__, 'menu_icon_css' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'menu_icon_css' ) );
 		add_filter( 'post_updated_messages', array( __CLASS__, 'updated_messages' ) );
 		add_filter( 'bulk_post_updated_messages', array( __CLASS__, 'bulk_updated_messages' ), 10, 2 );
 	}
@@ -159,10 +159,9 @@ class Nestform_Post_Type {
 	 * Fit the PNG logo in the WP admin menu.
 	 */
 	public static function menu_icon_css() {
-		echo '<style id="nestform-menu-icon">'
-			. '#adminmenu .menu-icon-nestform .wp-menu-image,#adminmenu #menu-posts-nestform .wp-menu-image{width:36px;height:34px;overflow:hidden}'
-			. '#adminmenu .menu-icon-nestform .wp-menu-image img,#adminmenu #menu-posts-nestform .wp-menu-image img,#adminmenu .wp-menu-image img[src*="logo.webp"]{box-sizing:border-box;display:block;width:20px!important;height:20px!important;max-width:20px!important;max-height:20px!important;margin:7px auto 0;padding:0!important;object-fit:contain;opacity:1}'
-			. '</style>';
+		$css = '#adminmenu .menu-icon-nestform .wp-menu-image,#adminmenu #menu-posts-nestform .wp-menu-image{width:36px;height:34px;overflow:hidden}'
+			. '#adminmenu .menu-icon-nestform .wp-menu-image img,#adminmenu #menu-posts-nestform .wp-menu-image img,#adminmenu .wp-menu-image img[src*="logo.webp"]{box-sizing:border-box;display:block;width:20px!important;height:20px!important;max-width:20px!important;max-height:20px!important;margin:7px auto 0;padding:0!important;object-fit:contain;opacity:1}';
+		wp_add_inline_style( 'admin-menu', $css );
 	}
 
 	/**
@@ -668,7 +667,7 @@ class Nestform_Post_Type {
 								 * @param string  $entry_url Entries/candidates URL.
 								 */
 								$extra_actions = (string) apply_filters( 'nestform_hub_row_actions_before_more', '', $form, $entry_url );
-								echo $extra_actions; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- filter returns escaped HTML
+								echo wp_kses_post( $extra_actions );
 								?>
 								<div class="nestform-hub__more" data-nestform-hub-more>
 									<button

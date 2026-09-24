@@ -3072,7 +3072,7 @@ class Nestform_Submissions {
 			$key_s   = (string) $key;
 			$ftype   = $types[ $key_s ] ?? '';
 			if ( 'password' === $ftype || ( is_string( $value ) && '[redacted]' === $value ) ) {
-				$display = __( '[redacted]', 'nestform' );
+				$display = esc_html__( '[redacted]', 'nestform' );
 			} else {
 				$display = self::format_value( $value, false, $ftype );
 			}

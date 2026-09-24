@@ -17,7 +17,19 @@
 		var labelEl = toggle.querySelector('.nestform-app__sidebar-toggle-label');
 
 		function isCollapsed() {
-			return app.classList.contains('nestform-app--sidebar-collapsed');
+			return (
+				app.classList.contains('nestform-app--sidebar-collapsed') ||
+				document.documentElement.classList.contains('nestform-sidebar-collapsed')
+			);
+		}
+
+		function applyCollapsed(collapsed) {
+			app.classList.toggle('nestform-app--sidebar-collapsed', collapsed);
+			document.documentElement.classList.toggle('nestform-sidebar-collapsed', collapsed);
+		}
+
+		if (document.documentElement.classList.contains('nestform-sidebar-collapsed')) {
+			app.classList.add('nestform-app--sidebar-collapsed');
 		}
 
 		function syncToggleUi() {
@@ -36,7 +48,7 @@
 
 		toggle.addEventListener('click', function () {
 			var collapsed = !isCollapsed();
-			app.classList.toggle('nestform-app--sidebar-collapsed', collapsed);
+			applyCollapsed(collapsed);
 			try {
 				window.localStorage.setItem(
 					'nestform_sidebar_collapsed',

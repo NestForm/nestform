@@ -587,8 +587,8 @@ class Nestform_Dashboard {
 								 * @param string $html Empty.
 								 * @param array  $ctx  Context.
 								 */
-								$chart_extra = (string) apply_filters( 'nestform_dashboard_chart_data', '', $chart_ctx );
-								echo $chart_extra; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pro admin HTML.
+								$chart_extra = apply_filters( 'nestform_dashboard_chart_data', '', $chart_ctx );
+								self::echo_filter_html( $chart_extra );
 							}
 							?>
 							<div class="nestform-dash__legend">
@@ -730,8 +730,8 @@ class Nestform_Dashboard {
 
 				if ( '' !== $insights_html || '' !== $responses_html ) {
 					echo '<div class="nestform-dash__deep">';
-					echo $insights_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo $responses_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					self::echo_filter_html( $insights_html );
+					self::echo_filter_html( $responses_html );
 					echo '</div>';
 				}
 				?>
@@ -988,5 +988,41 @@ class Nestform_Dashboard {
 				}
 			)
 		);
+	}
+
+	/**
+	 * Print filtered dashboard HTML. JSON data islands stay hidden in script tags.
+	 *
+	 * @param mixed $html Filter output.
+	 */
+	private static function echo_filter_html( $html ) {
+		$html    = (string) $html;
+		$islands = array();
+		$stripped = preg_replace_callback(
+			'/<script\b([^>]*)>(.*?)<\/script>/is',
+			static function ( $matches ) use ( &$islands ) {
+				$attrs = $matches[1];
+				if ( ! preg_match( '/\btype\s*=\s*([\'"])application\/json\1/i', $attrs ) ) {
+					return '';
+				}
+				if ( ! preg_match( '/\b(data-nestform-[a-z0-9-]+)/', $attrs, $name ) ) {
+					return '';
+				}
+				$data = json_decode( $matches[2], true );
+				if ( ! is_array( $data ) ) {
+					return '';
+				}
+				$islands[] = '<script type="application/json" ' . $name[1] . '>' . wp_json_encode( $data ) . '</script>';
+				return '';
+			},
+			$html
+		);
+		if ( ! is_string( $stripped ) ) {
+			$stripped = '';
+		}
+		echo wp_kses_post( $stripped );
+		foreach ( $islands as $island ) {
+			echo $island; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- re-encoded JSON, attribute name is whitelisted.
+		}
 	}
 }

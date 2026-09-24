@@ -461,22 +461,6 @@ function nestform_render_app_open( $current ) {
 	}
 	?>
 	<div class="nestform-app" data-nestform-app>
-		<script>
-		(function () {
-			try {
-				if ( window.localStorage.getItem( 'nestform_sidebar_collapsed' ) === '1' ) {
-					var app = document.currentScript && document.currentScript.parentElement;
-					if ( app ) {
-						app.classList.add( 'nestform-app--sidebar-collapsed' );
-						var toggle = app.querySelector( '[data-nestform-sidebar-toggle]' );
-						if ( toggle ) {
-							toggle.setAttribute( 'aria-expanded', 'false' );
-						}
-					}
-				}
-			} catch ( e ) {}
-		})();
-		</script>
 		<aside class="nestform-app__sidebar" id="nestform-app-sidebar">
 			<div class="nestform-app__brand">
 				<img
@@ -650,8 +634,10 @@ function nestform_admin_notice_boot_css() {
 	}
 	remove_action( 'admin_notices', 'update_nag', 3 );
 	remove_action( 'network_admin_notices', 'update_nag', 3 );
-	echo '<style id="nestform-notice-boot">'
-		. 'body.nestform-admin-screen .update-nag,'
+	if ( ! wp_style_is( 'nestform-admin', 'enqueued' ) ) {
+		return;
+	}
+	$css = 'body.nestform-admin-screen .update-nag,'
 		. 'body.nestform-admin-screen div.notice.update-nag,'
 		. 'body.nestform-editor-app .update-nag,'
 		. 'body.nestform-editor-app div.notice.update-nag{display:none!important;}'
@@ -697,11 +683,11 @@ function nestform_admin_notice_boot_css() {
 		. 'body.nestform-editor-app div.notice:not(.inline):not(.hidden):not(.update-nag),'
 		. 'body.nestform-editor-app div.updated:not(.inline),'
 		. 'body.nestform-editor-app div.error:not(.inline){right:240px!important;}'
-		. '@media screen and (max-width:782px){body.nestform-admin-screen div.notice:not(.inline):not(.hidden):not(.update-nag),body.nestform-admin-screen div.updated:not(.inline),body.nestform-admin-screen div.error:not(.inline){left:16px!important;right:16px!important;width:auto!important;}}'
-		. '</style>';
+		. '@media screen and (max-width:782px){body.nestform-admin-screen div.notice:not(.inline):not(.hidden):not(.update-nag),body.nestform-admin-screen div.updated:not(.inline),body.nestform-admin-screen div.error:not(.inline){left:16px!important;right:16px!important;width:auto!important;}}';
+	wp_add_inline_style( 'nestform-admin', $css );
 }
 
-add_action( 'admin_head', 'nestform_admin_notice_boot_css', 1 );
+add_action( 'admin_enqueue_scripts', 'nestform_admin_notice_boot_css', 20 );
 
 add_filter(
 	'admin_body_class',
@@ -941,11 +927,19 @@ add_action(
 			$ver_export ? $ver_export : NESTFORM_VERSION,
 			true
 		);
+		$ver_boot = (string) filemtime( nestform_admin_js_path( 'sidebar-boot.js' ) );
+		wp_enqueue_script(
+			'nestform-sidebar-boot',
+			nestform_admin_js_url( 'sidebar-boot.js' ),
+			array(),
+			$ver_boot ? $ver_boot : NESTFORM_VERSION,
+			false
+		);
 		$ver_pro = (string) filemtime( nestform_admin_js_path( 'admin-pro.js' ) );
 		wp_enqueue_script(
 			'nestform-admin-pro',
 			nestform_admin_js_url( 'admin-pro.js' ),
-			array(),
+			array( 'nestform-sidebar-boot' ),
 			$ver_pro ? $ver_pro : NESTFORM_VERSION,
 			true
 		);

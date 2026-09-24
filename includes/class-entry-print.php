@@ -99,11 +99,27 @@ class Nestform_Entry_Print {
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex, nofollow">
 	<title><?php echo esc_html( $title ); ?></title>
-	<style><?php echo self::styles(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed stylesheet, no user data. ?></style>
+	<?php
+	wp_enqueue_style(
+		'nestform-entry-print',
+		NESTFORM_URL . 'assets/css/entry-print.css',
+		array(),
+		NESTFORM_VERSION
+	);
+	wp_enqueue_script(
+		'nestform-entry-print',
+		NESTFORM_URL . 'assets/js/admin/entry-print.js',
+		array(),
+		NESTFORM_VERSION,
+		false
+	);
+	wp_print_styles( 'nestform-entry-print' );
+	wp_print_scripts( 'nestform-entry-print' );
+	?>
 </head>
 <body class="nestform-print-body">
 	<div class="nestform-print-actions">
-		<button type="button" class="nestform-print-actions__button" onclick="window.print()"><?php esc_html_e( 'Print', 'nestform' ); ?></button>
+		<button type="button" class="nestform-print-actions__button" data-nestform-print><?php esc_html_e( 'Print', 'nestform' ); ?></button>
 	</div>
 
 	<article class="nestform-print">
@@ -235,93 +251,5 @@ class Nestform_Entry_Print {
 			<div class="nestform-print__note"><?php echo wp_kses_post( wpautop( $text ) ); ?></div>
 			<?php
 		}
-	}
-
-	/**
-	 * Inline print stylesheet (BEM: nestform-print*).
-	 *
-	 * @return string
-	 */
-	private static function styles() {
-		return '
-		:root { color-scheme: light; }
-		* { box-sizing: border-box; }
-		.nestform-print-body {
-			margin: 0;
-			padding: 32px 16px 64px;
-			background: #f1f1f1;
-			color: #1d2327;
-			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-			font-size: 15px;
-			line-height: 1.6;
-		}
-		.nestform-print-actions { max-width: 720px; margin: 0 auto 16px; text-align: right; }
-		.nestform-print-actions__button {
-			padding: 8px 16px;
-			border: 1px solid #2271b1;
-			border-radius: 4px;
-			background: #2271b1;
-			color: #fff;
-			font: inherit;
-			font-size: 14px;
-			cursor: pointer;
-		}
-		.nestform-print {
-			max-width: 720px;
-			margin: 0 auto;
-			padding: 48px;
-			background: #fff;
-			box-shadow: 0 1px 3px rgba(0,0,0,.13);
-		}
-		.nestform-print p,
-		.nestform-print dt,
-		.nestform-print dd { margin: 0; padding: 0; }
-		.nestform-print__header { margin-bottom: 32px; padding-bottom: 16px; border-bottom: 2px solid #1d2327; }
-		.nestform-print__site { margin: 0 0 4px; color: #646970; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; }
-		.nestform-print__title { margin: 0 0 16px; font-size: 26px; line-height: 1.25; }
-		.nestform-print__meta { display: flex; flex-wrap: wrap; gap: 24px 32px; margin: 0; }
-		.nestform-print__meta-item { margin: 0; min-width: 0; }
-		.nestform-print__meta-label { color: #646970; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
-		.nestform-print__meta-value { margin: 2px 0 0; font-weight: 600; }
-		.nestform-print__body {
-			display: flex;
-			flex-direction: column;
-			gap: 16px;
-		}
-		.nestform-print__section { margin: 8px 0 0; }
-		.nestform-print__section-title { margin: 0; padding-bottom: 8px; border-bottom: 1px solid #dcdcde; font-size: 16px; }
-		.nestform-print__note { color: #50575e; }
-		.nestform-print__field {
-			display: grid;
-			grid-template-columns: minmax(7em, 32%) minmax(0, 1fr);
-			column-gap: 24px;
-			align-items: start;
-			page-break-inside: avoid;
-			break-inside: avoid;
-		}
-		.nestform-print__label {
-			margin: 0;
-			color: #646970;
-			font-size: 13px;
-			font-weight: 600;
-			line-height: 1.45;
-		}
-		.nestform-print__value {
-			margin: 0;
-			min-width: 0;
-			line-height: 1.45;
-			overflow-wrap: anywhere;
-		}
-		.nestform-print__value--empty { color: #8c8f94; font-style: italic; }
-		.nestform-print__footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #dcdcde; color: #646970; font-size: 12px; }
-
-		@media print {
-			.nestform-print-body { padding: 0; background: #fff; font-size: 12pt; }
-			.nestform-print-actions { display: none; }
-			.nestform-print { max-width: none; padding: 0; box-shadow: none; }
-			a { color: inherit; text-decoration: none; }
-		}
-		@page { margin: 18mm; }
-		';
 	}
 }

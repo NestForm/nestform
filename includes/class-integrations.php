@@ -59,6 +59,14 @@ class Nestform_Integrations {
 			),
 		);
 
+		$promote = class_exists( 'Nestform_Promotion' ) && Nestform_Promotion::should_promote();
+		if ( ! $promote && ( ! class_exists( 'Nestform_Features' ) || ! Nestform_Features::can( Nestform_Features::PAYMENTS ) ) ) {
+			unset( $sections['stripe'] );
+		}
+		if ( ! $promote && ( ! class_exists( 'Nestform_Features' ) || ! Nestform_Features::can( Nestform_Features::HUBSPOT ) ) ) {
+			unset( $sections['hubspot'] );
+		}
+
 		/**
 		 * Filter Integrations sidebar sections (Pro modules, etc.).
 		 *

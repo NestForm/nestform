@@ -33,6 +33,7 @@ class Nestform_Promotion {
 
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ), 60 );
+		add_action( 'admin_init', array( __CLASS__, 'redirect_hidden_page' ) );
 		add_action( 'admin_post_nestform_dismiss_pro_notice', array( __CLASS__, 'dismiss_notice' ) );
 	}
 
@@ -63,7 +64,7 @@ class Nestform_Promotion {
 	 * @return string
 	 */
 	public static function summary() {
-		return __( 'Multi-step flows, quizzes, HTML email, PDF, Stripe, HubSpot, automations, and lead insights.', 'nestform' );
+		return __( 'Multi-step flows, quizzes, HTML email, PDF, Stripe, HubSpot, automations, lead insights, and optional Recruiting.', 'nestform' );
 	}
 
 	/**
@@ -110,6 +111,11 @@ class Nestform_Promotion {
 				'free' => __( 'Dashboard with submission counts and a basic activity view.', 'nestform' ),
 				'pro'  => __( 'Conversion metrics, lead insights, and deeper analytics charts.', 'nestform' ),
 			),
+			array(
+				'job'  => __( 'Recruiting', 'nestform' ),
+				'free' => __( 'Not included.', 'nestform' ),
+				'pro'  => __( 'Optional module for job vacancies, a recruiter inbox, and a pipeline. Turn it on under Integrations.', 'nestform' ),
+			),
 		);
 	}
 
@@ -123,8 +129,25 @@ class Nestform_Promotion {
 			__( 'Does anything I have now change?', 'nestform' ) => __( 'No. Pro is a separate add-on: it extends the screens you already use. Your forms, entries, and settings stay as they are. Nestform (free) must stay active — Pro builds on it.', 'nestform' ),
 			__( 'Do I need a license key for the free plugin?', 'nestform' ) => __( 'No. There is no sign-up and no key in the free plugin. Licensing belongs only to Nestform Pro (Freemius) after purchase.', 'nestform' ),
 			__( 'What happens if I stop paying?', 'nestform' ) => __( 'Your data is never deleted. Pro features stop applying until you activate again — then they return without rebuilding forms.', 'nestform' ),
-			__( 'How do I activate Pro?', 'nestform' ) => __( 'Buy via Freemius checkout, install the nestform-pro add-on, then activate under Forms → Account (or Forms → License).', 'nestform' ),
+			__( 'How do I activate Pro?', 'nestform' ) => __( 'Buy via Freemius checkout, install the nestform-pro add-on, then activate under Nestform → Account (or Nestform → License).', 'nestform' ),
+			__( 'Is Agency a different product?', 'nestform' ) => __( 'No. Agency includes the same Pro features, including optional Recruiting. The license covers up to 5 sites instead of 1.', 'nestform' ),
 		);
+	}
+
+	/**
+	 * Old Pro links must not land on an unregistered admin screen.
+	 */
+	public static function redirect_hidden_page() {
+		if ( ! is_admin() || self::should_promote() ) {
+			return;
+		}
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( self::PAGE_SLUG !== $page ) {
+			return;
+		}
+		$post_type = class_exists( 'Nestform_Post_Type' ) ? Nestform_Post_Type::POST_TYPE : 'nestform';
+		wp_safe_redirect( admin_url( 'edit.php?post_type=' . $post_type ) );
+		exit;
 	}
 
 	public static function register_menu() {
@@ -155,7 +178,7 @@ class Nestform_Promotion {
 			nestform_render_page_head(
 				array(
 					'title'        => __( 'Nestform Pro', 'nestform' ),
-					'description'  => __( 'Everything in Nestform is free and unlimited. Pro is a separate add-on for multi-step flows, quizzes, and deeper analytics.', 'nestform' ),
+					'description'  => __( 'Everything in Nestform is free and unlimited. Pro adds multi-step forms, quizzes, payments, and optional Recruiting. Agency is that same set on up to 5 sites.', 'nestform' ),
 					'icon'         => 'pro',
 					'actions_html' => '<a class="nestform-btn nestform-btn--primary" href="' . esc_url( $store ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'View plans (Freemius)', 'nestform' ) . '</a>',
 				)
@@ -168,7 +191,7 @@ class Nestform_Promotion {
 						<?php esc_html_e( 'Nestform Pro', 'nestform' ); ?>
 					</span>
 					<h2 class="nestform-upgrade__title"><?php esc_html_e( 'Forms, quizzes & surveys that convert', 'nestform' ); ?></h2>
-					<p class="nestform-upgrade__lead"><?php esc_html_e( 'Purchase via Freemius checkout, install the nestform-pro add-on, then activate under Forms → Account.', 'nestform' ); ?></p>
+					<p class="nestform-upgrade__lead"><?php esc_html_e( 'Purchase via Freemius checkout, install the nestform-pro add-on, then activate under Nestform → Account. Agency is the same feature set on up to 5 sites.', 'nestform' ); ?></p>
 					<div class="nestform-upgrade__billing" data-nestform-billing>
 						<button type="button" class="nestform-upgrade__bill is-active" data-plan="monthly"><?php esc_html_e( 'Monthly', 'nestform' ); ?></button>
 						<button type="button" class="nestform-upgrade__bill" data-plan="yearly"><?php esc_html_e( 'Yearly', 'nestform' ); ?></button>
@@ -219,7 +242,7 @@ class Nestform_Promotion {
 
 				<div class="nestform-admin__surface nestform-pro-bought-card">
 					<h3 class="nestform-pro-bought-card__title"><?php esc_html_e( 'Already bought it?', 'nestform' ); ?></h3>
-					<p><?php esc_html_e( 'Install nestform-pro under Plugins → Add Plugin → Upload Plugin, activate it, then open Forms → Account (or Forms → License) to activate your Freemius license. Keep Nestform (free) active — Pro is an add-on, not a replacement.', 'nestform' ); ?></p>
+					<p><?php esc_html_e( 'Install nestform-pro under Plugins → Add Plugin → Upload Plugin, activate it, then open Nestform → Account (or Nestform → License) to activate your Freemius license. Keep Nestform (free) active — Pro is an add-on, not a replacement.', 'nestform' ); ?></p>
 				</div>
 
 				<p class="nestform-upgrade__trust nestform-pro-note">
@@ -257,6 +280,9 @@ class Nestform_Promotion {
 	 * @param array{title?:string,copy?:string,cta?:string,url?:string,compact?:bool} $args Teaser copy.
 	 */
 	public static function render_feature_teaser( array $args = array() ) {
+		if ( ! self::should_promote() ) {
+			return;
+		}
 		$title = isset( $args['title'] ) ? (string) $args['title'] : __( 'Nestform Pro', 'nestform' );
 		$copy  = array_key_exists( 'copy', $args ) ? (string) $args['copy'] : self::summary();
 		$cta   = isset( $args['cta'] ) ? (string) $args['cta'] : __( 'See Nestform Pro', 'nestform' );

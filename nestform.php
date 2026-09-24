@@ -7,7 +7,6 @@
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Nestform
- * Author URI: https://nestform.app
  * Text Domain: nestform
  * Domain Path: /languages
  * License: GPLv2 or later
@@ -404,13 +403,6 @@ function nestform_render_app_open( $current ) {
 			'url'   => ( $can_manage_opts && class_exists( 'Nestform_Settings' ) ) ? Nestform_Settings::url() : '',
 			'icon'  => 'settings',
 			'group' => 'primary',
-		),
-		array(
-			'id'    => 'developers',
-			'label' => __( 'Developers', 'nestform' ),
-			'url'   => ( $can_edit_posts && class_exists( 'Nestform_Developers' ) ) ? Nestform_Developers::url() : '',
-			'icon'  => 'developers',
-			'group' => 'tools',
 		),
 		array(
 			'id'    => 'import',

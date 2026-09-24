@@ -620,7 +620,7 @@ class Nestform_Admin_UI {
 													<?php endforeach; ?>
 												</div>
 											</div>
-										<?php elseif ( class_exists( 'Nestform_Promotion' ) ) : ?>
+										<?php elseif ( class_exists( 'Nestform_Promotion' ) && Nestform_Promotion::should_promote() ) : ?>
 											<?php
 											$pro_teaser_labels = array_values(
 												array_slice(

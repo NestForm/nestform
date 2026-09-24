@@ -32,40 +32,25 @@ Nestform is a form builder for lead capture and feedback.
 **Spam & embed**
 
 * Honeypot, time trap, rate limit, optional Akismet
-* Google reCAPTCHA v2/v3 via **Forms → Integrations**
+* Google reCAPTCHA v2/v3 via **Nestform → Integrations**
 * Gutenberg block and shortcode `[nestform id="123"]`
 
 **Admin**
 
 * Dashboard with submission charts
 * Light / dark admin theme
-* **Developers** screen with hooks and filters
 
-**Optional Nestform Pro** is a **separate add-on** (`nestform-pro`), sold via Freemius and hosted outside the WordPress.org directory. Premium code is not included in this download. It adds multi-step flows, quizzes and surveys, Stripe payments, HubSpot sync, advanced fields, HTML email, PDF attachments, automations, and richer analytics. Compare features under **Forms → Pro**.
+**Optional Nestform Pro** is a **separate add-on** (`nestform-pro`), sold via Freemius and hosted outside the WordPress.org directory. Premium code is not included in this download. It adds multi-step flows, quizzes and surveys, Stripe payments, HubSpot sync, advanced fields, HTML email, PDF attachments, automations, and richer analytics. Compare features under **Nestform → Pro**.
 
 == Installation ==
 
 1. Upload the plugin to `/wp-content/plugins/nestform/` or install from the WordPress plugins screen.
 2. Activate **Nestform** through the **Plugins** menu.
-3. Open **Forms** in the admin menu to create your first form.
+3. Open **Nestform** in the admin menu to create your first form.
 4. Embed with the Gutenberg block or shortcode `[nestform id="123"]`.
-5. Documentation: [nestform.app/docs](https://nestform.app/docs). Hooks live under **Forms → Developers**.
-6. Source and build tools: [github.com/NestForm/nestform-free](https://github.com/NestForm/nestform-free). From the plugin root run `npm run build`, then `python bin/build-release.py`.
+5. Documentation and hooks: [nestform.app/docs](https://nestform.app/docs).
 
-For Pro features, install the `nestform-pro` add-on from Freemius checkout / your purchase email, then activate the license under **Forms → Account** or **Forms → License**.
-
-== Source ==
-
-Human-readable PHP ships in this plugin. CSS and JS are built from sources in the same GitHub repository:
-
-https://github.com/NestForm/nestform-free
-
-```
-npm run build
-python bin/build-release.py
-```
-
-The WordPress.org zip contains compiled `*.min.js` and bundled CSS. Edit the sources in that repo, then rebuild.
+For Pro features, install the `nestform-pro` add-on from Freemius checkout / your purchase email, then activate the license under **Nestform → Account** or **Nestform → License**.
 
 == Frequently Asked Questions ==
 
@@ -75,7 +60,7 @@ No. This is the free plugin. Nestform Pro is a separate add-on purchased via Fre
 
 = How do I activate Pro after purchase? =
 
-Install **Nestform Pro**, then open **Forms → Account** (or **Forms → License**) and activate your Freemius license on this site.
+Install **Nestform Pro**, then open **Nestform → Account** (or **Nestform → License**) and activate your Freemius license on this site.
 
 = How many forms can I create? =
 
@@ -83,11 +68,15 @@ Unlimited on the free plugin. Pro adds builder features (multi-step, quizzes, ad
 
 = Does Nestform store submissions? =
 
-Yes. Submissions appear under **Forms → Entries**. You can export CSV and print a single entry.
+Yes. Submissions appear under **Nestform → Entries**. You can export CSV and print a single entry.
 
 = Does Nestform add branding to my public site? =
 
-No. Nestform does not inject “powered by” links or credits on front-end forms unless you add them yourself.
+No. A “Powered by Nestform” link stays off unless you turn it on under **Nestform → Settings**.
+
+= Where can I read the source? =
+
+The PHP in this download is the source. CSS and JavaScript are built from the files on GitHub: [github.com/NestForm/nestform-free](https://github.com/NestForm/nestform-free). From that project, `npm run build` rebuilds the assets.
 
 == External services ==
 
@@ -102,21 +91,21 @@ This plugin can connect to optional third-party services configured by the site 
 **Google reCAPTCHA** (optional)
 
 * Used for: spam protection on forms.
-* When: after you save site and secret keys under **Forms → Integrations**.
+* When: after you save site and secret keys under **Nestform → Integrations**.
 * Data sent: challenge response tokens and related anti-spam data per [Google's policies](https://policies.google.com/privacy).
 * Terms: https://policies.google.com/terms
 
 **Cloudflare Turnstile** (optional)
 
 * Used for: spam protection on forms (alternative captcha provider).
-* When: after you choose Turnstile and save site/secret keys under **Forms → Integrations**.
+* When: after you choose Turnstile and save site/secret keys under **Nestform → Integrations**.
 * Data sent: challenge tokens to Cloudflare per [Cloudflare's policies](https://www.cloudflare.com/privacypolicy/).
 * Terms: https://www.cloudflare.com/website-terms/
 
 **hCaptcha** (optional)
 
 * Used for: spam protection on forms (alternative captcha provider).
-* When: after you choose hCaptcha and save site/secret keys under **Forms → Integrations**.
+* When: after you choose hCaptcha and save site/secret keys under **Nestform → Integrations**.
 * Data sent: challenge tokens to hCaptcha per [hCaptcha's policies](https://www.hcaptcha.com/privacy).
 * Terms: https://www.hcaptcha.com/terms
 
@@ -130,7 +119,7 @@ This plugin can connect to optional third-party services configured by the site 
 **Stripe** (optional — Nestform Pro payment fields)
 
 * Used for: accepting card payments on forms that include a Payment field.
-* When: after you enable Stripe and save API keys under **Forms → Integrations**, enable Stripe on the form, and add a Payment field (requires Nestform Pro).
+* When: after you enable Stripe and save API keys under **Nestform → Integrations**, enable Stripe on the form, and add a Payment field (requires Nestform Pro).
 * Data sent: payment amounts, currency, and payment intent metadata to Stripe; card details go directly to Stripe (never through Nestform servers).
 * Terms: https://stripe.com/legal
 * Privacy: https://stripe.com/privacy
@@ -138,7 +127,7 @@ This plugin can connect to optional third-party services configured by the site 
 **HubSpot** (optional — Nestform Pro)
 
 * Used for: creating or updating HubSpot CRM contacts from form submissions.
-* When: after you enable HubSpot and save a Private App access token under **Forms → Integrations**, enable HubSpot on the form, map fields, and Nestform Pro is licensed.
+* When: after you enable HubSpot and save a Private App access token under **Nestform → Integrations**, enable HubSpot on the form, map fields, and Nestform Pro is licensed.
 * Data sent: mapped contact properties (typically email, name, phone, company) to HubSpot’s CRM API.
 * Terms: https://legal.hubspot.com/terms-of-service
 * Privacy: https://legal.hubspot.com/privacy-policy
@@ -170,7 +159,7 @@ The phone country picker uses self-hosted SVG flags from [flag-icons](https://gi
 = 2.3.2 =
 * Entries hub: optional All / Forms / Jobs kind filters via `nestform_entries_kind_filters` and `nestform_entries_hub_query_args` (form_ids / exclude_form_ids).
 * Sharper dashboard charts (no forced canvas stretch on retina).
-* WordPress.org prep: Freemius checkout copy, clearer Free plugin description, screenshots.
+* Clearer description and screenshots of the free plugin.
 
 = 2.3.1 =
 * Addon hooks: `nestform_accessible_form_ids`, `nestform_user_can_manage_form_entries`, `nestform_templates`, `nestform_template_applied`, `nestform_entry_meta_after`.
@@ -181,7 +170,7 @@ The phone country picker uses self-hosted SVG flags from [flag-icons](https://gi
 * Top forms rail replaces Status mix; Recent activity uses a normal panel frame.
 * Quick actions are visible secondary buttons (New form, Forms/Export, Integrations).
 * Developers docs: `nestform_dashboard_work_pulse_extra` filter.
-* WordPress.org: Tested up to 7.1; document Turnstile, hCaptcha, and Akismet under External services; load text domain on boot.
+* Tested up to WordPress 7.1. Turnstile, hCaptcha, and Akismet are described under External services.
 * Smoke checks via `npm test`.
 
 = 2.2.1 =
@@ -196,7 +185,7 @@ The phone country picker uses self-hosted SVG flags from [flag-icons](https://gi
 * Pro add-on: Freemius license activation.
 * Admin preview submits no longer create entries.
 * In-app **Pro** page and **Developers** reference.
-* WordPress.org compliance: premium runtime ships in Nestform Pro add-on only.
+* Nestform Pro is a separate add-on and is not part of this download.
 
 == Upgrade Notice ==
 

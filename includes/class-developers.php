@@ -14,9 +14,22 @@ class Nestform_Developers {
 	const PAGE_SLUG = 'nestform-developers';
 
 	public static function init() {
-		add_action( 'admin_menu', array( __CLASS__, 'menu' ), 50 );
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'assets' ) );
-		add_filter( 'admin_body_class', array( __CLASS__, 'admin_body_class' ) );
+		add_action( 'admin_init', array( __CLASS__, 'redirect_legacy_page' ) );
+	}
+
+	/**
+	 * Old in-admin reference now lives on the public docs site.
+	 */
+	public static function redirect_legacy_page() {
+		if ( ! is_admin() ) {
+			return;
+		}
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( self::PAGE_SLUG !== $page ) {
+			return;
+		}
+		wp_safe_redirect( 'https://nestform.app/docs' );
+		exit;
 	}
 
 	/**

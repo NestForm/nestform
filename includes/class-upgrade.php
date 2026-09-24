@@ -68,21 +68,19 @@ class Nestform_Upgrade {
 
 		$pro_features = array(
 			__( 'Multi-step forms & branch rules', 'nestform' ),
-			__( 'Quizzes & surveys with scoring and result bands', 'nestform' ),
+			__( 'Quizzes & surveys with scoring, result bands, timers, and charts', 'nestform' ),
 			__( 'HTML email designer & PDF attachments', 'nestform' ),
 			__( 'Automations, calculated fields & repeaters', 'nestform' ),
-			__( 'Stripe payment fields on forms', 'nestform' ),
-			__( 'HubSpot contact sync on submit', 'nestform' ),
-			__( 'Advanced fields, analytics & lead insights', 'nestform' ),
+			__( 'Stripe payment fields', 'nestform' ),
+			__( 'HubSpot contact sync', 'nestform' ),
+			__( 'Rating, signature, NPS, and other advanced fields', 'nestform' ),
+			__( 'Conversion metrics & lead insights', 'nestform' ),
+			__( 'Optional Recruiting: jobs, recruiter inbox, and pipeline', 'nestform' ),
 		);
 
 		$agency_features = array(
 			__( 'Everything in Pro', 'nestform' ),
-			__( 'Priority support & onboarding', 'nestform' ),
-			__( 'Agency license for up to 5 client sites', 'nestform' ),
-			__( 'White-label ready workflows', 'nestform' ),
-			__( 'Early access to new integrations', 'nestform' ),
-			__( 'Volume pricing for teams', 'nestform' ),
+			__( 'Same features on up to 5 WordPress sites', 'nestform' ),
 		);
 
 		/**
@@ -124,7 +122,7 @@ class Nestform_Upgrade {
 				'agency' => array(
 					'id'                 => 'agency',
 					'name'               => __( 'Agency', 'nestform' ),
-					'tagline'            => __( 'For teams & client sites', 'nestform' ),
+					'tagline'            => __( 'Same features, up to 5 sites', 'nestform' ),
 					'price_monthly'      => '$29.99',
 					'price_yearly'       => '$269.99',
 					'price_unit_monthly' => __( '/ month', 'nestform' ),
@@ -384,7 +382,7 @@ class Nestform_Upgrade {
 		?>
 		<a class="nestform-app__pro" href="<?php echo esc_url( Nestform_Promotion::url() ); ?>">
 			<span class="nestform-app__pro-kicker"><?php echo nestform_admin_icon_html( 'pro' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG ?> <?php esc_html_e( 'Nestform Pro', 'nestform' ); ?></span>
-			<span class="nestform-app__pro-copy"><?php esc_html_e( 'Quizzes, multi-step flows, PDF, integrations, and lead insights.', 'nestform' ); ?></span>
+			<span class="nestform-app__pro-copy"><?php esc_html_e( 'Quizzes, multi-step flows, PDF, Stripe, HubSpot, and optional Recruiting.', 'nestform' ); ?></span>
 			<span class="nestform-pro-cta nestform-app__pro-cta"><?php esc_html_e( 'Learn more', 'nestform' ); ?></span>
 		</a>
 		<?php

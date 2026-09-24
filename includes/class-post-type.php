@@ -44,7 +44,7 @@ class Nestform_Post_Type {
 					'search_items'             => __( 'Search Forms', 'nestform' ),
 					'not_found'                => __( 'No forms found.', 'nestform' ),
 					'not_found_in_trash'       => __( 'No forms found in Trash.', 'nestform' ),
-					'menu_name'                => __( 'Forms', 'nestform' ),
+					'menu_name'                => __( 'Nestform', 'nestform' ),
 					'item_published'           => __( 'Form published.', 'nestform' ),
 					'item_published_privately' => __( 'Form published privately.', 'nestform' ),
 					'item_reverted_to_draft'   => __( 'Form reverted to draft.', 'nestform' ),

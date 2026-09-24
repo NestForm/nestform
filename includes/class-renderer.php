@@ -463,7 +463,7 @@ class Nestform_Renderer {
 				}
 				echo '</select>';
 				printf(
-					'<button type="button" class="select input nest-form-select__trigger nest-form__input" id="%1$s-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="%2$s" data-nest-form-select-trigger%3$s>',
+					'<button type="button" class="select input nest-form-select__trigger nest-form__input" id="%1$s-trigger" role="combobox" aria-autocomplete="none" aria-haspopup="listbox" aria-expanded="false" aria-controls="%2$s" data-nest-form-select-trigger%3$s>',
 					esc_attr( $id ),
 					esc_attr( $list_id ),
 					$req ? ' aria-required="true"' : ''

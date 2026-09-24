@@ -303,12 +303,22 @@ class Nestform_Upgrade {
 			$billing = 'monthly';
 		}
 
-		$plan_id = ( 'agency' === $plan ) ? 84776 : 84761;
-		$cycle   = ( 'yearly' === $billing ) ? 'annual' : 'monthly';
-		$url     = sprintf(
-			'https://checkout.freemius.com/mode/dialog/plugin/37981/plan/%d/licenses/1/%s/',
-			$plan_id,
-			$cycle
+		// Freemius plan IDs (not pricing IDs). Pricing packs: Pro 84761 / Agency 84776.
+		$plan_id    = ( 'agency' === $plan ) ? 63298 : 63282;
+		$pricing_id = ( 'agency' === $plan ) ? 84776 : 84761;
+		$licenses   = ( 'agency' === $plan ) ? 5 : 1;
+		$cycle      = ( 'yearly' === $billing ) ? 'annual' : 'monthly';
+		$url        = add_query_arg(
+			array(
+				'billing_cycle' => $cycle,
+				'pricing_id'    => $pricing_id,
+			),
+			sprintf(
+				'https://checkout.freemius.com/product/%d/plan/%d/licenses/%d/',
+				37981,
+				$plan_id,
+				$licenses
+			)
 		);
 
 		if ( 'agency' === $plan ) {

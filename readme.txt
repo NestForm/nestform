@@ -1,6 +1,6 @@
 === Nestform ===
 Contributors: nestform
-Tags: forms, contact form, lead generation, survey, email
+Tags: forms, contact form, lead generation, form builder, email
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
@@ -8,11 +8,11 @@ Stable tag: 2.3.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Build WordPress forms that convert — entries inbox, email notifications, spam protection, webhooks, and analytics.
+Build lead and contact forms with an entries inbox, email alerts, spam protection, and webhooks.
 
 == Description ==
 
-Nestform is a focused form builder for lead capture and feedback — not a Contact Form 7 clone.
+Nestform is a form builder for lead capture and feedback.
 
 **Builder**
 
@@ -201,7 +201,7 @@ The phone country picker uses self-hosted SVG flags from [flag-icons](https://gi
 == Upgrade Notice ==
 
 = 2.3.2 =
-Entries hub kind filters for Recruiting (All / Forms / Jobs), sharper dashboard charts, Freemius-ready Pro upsell copy and screenshots.
+Entries hub kind filters for Recruiting (All / Forms / Jobs), sharper dashboard charts, and directory screenshots of the free plugin.
 
 = 2.3.1 =
 Addon access hooks for Nestform HR and similar recruiting/ownership add-ons.

@@ -47,3 +47,10 @@ assets/**/*.map
 **/*.log
 vendor/
 vendor/freemius/
+# WordPress.org directory assets (SVN /assets only — not in plugin zip)
+.wordpress-org
+assets/banner-*.png
+assets/icon-128x128.png
+assets/icon-256x256.png
+assets/screenshot-*.png
+

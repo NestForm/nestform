@@ -1,93 +1,285 @@
 /**
- * Capture Nestform admin/front screenshots (Pro UI, no admin bar).
+ * Capture reproducible Nestform Free + Pro screenshots.
+ *
  * Credentials via env: NF_USER, NF_PASS
- * Optional: NF_BASE, NF_OUT, NF_BUILDER_ID, NF_PRO_FORM_ID
+ * Optional: NF_BASE, NF_OUT, NF_COPY_OUT, NF_BUILDER_ID, NF_PRO_FORM_ID
  */
 const { chromium } = require('playwright');
-const path = require('path');
 const fs = require('fs');
+const path = require('path');
 
 const BASE = process.env.NF_BASE || 'https://wordpress-custom.local';
 const USER = process.env.NF_USER;
 const PASS = process.env.NF_PASS;
 const OUT = process.env.NF_OUT || path.join(__dirname, '..', 'assets');
+const COPY_OUT = process.env.NF_COPY_OUT || '';
 const BUILDER_ID = process.env.NF_BUILDER_ID || '556';
 const PRO_FORM_ID = process.env.NF_PRO_FORM_ID || '756';
+const SHOT_FILTER = new Set(
+  (process.env.NF_SHOTS || '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean),
+);
 
 if (!USER || !PASS) {
   console.error('NF_USER and NF_PASS required');
   process.exit(1);
 }
 
+const admin = (route) => `${BASE}/wp-admin/${route}`;
+const builder = (id = BUILDER_ID) => admin(`post.php?post=${id}&action=edit`);
+
 const CHROME_CSS = `
-  #wpadminbar { display: none !important; visibility: hidden !important; height: 0 !important; }
-  html.wp-toolbar { padding-top: 0 !important; }
-  html { margin-top: 0 !important; padding-top: 0 !important; }
-  body.admin-bar { margin-top: 0 !important; padding-top: 0 !important; }
-  body.admin-bar #wpcontent,
-  body.admin-bar #wpbody,
-  body.admin-bar #wpbody-content { padding-top: 0 !important; margin-top: 0 !important; }
-  #wpwrap, #wpcontent { margin-top: 0 !important; padding-top: 0 !important; }
-  .nestform-app {
-    height: 100vh !important;
-    min-height: 100vh !important;
-  }
-  body.admin-bar .nestform-app,
-  body.admin-bar.nestform-app-screen .nestform-app {
-    height: 100vh !important;
-    min-height: 100vh !important;
-  }
+  #wpadminbar,
+  #wpfooter,
   .fs-notice,
   .notice,
   .update-nag,
-  #wpfooter,
-  .nestform-review-request { display: none !important; }
+  .nestform-app__pro,
+  .nestform-pro-teaser,
+  .nestform-review-request { display: none !important; visibility: hidden !important; }
+  html.wp-toolbar,
+  html,
+  body.admin-bar,
+  body.admin-bar #wpcontent,
+  body.admin-bar #wpbody,
+  body.admin-bar #wpbody-content,
+  #wpwrap,
+  #wpcontent { margin-top: 0 !important; padding-top: 0 !important; }
+  .nestform-app { min-height: 100vh !important; }
 `;
 
-const shots = [
+async function click(page, selector) {
+  const locator = page.locator(selector).first();
+  if (!(await locator.count())) {
+    throw new Error(`Missing control: ${selector}`);
+  }
+  await locator.click();
+  await page.waitForTimeout(350);
+}
+
+async function builderTab(page, tab, subtab = '') {
+  await click(page, `[data-nestform-tab="${tab}"]`);
+  if (subtab) {
+    await click(page, `[data-nestform-subtab="${subtab}"]`);
+  }
+}
+
+async function openDetails(page, selector) {
+  const locator = page.locator(selector).first();
+  if (!(await locator.count())) {
+    throw new Error(`Missing details: ${selector}`);
+  }
+  await locator.evaluate((element) => {
+    element.open = true;
+  });
+  await page.waitForTimeout(250);
+}
+
+async function openFirstField(page) {
+  const field = page.locator('[data-nestform-field]:not([data-field-type="heading"]):not([data-field-type="paragraph"]):not([data-field-type="spacer"])').first();
+  if (!(await field.count())) {
+    throw new Error('No editable field card found');
+  }
+  const body = field.locator('[data-nestform-card-body]');
+  if (await body.isHidden()) {
+    await field.locator('[data-nestform-toggle]').first().click();
+    await page.waitForTimeout(250);
+  }
+  return field;
+}
+
+async function openMoreFields(page) {
+  await click(page, '[data-nestform-add-menu="more"] [data-nestform-add-menu-toggle]');
+}
+
+const overviewShots = [
   {
     file: 'screenshot-1.png',
-    url: `${BASE}/wp-admin/edit.php?post_type=nestform&page=nestform-dashboard`,
-    wait: 2800,
-    scrubPii: true,
+    url: admin('edit.php?post_type=nestform&page=nestform-dashboard'),
+    target: '.nestform-dash',
   },
   {
     file: 'screenshot-2.png',
-    url: `${BASE}/wp-admin/edit.php?post_type=nestform`,
-    wait: 2200,
-    scrubPii: true,
+    url: admin('edit.php?post_type=nestform'),
+    target: '.nestform-app, #wpbody-content',
   },
   {
     file: 'screenshot-3.png',
-    url: `${BASE}/wp-admin/post.php?post=${BUILDER_ID}&action=edit`,
-    wait: 3800,
-    scrubPii: true,
+    url: builder(),
+    target: '[data-nestform-admin]',
   },
   {
     file: 'screenshot-4.png',
-    url: `${BASE}/wp-admin/edit.php?post_type=nestform&page=nestform-entries`,
-    wait: 2800,
-    scrubPii: true,
+    url: admin('edit.php?post_type=nestform&page=nestform-entries'),
+    target: '.nestform-entries, #wpbody-content',
   },
   {
     file: 'screenshot-5.png',
     url: `${BASE}/#support`,
-    wait: 3500,
+    target: '[data-block="nestform-support"], .nestform-support',
     front: true,
   },
+];
+
+const documentationShots = [
   {
-    file: 'screenshot-6.png',
-    url: `${BASE}/wp-admin/edit.php?post_type=nestform&page=nestform-integrations`,
-    wait: 2500,
-    scrubPii: true,
+    file: 'docs/forms-new-form.png',
+    url: admin('edit.php?post_type=nestform'),
+    target: '.nestform-app, #wpbody-content',
   },
   {
-    file: 'screenshot-7.png',
-    url: `${BASE}/wp-admin/post.php?post=${PRO_FORM_ID}&action=edit`,
-    wait: 3800,
-    scrubPii: true,
+    file: 'docs/builder-fields.png',
+    url: builder(),
+    target: '[data-nestform-panel="fields"]',
+    prepare: async (page) => {
+      await builderTab(page, 'fields');
+      await openFirstField(page);
+    },
+  },
+  {
+    file: 'docs/conditional-logic.png',
+    url: builder(),
+    target: '[data-nestform-field]:has([data-nestform-section="condition"][open])',
+    prepare: async (page) => {
+      await builderTab(page, 'fields');
+      const field = await openFirstField(page);
+      await openDetails(page, '[data-nestform-field]:not([data-field-type="heading"]):not([data-field-type="paragraph"]):not([data-field-type="spacer"]) [data-nestform-section="condition"]');
+      await field.scrollIntoViewIfNeeded();
+    },
+  },
+  {
+    file: 'docs/publish-embed.png',
+    url: builder(),
+    target: '.nestform-editor__sidebar, .nestform-embed',
+  },
+  {
+    file: 'docs/entries-inbox.png',
+    url: admin('edit.php?post_type=nestform&page=nestform-entries'),
+    target: '.nestform-entries, #wpbody-content',
+  },
+  {
+    file: 'docs/export-controls.png',
+    url: admin(`edit.php?post_type=nestform_entry&nestform_form_id=${BUILDER_ID}`),
+    target: '.nestform-app__main',
+    prepare: async (page) => click(page, '.nestform-export-menu__toggle'),
+  },
+  {
+    file: 'docs/mail-settings.png',
+    url: builder(),
+    target: '[data-nestform-panel="mail"]',
+    prepare: async (page) => builderTab(page, 'mail', 'notification'),
+  },
+  {
+    file: 'docs/security-settings.png',
+    url: admin('edit.php?post_type=nestform&page=nestform-settings&section=security'),
+    target: '.nestform-settings__main',
+  },
+  {
+    file: 'docs/captcha-integrations.png',
+    url: admin('edit.php?post_type=nestform&page=nestform-integrations&section=captcha'),
+    target: '.nestform-settings__main, .nestform-captcha-integ',
+  },
+  {
+    file: 'docs/webhooks.png',
+    url: builder(),
+    target: '[data-nestform-subpanel="webhooks"]',
+    prepare: async (page) => builderTab(page, 'settings', 'webhooks'),
+  },
+  {
+    file: 'docs/dashboard.png',
+    url: admin('edit.php?post_type=nestform&page=nestform-dashboard'),
+    target: '.nestform-dash',
+  },
+  {
+    file: 'docs/license.png',
+    url: admin('edit.php?post_type=nestform&page=nestform-pro-license'),
+    target: '.nestform-license__shell, .nestform-app__main',
+  },
+  {
+    file: 'docs/multi-step-branching.png',
+    url: builder(PRO_FORM_ID),
+    target: '[data-nestform-steps-setup]',
+    prepare: async (page) => {
+      await builderTab(page, 'fields');
+      const toggle = page.locator('[data-nestform-enable-steps]').first();
+      if (!(await toggle.isChecked())) {
+        await toggle.check({ force: true });
+        await page.waitForTimeout(450);
+      }
+      await openDetails(page, '[data-nestform-steps-branch]');
+    },
+  },
+  {
+    file: 'docs/quiz-survey.png',
+    url: builder(PRO_FORM_ID),
+    target: '[data-nestform-subpanel="quiz"]',
+    prepare: async (page) => builderTab(page, 'settings', 'quiz'),
+  },
+  {
+    file: 'docs/advanced-fields.png',
+    url: builder(PRO_FORM_ID),
+    target: '[data-nestform-add-menu="more"] [data-nestform-add-menu-panel]',
+    prepare: async (page) => {
+      await builderTab(page, 'fields');
+      await openMoreFields(page);
+      await page.locator('[data-nestform-add-menu="more"] [data-nestform-add-menu-panel]').evaluate((panel) => {
+        panel.scrollTop = panel.scrollHeight;
+      });
+    },
+  },
+  {
+    file: 'docs/automations.png',
+    url: builder(PRO_FORM_ID),
+    target: '[data-nestform-subpanel="automations"]',
+    prepare: async (page) => builderTab(page, 'settings', 'automations'),
+  },
+  {
+    file: 'docs/stripe-payments.png',
+    url: builder(PRO_FORM_ID),
+    target: '[data-nestform-subpanel="payments"]',
+    prepare: async (page) => builderTab(page, 'settings', 'payments'),
+  },
+  {
+    file: 'docs/hubspot.png',
+    url: builder(PRO_FORM_ID),
+    target: '[data-nestform-subpanel="hubspot"]',
+    prepare: async (page) => builderTab(page, 'settings', 'hubspot'),
+  },
+  {
+    file: 'docs/html-email-pdf.png',
+    url: builder(PRO_FORM_ID),
+    target: '[data-nestform-mail-designer]',
+    prepare: async (page) => builderTab(page, 'mail', 'notification'),
+  },
+  {
+    file: 'docs/insights.png',
+    url: admin('edit.php?post_type=nestform&page=nestform-dashboard'),
+    target: '[data-nestform-lead-insights], [data-nestform-survey-charts-root], .nestform-dash',
+  },
+  {
+    file: 'docs/recruiting.png',
+    url: admin('edit.php?post_type=nestform&page=nestform-recruiting'),
+    target: '[data-nestform-hr-charts], .nestform-hr-dash, #wpbody-content',
   },
 ];
+
+const allShots = [...overviewShots, ...documentationShots];
+const shots = allShots.filter(
+  (shot) => SHOT_FILTER.size === 0 || SHOT_FILTER.has(shot.file),
+);
+
+function mirrorScreenshot(target, file) {
+  if (!COPY_OUT || file.startsWith('docs/')) return;
+  const mirror = path.join(COPY_OUT, file);
+  fs.mkdirSync(path.dirname(mirror), { recursive: true });
+  fs.copyFileSync(target, mirror);
+}
+
+async function hideChrome(page) {
+  await page.addStyleTag({ content: CHROME_CSS }).catch(() => {});
+}
 
 async function scrubPii(page) {
   await page.evaluate(() => {
@@ -100,50 +292,104 @@ async function scrubPii(page) {
       ['Riley Quinn', 'riley@example.com'],
       ['Jamie Ortiz', 'jamie@example.com'],
       ['Drew Patel', 'drew@example.com'],
-      ['Morgan Blake', 'morgan@example.com'],
-      ['Avery Kim', 'avery@example.com'],
-      ['Cameron Diaz', 'cameron@example.com'],
-      ['Reese Park', 'reese@example.com'],
-      ['Skyler Ng', 'skyler@example.com'],
-      ['Peyton Shaw', 'peyton@example.com'],
-      ['Harper Cole', 'harper@example.com'],
-      ['Quinn Hayes', 'quinn@example.com'],
-      ['Rowan Bailey', 'rowan@example.com'],
-      ['Finley Cruz', 'finley@example.com'],
-      ['Emerson Day', 'emerson@example.com'],
-      ['Parker West', 'parker@example.com'],
     ];
-    let i = 0;
-    const next = () => demos[i++ % demos.length];
-    const emailRe = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
+    let index = 0;
+    const next = () => demos[index++ % demos.length];
+    const emailPattern = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
+    const localDomainPattern = /(?:https?:\/\/)?(?:www\.)?wordpress-custom\.local(?:\/[^\s<]*)?/gi;
+    const sensitivePattern = /(license|secret|api[\s_-]?key|private[\s_-]?key|token)/i;
+
+    document.querySelectorAll('.nestform-dash__card, .nestform-entries__row').forEach((row) => {
+      const demo = next();
+      row.querySelectorAll('.nestform-dash__card-who, .nestform-entries__who').forEach((node) => {
+        node.textContent = demo[0];
+      });
+      row.querySelectorAll('.nestform-dash__card-email, .nestform-entries__email').forEach((node) => {
+        node.textContent = demo[1];
+      });
+      row.setAttribute('data-nestform-scrubbed', '1');
+    });
+
+    document.querySelectorAll('input, textarea').forEach((input) => {
+      const descriptor = `${input.name || ''} ${input.id || ''} ${input.placeholder || ''}`;
+      if (input.type === 'email' || emailPattern.test(input.value || '')) {
+        input.value = next()[1];
+      } else if (input.type === 'url' || localDomainPattern.test(input.value || '')) {
+        input.value = 'https://hooks.example.com/nestform';
+      } else if (input.type === 'password' || sensitivePattern.test(descriptor)) {
+        input.value = '••••••••••••••••';
+      }
+      emailPattern.lastIndex = 0;
+      localDomainPattern.lastIndex = 0;
+    });
 
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     const nodes = [];
-    let n;
-    while ((n = walker.nextNode())) nodes.push(n);
+    let node;
+    while ((node = walker.nextNode())) nodes.push(node);
     nodes.forEach((textNode) => {
-      const raw = textNode.nodeValue || '';
-      if (!raw.includes('@')) return;
-      emailRe.lastIndex = 0;
-      if (!emailRe.test(raw)) return;
-      emailRe.lastIndex = 0;
-      const demo = next();
-      textNode.nodeValue = raw.replace(emailRe, demo[1]);
+      if (textNode.parentElement?.closest('[data-nestform-scrubbed]')) return;
+      let value = textNode.nodeValue || '';
+      value = value.replace(emailPattern, 'alex@example.com');
+      value = value.replace(localDomainPattern, 'example.com');
+      textNode.nodeValue = value;
     });
 
-    const contactCells = document.querySelectorAll(
-      'td[data-colname="Contact"], td.column-contact, table tbody tr td:nth-child(2)'
-    );
-    contactCells.forEach((cell) => {
-      const demo = next();
-      cell.innerHTML = `<strong>${demo[0]}</strong><br><span>${demo[1]}</span>`;
+    document.querySelectorAll('[class*="license-key"], [data-license-key]').forEach((node) => {
+      if (node instanceof HTMLInputElement || node instanceof HTMLTextAreaElement) {
+        node.value = '••••••••••••••••';
+      } else {
+        node.textContent = '••••••••••••••••';
+      }
+    });
+
+    document.querySelectorAll('.nestform-dash__domains-name').forEach((node, itemIndex) => {
+      node.textContent = itemIndex === 0 ? 'example.com' : `demo-${itemIndex + 1}.example`;
+    });
+    document.querySelectorAll('.nestform-entries-insights__value').forEach((node) => {
+      node.textContent = 'example.com';
+    });
+
+    document.querySelectorAll('tr').forEach((row) => {
+      const label = row.querySelector('th, td:first-child')?.textContent?.trim() || '';
+      const cells = row.querySelectorAll('td');
+      const value = cells.length > 1 ? cells[1] : cells[0];
+      if (!value) return;
+      if (/^Name:?$/i.test(label)) value.textContent = 'Alex Rivera';
+      if (/^(User ID|Site ID):?$/i.test(label)) value.textContent = '0000000';
+      if (/^(Public Key|Secret Key|License Key):?$/i.test(label)) value.textContent = '••••••••••••••••';
     });
   });
-  await page.waitForTimeout(400);
+  await page.waitForTimeout(250);
 }
 
-async function hideChrome(page) {
-  await page.addStyleTag({ content: CHROME_CSS }).catch(() => {});
+async function locateTarget(page, selector) {
+  for (const candidate of selector.split(',').map((item) => item.trim())) {
+    const locator = page.locator(candidate).first();
+    if ((await locator.count()) && (await locator.isVisible())) {
+      return locator;
+    }
+  }
+  throw new Error(`Missing screenshot target: ${selector}`);
+}
+
+async function captureTarget(page, shot, targetPath) {
+  const target = await locateTarget(page, shot.target);
+  await target.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(350);
+  const box = await target.boundingBox();
+  if (!box) throw new Error(`No screenshot bounds: ${shot.target}`);
+
+  const viewport = page.viewportSize();
+  const width = Math.min(Math.ceil(box.width), viewport.width - 32);
+  const height = Math.min(Math.ceil(box.height), viewport.height - 32);
+  const x = Math.max(0, Math.min(Math.floor(box.x), viewport.width - width));
+  const y = Math.max(0, Math.min(Math.floor(box.y), viewport.height - height));
+
+  await page.screenshot({
+    path: targetPath,
+    clip: { x, y, width, height },
+  });
 }
 
 (async () => {
@@ -151,7 +397,6 @@ async function hideChrome(page) {
   const browser = await chromium.launch({
     headless: true,
     channel: 'chrome',
-    ignoreHTTPSErrors: true,
   });
   const context = await browser.newContext({
     viewport: { width: 1440, height: 900 },
@@ -159,74 +404,58 @@ async function hideChrome(page) {
   });
   const page = await context.newPage();
 
-  const loginUrl = `${BASE}/login/`;
-  await page.goto(loginUrl, { waitUntil: 'networkidle', timeout: 90000 });
-  console.log('login page', page.url());
-  const userSel = (await page.locator('#auth-log').count()) ? '#auth-log' : '#user_login';
-  const passSel = (await page.locator('#auth-pwd').count()) ? '#auth-pwd' : '#user_pass';
-  const submitSel = (await page.locator('button.auth__submit, button[type="submit"]').count())
+  await page.goto(`${BASE}/login/`, { waitUntil: 'networkidle', timeout: 90000 });
+  const userSelector = (await page.locator('#auth-log').count()) ? '#auth-log' : '#user_login';
+  const passSelector = (await page.locator('#auth-pwd').count()) ? '#auth-pwd' : '#user_pass';
+  const submitSelector = (await page.locator('button.auth__submit, button[type="submit"]').count())
     ? 'button.auth__submit, button[type="submit"]'
     : '#wp-submit';
-  await page.fill(userSel, USER);
-  await page.fill(passSel, PASS);
+  await page.fill(userSelector, USER);
+  await page.fill(passSelector, PASS);
   await Promise.all([
     page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 60000 }),
-    page.click(submitSel),
+    page.click(submitSelector),
   ]);
 
   if (page.url().includes('/login') || page.url().includes('wp-login.php')) {
-    const err = await page
-      .locator('.auth__error, #login_error, .notice-error')
-      .textContent()
-      .catch(() => 'login failed');
-    console.error(String(err || 'login failed'), page.url());
-    await page.screenshot({ path: path.join(OUT, '_login-debug.png'), fullPage: true });
-    await browser.close();
-    process.exit(1);
+    throw new Error(`Login failed: ${page.url()}`);
   }
 
+  const manifest = [];
   for (const shot of shots) {
-    await page.goto(shot.url, { waitUntil: 'domcontentloaded', timeout: 60000 });
-    await page.waitForTimeout(shot.wait);
-    await hideChrome(page);
-    await page.waitForTimeout(300);
-
-    if (shot.front) {
-      await page.waitForTimeout(1800);
-      const support = page.locator('[data-block="nestform-support"], .nestform-support').first();
-      if (await support.count()) {
-        await support.scrollIntoViewIfNeeded();
-        await page.waitForTimeout(800);
-        const box = await support.boundingBox();
-        if (box) {
-          const target = path.join(OUT, shot.file);
-          await page.screenshot({
-            path: target,
-            clip: {
-              x: Math.max(0, box.x - 24),
-              y: Math.max(0, box.y - 24),
-              width: Math.min(box.width + 48, 1400),
-              height: Math.min(box.height + 48, 900),
-            },
-          });
-          console.log('saved', target);
-          continue;
-        }
-      }
-    }
-
-    if (shot.scrubPii) {
+    const targetPath = path.join(OUT, shot.file);
+    fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+    try {
+      await page.goto(shot.url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+      await page.waitForTimeout(shot.front ? 3500 : 1600);
+      await hideChrome(page);
+      if (shot.prepare) await shot.prepare(page);
       await scrubPii(page);
+      await captureTarget(page, shot, targetPath);
+      mirrorScreenshot(targetPath, shot.file);
+      manifest.push({ file: shot.file, url: shot.url, target: shot.target, status: 'captured' });
+      console.log('saved', targetPath);
+    } catch (error) {
+      manifest.push({ file: shot.file, url: shot.url, target: shot.target, status: 'skipped', error: error.message });
+      console.error('skipped', shot.file, error.message);
     }
-
-    const target = path.join(OUT, shot.file);
-    await page.screenshot({ path: target, fullPage: false });
-    console.log('saved', target);
   }
 
+  const manifestPath = path.join(__dirname, 'screenshot-manifest.json');
+  let manifestOutput = manifest;
+  if (SHOT_FILTER.size > 0 && fs.existsSync(manifestPath)) {
+    const previous = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const merged = new Map(previous.map((item) => [item.file, item]));
+    manifest.forEach((item) => merged.set(item.file, item));
+    manifestOutput = allShots.map((shot) => merged.get(shot.file)).filter(Boolean);
+  }
+  fs.writeFileSync(manifestPath, `${JSON.stringify(manifestOutput, null, 2)}\n`);
   await browser.close();
-  console.log('done');
-})().catch((e) => {
-  console.error(e);
+
+  const skipped = manifest.filter((item) => item.status !== 'captured');
+  console.log(`done: ${manifest.length - skipped.length} captured, ${skipped.length} skipped`);
+  if (skipped.length) process.exitCode = 2;
+})().catch((error) => {
+  console.error(error);
   process.exit(1);
 });

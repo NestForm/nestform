@@ -2,11 +2,11 @@
 /**
  * Plugin Name: Nestform
  * Plugin URI: https://nestform.app
- * Description: Build WordPress lead and contact forms with an entries inbox, email alerts, spam protection, webhooks, and analytics.
+ * Description: Build lead and contact forms with an entries inbox, email alerts, spam protection, and webhooks.
  * Version: 2.3.2
  * Requires at least: 6.0
  * Requires PHP: 7.4
- * Author: A.CH
+ * Author: Nestform
  * Author URI: https://nestform.app
  * Text Domain: nestform
  * Domain Path: /languages

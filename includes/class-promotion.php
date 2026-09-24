@@ -13,7 +13,7 @@ class Nestform_Promotion {
 
 	const PAGE_SLUG = 'nestform-pro';
 
-	const STORE_URL = 'https://checkout.freemius.com/mode/dialog/plugin/37981/plan/84761/licenses/1/monthly/';
+	const STORE_URL = 'https://checkout.freemius.com/product/37981/plan/63282/licenses/1/?billing_cycle=monthly&pricing_id=84761';
 
 	const DOCS_URL = 'https://nestform.app/docs';
 

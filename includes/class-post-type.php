@@ -160,10 +160,8 @@ class Nestform_Post_Type {
 	 */
 	public static function menu_icon_css() {
 		echo '<style id="nestform-menu-icon">'
-			. '#adminmenu .menu-icon-nestform .wp-menu-image img{padding:4px 0 0;width:20px;height:20px;object-fit:contain;opacity:1}'
-			. '#adminmenu .menu-icon-nestform:hover .wp-menu-image img,'
-			. '#adminmenu .menu-icon-nestform.current .wp-menu-image img,'
-			. '#adminmenu .menu-icon-nestform.wp-has-current-submenu .wp-menu-image img{opacity:1}'
+			. '#adminmenu .menu-icon-nestform .wp-menu-image,#adminmenu #menu-posts-nestform .wp-menu-image{width:36px;height:34px;overflow:hidden}'
+			. '#adminmenu .menu-icon-nestform .wp-menu-image img,#adminmenu #menu-posts-nestform .wp-menu-image img,#adminmenu .wp-menu-image img[src*="logo.webp"]{box-sizing:border-box;display:block;width:20px!important;height:20px!important;max-width:20px!important;max-height:20px!important;margin:7px auto 0;padding:0!important;object-fit:contain;opacity:1}'
 			. '</style>';
 	}
 

@@ -949,7 +949,7 @@ body.nestform-admin-screen
 }
 
 .nestform-upgrade__list {
-    margin: var(--nestform-space-4) 0 0;
+    margin: var(--nestform-space-4) 0;
     padding: 0;
     list-style: none;
 }
@@ -1017,7 +1017,7 @@ body.nestform-admin-screen
 .nestform-upgrade__cta {
     display: flex;
     width: 100%;
-    margin: var(--nestform-space-6) 0 0;
+    margin: auto 0 0;
     padding: var(--nestform-space-4) var(--nestform-space-4);
     border: 1px solid transparent;
     border-radius: var(--nestform-radius);

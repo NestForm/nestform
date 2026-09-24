@@ -358,7 +358,7 @@ body.nestform-app-screen.nestform-entries-screen.post-php
     min-height: var(--nestform-control-h);
     margin: 0;
     padding: var(--nestform-space-2) var(--nestform-space-4);
-    border: 1px solid var(--nestform-primary);
+    border: 1px solid var(--nestform-primary) !important;
     border-radius: var(--nestform-radius);
     background: var(--nestform-primary);
     color: var(--nestform-on-accent);
